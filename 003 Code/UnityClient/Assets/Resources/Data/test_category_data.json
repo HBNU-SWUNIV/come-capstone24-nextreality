@@ -1,0 +1,75 @@
+{
+    "result": [
+        {
+            "id": 1,
+            "categoryCode": "test1",
+            "categoryName": "테스트1",
+            "child": [
+                {
+                    "id": 2,
+                    "categoryCode": "testchild1",
+                    "categoryName": "테스트차일드1",
+                    "child": [
+                        {
+                            "id": 6,
+                            "categoryCode": "testchildchild1",
+                            "categoryName": "테스트차일드차일1"
+                        },
+                        {
+                            "id": 7,
+                            "categoryCode": "testchildchild2",
+                            "categoryName": "테스트차일드차일2"
+                        },
+                        {
+                            "id": 8,
+                            "categoryCode": "testchildchild3",
+                            "categoryName": "테스트차일드차일3"
+                        }
+                    ]
+                },
+                {
+                    "id": 3,
+                    "categoryCode": "testchild2",
+                    "categoryName": "테스트차일드2"
+                },
+                {
+                    "id": 4,
+                    "categoryCode": "testchild3",
+                    "categoryName": "테스트차일드3"
+                },
+                {
+                    "id": 5,
+                    "categoryCode": "testchild4",
+                    "categoryName": "테스트차일드4"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "categoryCode": "test2",
+            "categoryName": "테스트2",
+            "child": [
+                {
+                    "id": 10,
+                    "categoryCode": "testchild2_1",
+                    "categoryName": "테스트차일드2_1"
+                },
+                {
+                    "id": 11,
+                    "categoryCode": "testchild2_2",
+                    "categoryName": "테스트차일드2_2"
+                },
+                {
+                    "id": 12,
+                    "categoryCode": "testchild2_3",
+                    "categoryName": "테스트차일드2_3"
+                },
+                {
+                    "id": 13,
+                    "categoryCode": "testchild2_4",
+                    "categoryName": "테스트차일드2_4"
+                }
+            ]
+        }
+    ]
+}

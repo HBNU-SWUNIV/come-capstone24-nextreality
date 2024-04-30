@@ -1,0 +1,6 @@
+AssetCreate$userName;2024-04-12;2;3;0/0/0;0/0/0;1/1/1;true;false
+AssetCreate$userName;2024-04-12;3;4;10/0/10;0/0/0;1/1/1;true;false
+AssetCreate$userName;2024-04-12;5;5;20/0/20;0/0/0;1/1/1;true;false
+AssetCreate$userName;2024-04-12;7;6;30/0/30;0/0/0;1/1/1;true;false
+
+MapChange$userName;2024-04-15;0

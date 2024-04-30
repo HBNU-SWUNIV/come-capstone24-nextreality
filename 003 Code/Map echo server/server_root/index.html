@@ -1,0 +1,68 @@
+HTTP/1.1 200 OK
+date: Thu, 30 Nov 2023 14:08:34 GMT
+server: Apache
+set-cookie: TestCookie=test123
+set-cookie: TestExpiresCookie=expiresinanhour; expires=Thu, 30-Nov-2023 15:08:34 GMT; Max-Age=3600
+set-cookie: TestPathCookie=%2Fbooks; expires=Thu, 30-Nov-2023 15:08:34 GMT; Max-Age=3600; path=/books
+set-cookie: TestDomainCookie=domaintest; domain=.cafeaulait.org
+vary: Accept-Encoding
+content-style-type: text/css
+content-length: 907
+content-type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Query Results</title>
+</head>
+<body>
+
+<h1>Query Results</h1>
+
+<p>You submitted the following name/value pairs:</p>
+
+<ul>
+</ul>
+
+<p>
+The request included the following cookies:
+</p>
+
+<ul>
+<li>cookie1 = hanbat</li>
+<li>cookie2 = computer</li>
+</ul>
+
+<p>
+Here's the HTTP request header:
+</p>
+
+<pre>  
+HOST: www.cafeaulait.org
+COOKIE: cookie1=hanbat; cookie2=computer
+NAME: JunHyuk
+EMAIL: 20211901@edu.hanbat.ac.kr
+AGE: 22
+X_FORWARDED_PROTO: http
+X_FORWARDED_FOR: 121.183.165.192
+CONNECTION: close
+</pre>
+
+<p>
+Here's the complete body of the request:
+</p>
+
+<pre></pre>
+
+<hr />
+<p>Some links:</p>
+
+<a href="postquery.phtml">This Page</a>
+<a href="postquery2.phtml">Another Page</a>
+
+<hr />
+Last Modified July 25, 2004
+
+</body>
+</html>
