@@ -10,8 +10,6 @@ namespace NextReality.Game
 		float rotationX;
 		float rotationY;
 
-		bool cursorLock = true;
-
 		GameObject parentCharacter;
 		CharacterMove characterMove;
 
@@ -23,22 +21,12 @@ namespace NextReality.Game
 			characterMove = parentCharacter.GetComponent<CharacterMove>();
 		}
 
-		void Start()
-		{
-			CursorOnOff(true);
-		}
-
 		void Update()
 		{
-			if (cursorLock)
+			if (Managers.Camera.CursorLock)
 			{
 				CameraRotationY();
 				CameraRotationX();
-			}
-
-			if (Input.GetKeyDown(KeyCode.Tab))
-			{
-				CursorOnOff(!cursorLock);
 			}
 		}
 
@@ -67,22 +55,6 @@ namespace NextReality.Game
 			characterMove.CharacterRotationX(rotationX);
 		}
 
-		void CursorOnOff(bool _cursorLock)
-		{
-			// cursor on -> off
-			if (_cursorLock)
-			{
-				Cursor.visible = false;
-				Cursor.lockState = CursorLockMode.Locked;
-			}
-			// cursor off -> on
-			else
-			{
-				Cursor.visible = true;
-				Cursor.lockState = CursorLockMode.None;
-			}
-			cursorLock = _cursorLock;
-		}
 	}
 
 }

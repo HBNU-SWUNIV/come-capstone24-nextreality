@@ -1,3 +1,4 @@
+using NextReality.Data.Schema;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,17 +43,19 @@ namespace NextReality.Asset.UI
 		// Start is called before the first frame update
 		void Start()
 		{
+			coordinatesCanvas.worldCamera = Managers.Camera.UICamera;
+
 			this.posDirection.InitEvent(
-				 new ObjectTransformAction[3]{
+				new ObjectTransformAction[3]{
 					(targetItem, pointerData, isPointerIn) =>
 					{
 						this.PosDirectionEvent(DirectionType.X, Vector3.up, Vector3.forward, targetItem, pointerData.position, isPointerIn);
 					},
-				(targetItem, pointerData, isPointerIn) =>
+					(targetItem, pointerData, isPointerIn) =>
 					{
 						this.PosDirectionEvent(DirectionType.Y, Vector3.forward, Vector3.right, targetItem, pointerData.position, isPointerIn);
 					},
-				(targetItem, pointerData, isPointerIn) =>
+					(targetItem, pointerData, isPointerIn) =>
 					{
 						this.PosDirectionEvent(DirectionType.Z, Vector3.right, Vector3.up, targetItem, pointerData.position, isPointerIn);
 					}
@@ -90,18 +93,41 @@ namespace NextReality.Asset.UI
 				}
 				 }
 			);
+
+			this.posDirection.SetCoordinatesObject(this);
+			this.rotDirection.SetCoordinatesObject(this);
+			this.scaleDirection.SetCoordinatesObject(this);
 		}
+
+
+		Vector3 tempPosition;
+		Vector3 tempRotation;
+		Vector3 tempScale;
 
 		// Update is called once per frame
 		void Update()
 		{
 			UpdateLocation();
-		}
+
+			if (!targetTransformer.CustomObjectInterface.Position.Equals(tempPosition) || !targetTransformer.CustomObjectInterface.EulerAngles.Equals(tempRotation) || !targetTransformer.CustomObjectInterface.LocalScale.Equals(tempScale))
+			{
+                AssetMoveSchema schema = new AssetMoveSchema();
+                schema.objectId = targetTransformer.CustomObjectInterface.gameObject.name;
+                schema.position = targetTransformer.CustomObjectInterface.Position;
+                schema.rotation = targetTransformer.CustomObjectInterface.EulerAngles;
+                schema.scale = targetTransformer.CustomObjectInterface.LocalScale;
+                Managers.Network.SendMessage(schema.StringifyData());
+            } 
+            tempPosition = targetTransformer.CustomObjectInterface.Position;
+            tempRotation = targetTransformer.CustomObjectInterface.EulerAngles;
+            tempScale = targetTransformer.CustomObjectInterface.LocalScale;
+
+
+        }
 
 		private void PosDirectionEvent(DirectionType targetDirection, Vector3 upVector1, Vector3 upVector2, IDeformableObject targetItem, Vector2 mousePosition, bool isPointerIn)
 		{
-			if (posPlane == null) return;
-			if (this.curPosDirection != targetDirection || posPlane != null)
+			if (this.curPosDirection != targetDirection || posPlane == null)
 			{
 				this.curPosDirection = targetDirection;
 				this.posPlane = new Plane(FindClosestFacingVector(
@@ -184,6 +210,8 @@ namespace NextReality.Asset.UI
 			{
 				Quaternion addRotation = Quaternion.FromToRotation(prevHit.Value - targetItem.Position, curHit.Value - targetItem.Position);
 				targetItem.Rotation = addRotation * targetItem.Rotation;
+
+				//Debug.Log($"[ObjectTransformCursor] RotDirectionEvent {prevHit.Value}:{prevHit.Value}:{addRotation}");
 			}
 
 			//targetItem.CalibrateEulerAnglesByUnit(targetTransformer.RotCorrectedUnit);
@@ -194,7 +222,7 @@ namespace NextReality.Asset.UI
 
 		private void ScaleDirectionEvent(DirectionType targetDirection, Vector3 upVector1, Vector3 upVector2, IDeformableObject targetItem, Vector2 mousePosition, bool isPointerIn)
 		{
-			if (curScaleDirection != targetDirection || scalePlane.Equals(default(Plane)))
+			if (curScaleDirection != targetDirection || scalePlane == null)
 			{
 				curScaleDirection = targetDirection;
 				scalePlane = new Plane(targetItem.TransformDirection(FindClosestFacingVector(TargetCamera.transform.forward, upVector1, upVector2)), targetItem.Position);
@@ -280,9 +308,6 @@ namespace NextReality.Asset.UI
 		public void InitCoordinatesOrReset(ObjectTransformer targetTransformer = null)
 		{
 			this.targetTransformer = targetTransformer;
-			this.posDirection.SetCoordinatesObject(this);
-			this.rotDirection.SetCoordinatesObject(this);
-			this.scaleDirection.SetCoordinatesObject(this);
 
 			this.gameObject.SetActive(targetTransformer != null);
 		}

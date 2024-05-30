@@ -21,7 +21,7 @@ namespace NextReality.Asset.UI
 		protected override void RenderDirection()
 		{
 			Transform cameraTransform = CanvasCamera?.transform;
-			if (!cameraTransform || TargetObject != null) return;
+			if (cameraTransform == null || TargetObject == null) return;
 			Vector3 dirVector = cameraTransform.position - TargetObject.transform.position;
 
 			Vector3 curEulerAngles = quadrantX[0].transform.localEulerAngles;
@@ -118,48 +118,44 @@ namespace NextReality.Asset.UI
 			foreach (var direction in directions)
 			{
 
-				for (int i = 0; i < 3; i++)
+				direction.pointerDownAction = (data, direction) =>
 				{
-					direction.pointerDownAction = (data, direction) =>
+					foreach (var dir in directions)
 					{
-						foreach (var dir in directions)
-						{
-							dir.SetTranslucent(false);
-						}
-					};
-					direction.beginDragAction = (data, direction) =>
+						dir.SetTranslucent(false);
+					}
+				};
+				direction.beginDragAction = (data, direction) =>
+				{
+					foreach (var dir in directions)
 					{
-						foreach (var dir in directions)
-						{
-							dir.SetTranslucent(false);
-						}
-						this.Drag(data, actionEvent);
-					};
-					direction.dragAction = (data, direction) =>
+						dir.SetTranslucent(false);
+					}
+					this.Drag(data, actionEvent);
+				};
+				direction.dragAction = (data, direction) =>
+				{
+					foreach (var dir in directions)
 					{
-						foreach (var dir in directions)
-						{
-							dir.SetTranslucent(false);
-						}
-						this.Drag(data, actionEvent);
-					};
-					direction.endDragAction = (data, direction) =>
+						dir.SetTranslucent(false);
+					}
+					this.Drag(data, actionEvent);
+				};
+				direction.endDragAction = (data, direction) =>
+				{
+					foreach (var dir in directions)
 					{
-						foreach (var dir in directions)
-						{
-							dir.SetTranslucent(true);
-						}
-						this.Drag(data, actionEvent, false);
-					};
-					direction.pointerUpAction = (data, direction) =>
+						dir.SetTranslucent(true);
+					}
+					this.Drag(data, actionEvent, false);
+				};
+				direction.pointerUpAction = (data, direction) =>
+				{
+					foreach (var dir in directions)
 					{
-						foreach (var dir in directions)
-						{
-							dir.SetTranslucent(true);
-						}
-					};
-
-				}
+						dir.SetTranslucent(true);
+					}
+				};
 			}
 		}
 	}

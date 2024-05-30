@@ -33,7 +33,7 @@ namespace NextReality.Asset.UI
 		public void SetAsset(AssetItem item)
 		{
 			assetItem = item;
-			thumbnail.texture = item.thumbnail;
+			thumbnail.texture = item.thumbnail2D;
 		}
 
 		public void SetCusorPosition(Vector3 position)

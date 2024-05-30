@@ -23,12 +23,19 @@ namespace NextReality.Asset.UI
 
 				var prevQuickSlot = Array.Find(layout.QuickSlots, element => element != this && element.targetAssetItem != null && element.targetAssetItem == item);
 
+				bool anySlotEmpty = !Array.Exists(layout.QuickSlots, element => element.targetAssetItem != null);
+
 				if(prevQuickSlot != null)
 				{
 					prevQuickSlot.SetAsset(targetAssetItem);
 				}
 
 				SetAsset(item);
+
+				if(anySlotEmpty)
+				{
+					layout.SetSelectedSlot(this);
+				}
 			}
 		}
 		public void OnDrag(PointerEventData eventData)
@@ -58,7 +65,7 @@ namespace NextReality.Asset.UI
 		public void SetAsset(AssetItem asset)
 		{
 			targetAssetItem = asset;
-			SetItemImage(asset?.thumbnail ?? null);
+			SetItemImage(asset?.thumbnail2D ?? null);
 		}
 
 		public void SetSlotLayout(AssetQuickSlotLayout _layout)

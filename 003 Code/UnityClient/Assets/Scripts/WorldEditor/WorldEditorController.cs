@@ -9,6 +9,8 @@ namespace NextReality.Asset
 		//s: 임시
 		public TextAsset textAsset;
 
+		protected Canvas canvas;
+
 		//e: 임시
 
 		[SerializeField] private AssetSelectorWindow _assetSelectorWindow;
@@ -40,6 +42,8 @@ namespace NextReality.Asset
 			{
 				Destroy(this.gameObject);
 			}
+
+			canvas = GetComponent<Canvas>();
 		}
 
 		public static WorldEditorController Instance
@@ -57,7 +61,13 @@ namespace NextReality.Asset
 		void Start()
 		{
 			assetItemCursor.SetActive(false);
-			_assetSelectorWindow.RequireCategoryList(textAsset.text);
+			_assetSelectorWindow.DropBoxContainer.RequireCategoryList(textAsset.text);
+
+			Managers.Client.AddJoinLocalPlayerEvent((player, userId) =>
+			{
+				canvas.renderMode = RenderMode.ScreenSpaceCamera;
+				canvas.worldCamera = Managers.Camera.mainGameCamera.uiCam;
+			});
 		}
 
 		public void DragAssetItemCursor(AssetItem assetItem, Vector3 position)

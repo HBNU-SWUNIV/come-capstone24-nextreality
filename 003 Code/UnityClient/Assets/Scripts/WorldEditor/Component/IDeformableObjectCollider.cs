@@ -8,6 +8,7 @@ namespace NextReality.Asset
 	public interface IDeformableObjectCollider
 	{
 		public IDeformableObject TargetObject { get; }
+		public Collider TargetCollider { get; }
 	}
 
 }

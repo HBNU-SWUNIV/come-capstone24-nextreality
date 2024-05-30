@@ -6,8 +6,9 @@ namespace NextReality.Asset.Routine
 	public class LoadTask
 	{
 		public string userId;
-		public int astId;
+		public string astId;
 		public AssetObject gltfObj;
+		public ObjectData objData;
 
 		public bool isDownSuccess = false;
 		public bool isLoadSuccess = false;
@@ -15,15 +16,16 @@ namespace NextReality.Asset.Routine
 		public bool isAllSuccess = false;
 
 		public bool isFailOrStop = false;
+		public bool isExist = false;
 
 		public GltfImport gltfImport;
 
 
-		public LoadTask(string user_id, int ast_id, AssetObject astObj)
+		public LoadTask(string user_id, string ast_id, ObjectData objInfoData)
 		{
 			userId = user_id;
 			astId = ast_id;
-			gltfObj = astObj;
+			objData = objInfoData;
 
 			TaskInit();
 		}
@@ -35,6 +37,7 @@ namespace NextReality.Asset.Routine
 			isWearSuccess = false;
 			isAllSuccess = false;
 			isFailOrStop = false;
+			isExist = false;
 
 			gltfImport = new GltfImport();
 		}

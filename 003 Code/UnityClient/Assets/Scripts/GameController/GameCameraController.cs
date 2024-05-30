@@ -4,16 +4,23 @@ using System.Collections.Generic;
 using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace NextReality.Game
 {
 	public class GameCameraController : MonoBehaviour
 	{
-		Camera mainCamera;
+		public GameCamera mainGameCamera;
+
+		private Camera uiCamera;
 
 		private static GameCameraController instance = null;
 
 		public LayerMask detectLayer;
+
+		bool cursorLock = true;
+
+		public UnityEvent<bool> cursorEvent = new UnityEvent<bool>();
 
 		void Awake()
 		{
@@ -39,14 +46,22 @@ namespace NextReality.Game
 		// Start is called before the first frame update
 		void Start()
 		{
+			if (mainGameCamera == null) { 
+				if(Camera.main?.TryGetComponent<GameCamera>(out mainGameCamera) ?? false)
+				{
+
+				}
+			}
+
+			CursorOnOff(true);
 		}
 		public void Raycast(Vector2 pointerPosition, float maxDistance, Action<bool, RaycastHit>  action, LayerMask layerMask)
 		{
-			if (!mainCamera) return;
+			if (!mainGameCamera) return;
 
 			RaycastHit RefRayCastHit;
 			bool isHitted = Physics.Raycast(
-				mainCamera.ScreenPointToRay(new Vector3(pointerPosition.x, pointerPosition.y, 0)),
+				mainGameCamera.mainCam.ScreenPointToRay(new Vector3(pointerPosition.x, pointerPosition.y, 0)),
 				out RefRayCastHit,
 				maxDistance,
 				layerMask.value
@@ -56,7 +71,7 @@ namespace NextReality.Game
 
 		public Vector2? GetUIPositionByWorldObject(Vector3 worldPosition, RectTransform canvasRect)
 		{
-			return GetUIPositionByWorldObject(worldPosition, canvasRect, mainCamera);
+			return GetUIPositionByWorldObject(worldPosition, canvasRect, mainGameCamera.mainCam);
 		}
 
 		public Vector2? GetUIPositionByWorldObject(Vector3 worldPosition, RectTransform canvasRect, Camera camera)
@@ -83,12 +98,12 @@ namespace NextReality.Game
 
 		public Vector3? GetPlaneHitPointWithHeight(Plane objectPlane, Vector2 mousePosition, out float hitDistance)
 		{
-			if (!this.mainCamera)
+			if (!this.mainGameCamera)
 			{
 				hitDistance = 0f;
 				return null;
 			}
-			Ray targetRay = mainCamera.ScreenPointToRay(new Vector3(mousePosition.x, mousePosition.y, 0));
+			Ray targetRay = mainGameCamera.mainCam.ScreenPointToRay(new Vector3(mousePosition.x, mousePosition.y, 0));
 
 			// 오브젝트 표면과 교차하는 위치를 얻기 위해 Raycast를 사용합니다.
 
@@ -99,6 +114,56 @@ namespace NextReality.Game
 			}
 			return null;
 		}
+
+		public Camera UICamera
+		{
+			get
+			{
+				if (uiCamera == null) uiCamera = mainGameCamera.transform.Find("UI Camera")?.GetComponent<Camera>();
+
+				return uiCamera;
+			}
+		}
+
+		void Update()
+		{
+
+			if (Input.GetKeyDown(KeyCode.Tab))
+			{
+				CursorOnOff(!cursorLock);
+			}
+		}
+
+		void CursorOnOff(bool _cursorLock)
+		{
+			// cursor on -> off
+			if (_cursorLock)
+			{
+				Cursor.visible = false;
+				Cursor.lockState = CursorLockMode.Locked;
+			}
+			// cursor off -> on
+			else
+			{
+				Cursor.visible = true;
+				Cursor.lockState = CursorLockMode.None;
+			}
+			cursorLock = _cursorLock;
+
+			cursorEvent.Invoke(cursorLock);
+		}
+
+		private void OnDestroy()
+		{
+			CursorOnOff(false);
+		}
+
+		public void AddCursorEventListener(UnityAction<bool> action)
+		{
+			cursorEvent.AddListener(action);
+		}
+
+		public bool CursorLock { get { return cursorLock; } }
 	}
 
 }

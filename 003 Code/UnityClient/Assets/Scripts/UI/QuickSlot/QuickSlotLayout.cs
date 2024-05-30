@@ -83,7 +83,12 @@ namespace NextReality.Asset.UI
 		{
 			AlignLayout();
 		}
+
 #endif
+		private void Start()
+		{
+			AlignLayout();
+		}
 
 	}
 }

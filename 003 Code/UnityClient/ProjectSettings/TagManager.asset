@@ -10,6 +10,9 @@ TagManager:
   - Tile
   - Instance
   - Object
+  - Floor
+  - Wall
+  - GameUI
   layers:
   - Default
   - TransparentFX
@@ -19,7 +22,7 @@ TagManager:
   - UI
   - EditableObject
   - previewObject
-  - 
+  - Transpanercy
   - 
   - 
   - 

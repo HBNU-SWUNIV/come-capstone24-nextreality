@@ -1,4 +1,6 @@
 ﻿using NextReality.Asset.Routine;
+using NextReality.Networking.Request;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -44,7 +46,26 @@ namespace NextReality.Asset
 			{
 				StartCoroutine(CreateObject());
 			}
-		}
+			if(Input.GetKeyDown(KeyCode.K))
+			{
+				Debug.Log("Player Join");
+				DateTime now = DateTime.UtcNow;
+				now = now.AddHours(9);
+				Debug.Log(now.ToString());
+				Debug.Log(now.ToString("O"));
+                // UdpRequests.Instance.RequestsUdp(UdpRequests.Instance.gameServerUrl, UdpRequests.Instance.gameServerPort, "PlayerJoin$testId;638506752265295630;testNickName;125");
+            }
+			if (Input.GetKeyDown(KeyCode.L))
+			{
+                Debug.Log("Player Move");
+                // UdpRequests.Instance.RequestsUdp(UdpRequests.Instance.gameServerUrl, UdpRequests.Instance.gameServerPort, "PlayerMove$testId;638506755265295630;1.5/0/0;0/0/0");
+            }
+			if (Input.GetKeyDown(KeyCode.Semicolon))
+            {
+                Debug.Log("Player Leave");
+                // UdpRequests.Instance.RequestsUdp(UdpRequests.Instance.gameServerUrl, UdpRequests.Instance.gameServerPort, "PlayerLeave$testId;638506752265295630");
+            }
+        }
 
 		IEnumerator CreateObject()
 		{
@@ -55,9 +76,9 @@ namespace NextReality.Asset
 				? hit.point + new Vector3(0, 30, 0)
 				: cam.transform.position + cam.transform.forward * maxInstantiateRange;
 
-            GltfRoutineManager.Instance.CreateObject(onMyHand, spawn_point); // 에셋 Routine에게 Task 부여
-
-			yield return null;
+            //GltfRoutineManager.Instance.CreateObject("663dd3624fe104b4551ca873", spawn_point); // 에셋 Routine에게 Task 부여
+            GltfRoutineManager.Instance.CreateObject(onMyHand.ToString(), spawn_point); // 에셋 Routine에게 Task 부여
+            yield return null;
 		}
 
 		IEnumerator DestroyObject()

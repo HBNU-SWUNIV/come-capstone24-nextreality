@@ -60,14 +60,14 @@ namespace NextReality.Game
 			return raycastResults.Count > 0;
 		}
 
-		public bool IsPointerOverUIObjectAll()
+		public bool IsPointerOverUIObjectAll(int mouseIndex = 0)
 		{
 			foreach (Touch touch in Input.touches)
 			{
 				if (IsPointerOverUIObjectByTouch(touch)) return true;
 			}
 
-			if (Input.mousePresent && Input.GetMouseButton(0))
+			if (Input.mousePresent && Input.GetMouseButton(mouseIndex))
 			{
 				return IsPointerOverUIObjectByVector(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
 			}

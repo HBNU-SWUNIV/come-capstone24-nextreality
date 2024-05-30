@@ -9,7 +9,7 @@ namespace NextReality.Asset.UI
 {
 	public class CoordinateDirectionElement : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 	{
-		public CoordinateDirection coordinateDirection;
+		public ObjectDirectionBase coordinateDirection;
 
 		public Action<PointerEventData, CoordinateDirectionElement> pointerDownAction;
 		public Action<PointerEventData, CoordinateDirectionElement> pointerUpAction;
@@ -19,7 +19,7 @@ namespace NextReality.Asset.UI
 
 		[SerializeField] protected Graphic targetGraphic;
 
-		public void SetInitEvent(CoordinateDirection _coordinateDirection)
+		public void SetInitEvent(ObjectDirectionBase _coordinateDirection)
 		{
 			coordinateDirection = _coordinateDirection;
 		}
@@ -31,7 +31,7 @@ namespace NextReality.Asset.UI
 
 		public void OnDrag(PointerEventData eventData)
 		{
-			pointerDownAction?.Invoke(eventData, this);
+			dragAction?.Invoke(eventData, this);
 		}
 
 		public void OnEndDrag(PointerEventData eventData)
@@ -49,17 +49,20 @@ namespace NextReality.Asset.UI
 			pointerUpAction?.Invoke(eventData, this);
 		}
 
-		// Start is called before the first frame update
-		void Start()
+		private void Awake()
 		{
-
+			if(targetGraphic == null)
+			{
+				targetGraphic = GetComponentInChildren<Graphic>();
+			}
 		}
 
-		// Update is called once per frame
-		void Update()
+		private void Start()
 		{
-
+			ObjectTransformEventTrigger trigger = targetGraphic.GetComponent<ObjectTransformEventTrigger>();
+			trigger.directionElement = this;
 		}
+
 
 		public void SetTranslucent(bool _isTranslucent = true)
 		{
@@ -67,6 +70,9 @@ namespace NextReality.Asset.UI
 			color.a = _isTranslucent ? 0.6f : 1f;
 			targetGraphic.color = color;
 		}
+
+		public Graphic TargetGraphic { get { return targetGraphic; } }
+		public Transform TargetTransform { get { return targetGraphic.transform; } }
 	}
 
 }

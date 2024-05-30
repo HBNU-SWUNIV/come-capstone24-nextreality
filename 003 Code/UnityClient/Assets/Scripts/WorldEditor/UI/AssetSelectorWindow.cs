@@ -1,46 +1,49 @@
 using NextReality.Asset.UI;
+using NextReality.Game;
+using NextReality.Game.UI;
 using NextReality.Utility.UI;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NextReality.Asset
 {
 	public class AssetSelectorWindow : MonoBehaviour
 	{
 		[SerializeField] private AssetCategoryDropBoxContainer _dropBoxContainer;
+
+		[SerializeField] private Button assetSearchButton;
+		[SerializeField] private TMP_InputField assetSearchinputField;
+
 		public AssetCategoryDropBoxContainer DropBoxContainer { get { return _dropBoxContainer; } }
 		[SerializeField] private AssetThumbnailScrollView _assetThumbnailScrollView;
 		public AssetThumbnailScrollView AssetThumbnailScrollView { get { return _assetThumbnailScrollView; } }
 
-		[SerializeField] private DrawerLayout drawerLayout;
+		[SerializeField] private SidePopUpUI sidePopUpUI;
+		[SerializeField] private Button popUpButton;
 
 		// Start is called before the first frame update
 		void Start()
 		{
-			_dropBoxContainer.AddLayoutHandler(drawerLayout.AlignLayout);
-		}
+			Managers.Camera.AddCursorEventListener((cursorLock) => PopUpDrawer(!cursorLock));
+			popUpButton.onClick.AddListener(()=> PopUpDrawer(!sidePopUpUI.IsPopUp));
 
-		// Update is called once per frame
-		void Update()
-		{
-
-		}
-
-		public void RequireCategoryList(string jsonText)
-		{
-			RawAssetCategoriesResult raw = JsonUtility.FromJson<RawAssetCategoriesResult>(jsonText);
-
-			AssetCategory[] categories = new AssetCategory[raw.result.Length];
-
-			int index = 0;
-			foreach (RawAssetCategory lt in raw.result)
+			assetSearchButton.onClick.AddListener(() =>
 			{
-				Debug.Log(lt.GetCategoryNameTree(0));
-				categories[index] = new AssetCategory(lt);
-				index++;
-			}
+				_assetThumbnailScrollView.GetAssetIdList(DropBoxContainer.SelectedCategory?.id ?? -1, assetSearchinputField.text);
+			});
 
-			DropBoxContainer.RequireChildCategory(0, categories);
+			assetSearchinputField.onSubmit.AddListener((search)=>
+			{
+				_assetThumbnailScrollView.GetAssetIdList(DropBoxContainer.SelectedCategory?.id ?? -1, search);
+			});
 		}
+
+		public void PopUpDrawer(bool isPopUp)
+		{
+			sidePopUpUI.PopUp(isPopUp);
+		}
+
 	}
 }
 

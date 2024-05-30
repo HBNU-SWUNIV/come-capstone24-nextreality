@@ -84,6 +84,7 @@ GameObject:
   - component: {fileID: 673138366273383580}
   - component: {fileID: 5592887639032362940}
   - component: {fileID: 6046589454309217919}
+  - component: {fileID: 2039504208525620185}
   m_Layer: 5
   m_Name: QuickSlot
   m_TagString: Untagged
@@ -162,3 +163,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _itemImage: {fileID: 708634469612153519}
+--- !u!114 &2039504208525620185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3730326312561114074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.20392157}
+  m_EffectDistance: {x: 3.11, y: -1}
+  m_UseGraphicAlpha: 1

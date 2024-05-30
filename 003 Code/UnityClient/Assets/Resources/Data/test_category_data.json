@@ -2,74 +2,367 @@
     "result": [
         {
             "id": 1,
-            "categoryCode": "test1",
-            "categoryName": "테스트1",
+            "categoryCode": "object",
+            "categoryName": "오브젝트",
             "child": [
                 {
                     "id": 2,
-                    "categoryCode": "testchild1",
-                    "categoryName": "테스트차일드1",
+                    "categoryCode": "furniture",
+                    "categoryName": "가구",
                     "child": [
                         {
-                            "id": 6,
-                            "categoryCode": "testchildchild1",
-                            "categoryName": "테스트차일드차일1"
+                            "id": 3,
+                            "categoryCode": "chair",
+                            "categoryName": "의자",
+                            "child": [
+                                {
+                                    "id": 4,
+                                    "categoryCode": "office_chair",
+                                    "categoryName": "사무용 의자"
+                                },
+                                {
+                                    "id": 5,
+                                    "categoryCode": "dining_chair",
+                                    "categoryName": "식탁 의자"
+                                },
+                                {
+                                    "id": 6,
+                                    "categoryCode": "armchair",
+                                    "categoryName": "팔걸이 의자"
+                                }
+                            ]
                         },
                         {
                             "id": 7,
-                            "categoryCode": "testchildchild2",
-                            "categoryName": "테스트차일드차일2"
+                            "categoryCode": "table",
+                            "categoryName": "테이블",
+                            "child": [
+                                {
+                                    "id": 8,
+                                    "categoryCode": "dining_table",
+                                    "categoryName": "식탁"
+                                },
+                                {
+                                    "id": 9,
+                                    "categoryCode": "coffee_table",
+                                    "categoryName": "커피 테이블"
+                                },
+                                {
+                                    "id": 10,
+                                    "categoryCode": "side_table",
+                                    "categoryName": "사이드 테이블"
+                                }
+                            ]
                         },
                         {
-                            "id": 8,
-                            "categoryCode": "testchildchild3",
-                            "categoryName": "테스트차일드차일3"
+                            "id": 11,
+                            "categoryCode": "bed",
+                            "categoryName": "침대",
+                            "child": [
+                                {
+                                    "id": 12,
+                                    "categoryCode": "single_bed",
+                                    "categoryName": "싱글 침대"
+                                },
+                                {
+                                    "id": 13,
+                                    "categoryCode": "double_bed",
+                                    "categoryName": "더블 침대"
+                                },
+                                {
+                                    "id": 14,
+                                    "categoryCode": "bunk_bed",
+                                    "categoryName": "이층 침대"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 15,
+                            "categoryCode": "storage",
+                            "categoryName": "수납 가구",
+                            "child": [
+                                {
+                                    "id": 16,
+                                    "categoryCode": "wardrobe",
+                                    "categoryName": "옷장"
+                                },
+                                {
+                                    "id": 17,
+                                    "categoryCode": "cabinet",
+                                    "categoryName": "캐비닛"
+                                },
+                                {
+                                    "id": 18,
+                                    "categoryCode": "bookshelf",
+                                    "categoryName": "책장"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 19,
+                            "categoryCode": "sofa",
+                            "categoryName": "소파",
+                            "child": [
+                                {
+                                    "id": 20,
+                                    "categoryCode": "single_sofa",
+                                    "categoryName": "1인용 소파"
+                                },
+                                {
+                                    "id": 21,
+                                    "categoryCode": "double_sofa",
+                                    "categoryName": "2인용 소파"
+                                },
+                                {
+                                    "id": 22,
+                                    "categoryCode": "sectional_sofa",
+                                    "categoryName": "코너 소파"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 23,
+                            "categoryCode": "desk",
+                            "categoryName": "책상",
+                            "child": [
+                                {
+                                    "id": 24,
+                                    "categoryCode": "office_desk",
+                                    "categoryName": "사무용 책상"
+                                },
+                                {
+                                    "id": 25,
+                                    "categoryCode": "computer_desk",
+                                    "categoryName": "컴퓨터 책상"
+                                },
+                                {
+                                    "id": 26,
+                                    "categoryCode": "writing_desk",
+                                    "categoryName": "작업용 책상"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 27,
+                            "categoryCode": "outdoor_furniture",
+                            "categoryName": "야외 가구",
+                            "child": [
+                                {
+                                    "id": 28,
+                                    "categoryCode": "garden_chair",
+                                    "categoryName": "정원 의자"
+                                },
+                                {
+                                    "id": 29,
+                                    "categoryCode": "patio_table",
+                                    "categoryName": "파티오 테이블"
+                                },
+                                {
+                                    "id": 30,
+                                    "categoryCode": "outdoor_sofa",
+                                    "categoryName": "야외 소파"
+                                }
+                            ]
                         }
                     ]
                 },
                 {
-                    "id": 3,
-                    "categoryCode": "testchild2",
-                    "categoryName": "테스트차일드2"
+                    "id": 31,
+                    "categoryCode": "interior",
+                    "categoryName": "인테리어",
+                    "child": [
+                        {
+                            "id": 32,
+                            "categoryCode": "room",
+                            "categoryName": "방"
+                        },
+                        {
+                            "id": 33,
+                            "categoryCode": "decor",
+                            "categoryName": "장식품"
+                        },
+                        {
+                            "id": 34,
+                            "categoryCode": "lighting",
+                            "categoryName": "조명"
+                        }
+                    ]
                 },
                 {
-                    "id": 4,
-                    "categoryCode": "testchild3",
-                    "categoryName": "테스트차일드3"
+                    "id": 35,
+                    "categoryCode": "tool",
+                    "categoryName": "도구/장비",
+                    "child": [
+                        {
+                            "id": 36,
+                            "categoryCode": "kitchen",
+                            "categoryName": "주방 도구"
+                        },
+                        {
+                            "id": 37,
+                            "categoryCode": "electronics",
+                            "categoryName": "전자 제품"
+                        },
+                        {
+                            "id": 38,
+                            "categoryCode": "sports",
+                            "categoryName": "스포츠 장비"
+                        }
+                    ]
                 },
                 {
-                    "id": 5,
-                    "categoryCode": "testchild4",
-                    "categoryName": "테스트차일드4"
+                    "id": 39,
+                    "categoryCode": "vehicle",
+                    "categoryName": "차량",
+                    "child": [
+                        {
+                            "id": 40,
+                            "categoryCode": "car",
+                            "categoryName": "자동차"
+                        },
+                        {
+                            "id": 41,
+                            "categoryCode": "motorcycle",
+                            "categoryName": "오토바이"
+                        },
+                        {
+                            "id": 42,
+                            "categoryCode": "aircraft",
+                            "categoryName": "항공기"
+                        },
+                        {
+                            "id": 43,
+                            "categoryCode": "ship",
+                            "categoryName": "선박"
+                        }
+                    ]
+                },
+                {
+                    "id": 44,
+                    "categoryCode": "weapon",
+                    "categoryName": "무기",
+                    "child": [
+                        {
+                            "id": 45,
+                            "categoryCode": "melee",
+                            "categoryName": "근접 무기",
+                            "child": [
+                                {
+                                    "id": 46,
+                                    "categoryCode": "sword",
+                                    "categoryName": "칼"
+                                },
+                                {
+                                    "id": 47,
+                                    "categoryCode": "shield",
+                                    "categoryName": "방패"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 48,
+                            "categoryCode": "ranged",
+                            "categoryName": "원거리 무기",
+                            "child": [
+                                {
+                                    "id": 49,
+                                    "categoryCode": "bow",
+                                    "categoryName": "활"
+                                },
+                                {
+                                    "id": 50,
+                                    "categoryCode": "gun",
+                                    "categoryName": "총기"
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         },
         {
-            "id": 9,
-            "categoryCode": "test2",
-            "categoryName": "테스트2",
+            "id": 51,
+            "categoryCode": "environment",
+            "categoryName": "환경",
             "child": [
                 {
-                    "id": 10,
-                    "categoryCode": "testchild2_1",
-                    "categoryName": "테스트차일드2_1"
+                    "id": 52,
+                    "categoryCode": "nature",
+                    "categoryName": "자연",
+                    "child": [
+                        {
+                            "id": 53,
+                            "categoryCode": "tree",
+                            "categoryName": "나무"
+                        },
+                        {
+                            "id": 54,
+                            "categoryCode": "flower",
+                            "categoryName": "꽃"
+                        },
+                        {
+                            "id": 55,
+                            "categoryCode": "rock",
+                            "categoryName": "바위"
+                        },
+                        {
+                            "id": 56,
+                            "categoryCode": "water",
+                            "categoryName": "물"
+                        }
+                    ]
                 },
                 {
-                    "id": 11,
-                    "categoryCode": "testchild2_2",
-                    "categoryName": "테스트차일드2_2"
+                    "id": 57,
+                    "categoryCode": "building",
+                    "categoryName": "건축물",
+                    "child": [
+                        {
+                            "id": 58,
+                            "categoryCode": "residential",
+                            "categoryName": "주거 건물"
+                        },
+                        {
+                            "id": 59,
+                            "categoryCode": "commercial",
+                            "categoryName": "상업용 건물"
+                        },
+                        {
+                            "id": 60,
+                            "categoryCode": "historical_building",
+                            "categoryName": "역사적 건물"
+                        },
+                        {
+                            "id": 61,
+                            "categoryCode": "bridge",
+                            "categoryName": "다리"
+                        }
+                    ]
                 },
                 {
-                    "id": 12,
-                    "categoryCode": "testchild2_3",
-                    "categoryName": "테스트차일드2_3"
-                },
-                {
-                    "id": 13,
-                    "categoryCode": "testchild2_4",
-                    "categoryName": "테스트차일드2_4"
+                    "id": 62,
+                    "categoryCode": "city",
+                    "categoryName": "도시",
+                    "child": [
+                        {
+                            "id": 63,
+                            "categoryCode": "street",
+                            "categoryName": "거리"
+                        },
+                        {
+                            "id": 64,
+                            "categoryCode": "park",
+                            "categoryName": "공원"
+                        },
+                        {
+                            "id": 65,
+                            "categoryCode": "square",
+                            "categoryName": "광장"
+                        }
+                    ]
                 }
             ]
-        }
-    ]
-}
+          }
+      ]
+  }
+

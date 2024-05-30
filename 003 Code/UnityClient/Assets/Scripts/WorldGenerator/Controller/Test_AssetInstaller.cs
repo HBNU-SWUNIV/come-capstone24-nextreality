@@ -14,12 +14,9 @@ namespace NextReality.Asset
 		Camera cam;
 		Vector3 ScreenCenter;
 		// Start is called before the first frame update
-		void Start()
+
+		private void Start()
 		{
-			cam = Camera.main;
-
-			ScreenCenter = new Vector3(cam.pixelWidth / 2, cam.pixelHeight / 2);
-
 			if (WorldEditorController.Instance != null) StartCoroutine(StartController());
 		}
 
@@ -27,11 +24,23 @@ namespace NextReality.Asset
 		{
 			while(true)
 			{
-				if (Input.GetMouseButtonDown(0))
-				{
-					StartCoroutine(DestroyObject());
-				}
-				if (Input.GetMouseButtonDown(1))
+
+				cam = Managers.Camera.mainGameCamera?.mainCam;
+
+				if (cam != null) break;
+
+				yield return null;
+			}
+			while(true)
+			{
+				//if (Input.GetMouseButtonDown(0))
+				//{
+				//	StartCoroutine(DestroyObject());
+				//}
+				ScreenCenter = new Vector3(cam.pixelWidth / 2, cam.pixelHeight / 2);
+
+
+				if (Input.GetMouseButtonDown(1) && !Managers.Input.IsPointerOverUIObjectAll(1))
 				{
 					CreateObject();
 				}
@@ -45,7 +54,7 @@ namespace NextReality.Asset
 		{
 			AssetItem assetItem = WorldEditorController.Instance.SelectedAsset;
 
-			Debug.Log("[TestAssetInstaller]" + assetItem?.id ?? "null");
+			// Debug.Log("[TestAssetInstaller]:	" + assetItem?.id ?? "null");
 			if (assetItem == null) return;
 			Ray ray = cam.ScreenPointToRay(ScreenCenter);
 			bool isHit = Physics.Raycast(ray, out RaycastHit hit, maxInstantiateRange, instantiateMask);

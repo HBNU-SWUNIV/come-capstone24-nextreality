@@ -10,6 +10,8 @@ namespace NextReality.Data
 	{
 		BroadcastHandler broHandler;
 
+		public TextAsset testMemo;
+
 		// Use this for initialization
 		void Start()
 		{
@@ -18,7 +20,7 @@ namespace NextReality.Data
 				broHandler = gameObject.GetComponent<BroadcastHandler>();
 			}
 
-			StartCoroutine(LogReplay());
+			if (testMemo) StartCoroutine(LogReplay());
 		}
 
 
@@ -27,7 +29,7 @@ namespace NextReality.Data
 			for (int j = 0; j < 1; j++)
 			{
 				// jointest = player join command test file
-                byte[] bytes = File.ReadAllBytes("Assets/Resources/EventListener/jointest.txt");
+                byte[] bytes = testMemo.bytes;
 
                 // byte[] bytes = File.ReadAllBytes("Assets/Resources/EventListener/test.txt");
 
@@ -37,11 +39,8 @@ namespace NextReality.Data
 				for (int i = 0; i < logList.Length; i++)
 				{
 					yield return new WaitForSeconds(0.5f);
-					string[] log = logList[i].Split("$");
-					if (log.Length >= 2)
-					{
-						broHandler.InvokeEvent(log[0], log[1]);
-					}
+
+					broHandler.InvokeEvent(logList[i]);
 				}
 			}
 		}

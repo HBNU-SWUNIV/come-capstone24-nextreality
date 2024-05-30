@@ -1,3 +1,4 @@
+using NextReality.Utility.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,16 +13,27 @@ namespace NextReality.Asset.UI
 		[SerializeField] AssetCategoryDropBox[] assetDropBoxes = new AssetCategoryDropBox[0];
 
 		[SerializeField] private RectTransform _container;
+		[SerializeField] private RectTransform refreshContainer;
+
+		[SerializeField] private DrawerLayout drawerLayout;
 
 		AssetCategory[] assetCategories;
-
-		AssetCategory selectedCategory;
 
 		Del_VoidHandler HandleLayout;
 
 		int curDepth = 0;
 
 		Coroutine layoutCoroutine;
+
+
+		public void Start()
+		{
+			if(drawerLayout) this.AddLayoutHandler(drawerLayout.AlignLayout);
+			if(refreshContainer)
+			{
+				AddLayoutHandler(() => TryForceRebuildLayoutImmediate(refreshContainer));
+			}
+		}
 
 		public void SetCategory(AssetCategory[] _assetCategories)
 		{
@@ -62,14 +74,28 @@ namespace NextReality.Asset.UI
 					assetDropBoxes[i].SetActive(false);
 				}
 			}
-			
+
+			curDepth = activeDepth;
+
 			if (layoutCoroutine != null) StopCoroutine(layoutCoroutine);
-			layoutCoroutine = StartCoroutine(ForceAlignLayout());
+			if (gameObject.activeInHierarchy)
+			{
+				layoutCoroutine = StartCoroutine(ForceAlignLayout(_container));
+			} else
+			{
+				layoutCoroutine = null;
+			}
+
 		}
 
-		IEnumerator ForceAlignLayout()
+		void TryForceRebuildLayoutImmediate(RectTransform refreshTarget)
 		{
-			LayoutRebuilder.ForceRebuildLayoutImmediate(_container);
+			LayoutRebuilder.ForceRebuildLayoutImmediate(refreshTarget);
+		}
+
+		IEnumerator ForceAlignLayout(RectTransform refreshTarget)
+		{
+			LayoutRebuilder.ForceRebuildLayoutImmediate(refreshTarget);
 			yield return null;
 			HandleLayout();
 		}
@@ -92,6 +118,39 @@ namespace NextReality.Asset.UI
 				{
 					assetDropBoxes[i].SetActive(false);
 				}
+			}
+		}
+
+		public void Clear()
+		{
+			this.RequireChildCategory(0, assetCategories);
+		}
+
+		public void RequireCategoryList(string jsonText)
+		{
+			Debug.Log(jsonText);
+			RawAssetCategoriesResult raw = JsonUtility.FromJson<RawAssetCategoriesResult>(jsonText);
+
+			AssetCategory[] categories = new AssetCategory[raw.result.Length];
+
+			int index = 0;
+			foreach (RawAssetCategory lt in raw.result)
+			{
+				// Debug.Log(lt.GetCategoryNameTree(0));
+				categories[index] = new AssetCategory(lt);
+				index++;
+			}
+
+			SetCategory(categories);
+
+			this.RequireChildCategory(0, categories);
+		}
+
+		public AssetCategory SelectedCategory
+		{
+			get
+			{
+				return curDepth <= 0 ? null : (assetDropBoxes[curDepth].CurAssetCategory ?? assetDropBoxes[curDepth - 1].CurAssetCategory);
 			}
 		}
 

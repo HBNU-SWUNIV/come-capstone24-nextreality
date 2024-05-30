@@ -11,7 +11,7 @@ namespace NextReality.Asset.UI
 	public abstract class ObjectDirectionBase : MonoBehaviour
 	{
 		protected ObjectTransformCursor cursor;
-		public readonly bool isConstraint = false;
+		public bool isConstraint = false;
 		// Start is called before the first frame update
 		void Update()
 		{

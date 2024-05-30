@@ -1,3 +1,6 @@
+using NextReality.Data;
+using NextReality.Data.Schema;
+using System;
 using System.Collections.Generic;
 
 namespace NextReality.Asset
@@ -5,20 +8,31 @@ namespace NextReality.Asset
 	[System.Serializable]
 	public class MapData
 	{
-		public int map_id;
-		public string mapName;
-		public float mapCTime;
+		public int map_id = 0;
+		public string user_id;
+		public string mapName = "";
+		public string mapCTime;
+		public int version = 0;
 		public MapSize mapSize = new MapSize();
 		public List<string> Tags = new List<string>();
+		public int chunkSize;
+		public int chunkNum;
 		public int objCount;
 	}
 
 	[System.Serializable]
+	public class MapListData // use in select map popup
+	{
+        public string mapName;
+        public int map_id;
+    }
+
+	[System.Serializable]
 	public class MapSize
 	{
-		public int horizontal;
-		public int vertical;
-		public int height;
+		public float horizontal;
+		public float vertical;
+		public float height;
 	}
 
 
@@ -26,6 +40,8 @@ namespace NextReality.Asset
 	public class MapObjectData
 	{
 		public int map_id;
+		public int version;
+		public int chunkNum;
 		public List<ObjectData> objList = new List<ObjectData>();
 	}
 
@@ -33,7 +49,7 @@ namespace NextReality.Asset
 	public class ObjectData
 	{
 		public int obj_id;
-		public int ast_id;
+		public string ast_id;
 		public ObjTransform transform = new ObjTransform();
 		public string type;
 		public bool isRigidbody = false;
@@ -43,32 +59,44 @@ namespace NextReality.Asset
 	[System.Serializable]
 	public class ObjTransform
 	{
-		public Position position;
-		public Rotation rotation;
-		public Scale scale;
+		public Position position = new Position();
+		public Rotation rotation = new Rotation();
+		public Scale scale = new Scale();
 	}
 
 	[System.Serializable]
-	public class Position
+	public class Position : ProtoVector
 	{
 		public float x;
 		public float y;
 		public float z;
+
+		float ProtoVector.x { get => x; set { x = value; } }
+		float ProtoVector.y { get => y; set { y = value; } }
+		float ProtoVector.z { get => z; set { z = value; } }
 	}
 
 	[System.Serializable]
-	public class Rotation
+	public class Rotation : ProtoVector
 	{
 		public float x;
 		public float y;
 		public float z;
+
+		float ProtoVector.x { get => x; set { x = value; } }
+		float ProtoVector.y { get => y; set { y = value; } }
+		float ProtoVector.z { get => z; set { z = value; } }
 	}
 
 	[System.Serializable]
-	public class Scale
+	public class Scale : ProtoVector
 	{
 		public float x;
 		public float y;
 		public float z;
+
+		float ProtoVector.x { get => x; set { x = value; } }
+		float ProtoVector.y { get => y; set { y = value; } }
+		float ProtoVector.z { get => z; set { z = value; } }
 	}
 }

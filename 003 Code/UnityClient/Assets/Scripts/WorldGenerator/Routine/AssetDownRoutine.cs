@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace NextReality.Asset.Routine
-{ 
+{
 	public class AssetDownRoutine : GltfRoutine
 	{
 		private Queue<LoadTask> DownTasks = new Queue<LoadTask>();
@@ -14,29 +14,23 @@ namespace NextReality.Asset.Routine
 			// Task가 다운로드 과정을 거치지 않은 경우
 			if (!downTask.isDownSuccess)
 			{
-				Debug.Log("DownLoad...	" + downTask.astId);
 				yield return StartCoroutine(DownGltf(downTask)); // 에셋 다운로드
 
-				// 다운로드 실패 혹은 취소한 경우
-				if (downTask.isFailOrStop)
+				if (downTask.isFailOrStop) // 다운로드 실패 혹은 취소한 경우
 				{
-					Debug.LogError("Asset Download Fail or Cancel");
+					Debug.LogError("Asset Download Fail or Cancel	: " + downTask.astId);
 				}
 			}
 
-			if (!GetReLoad()) // 리로드를 요청하지 않았을 경우
+			// 리로드를 요청하지 않았을 경우
+			if (!GetReLoad())
 			{
-				// 다운로드 성공한 경우
-				if (downTask.isDownSuccess)
+				if (downTask.isDownSuccess) // 다운로드 성공한 경우
 				{
-                    GltfRoutineManager.Instance.Get_Routine(1).TaskInsert(downTask); // Load Routine에 해당 작업 부여
+                    Managers.Gltf.GetRoutine(1).TaskInsert(downTask); // Load Routine에 해당 작업 부여
 
-					Debug.Log("Asset Down Success && Push LoadTasks	:" + downTask.astId);
+					Debug.Log("Asset Down Success && Push LoadTasks	: ast( " + downTask.astId + " )");
 				}
-			}
-			else // 리로드를 요청한 경우
-			{
-				DownTasks.Clear(); // Down Routine의 작업 초기화
 			}
 		}
 

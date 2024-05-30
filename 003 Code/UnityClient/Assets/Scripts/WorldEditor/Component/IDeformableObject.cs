@@ -4,7 +4,7 @@ namespace NextReality.Asset
 {
 	public interface IDeformableObject
 	{
-
+		IDeformableObjectCollider[] Colliders { get; }
 		Transform transform { get; }
 		GameObject gameObject { get; }
 

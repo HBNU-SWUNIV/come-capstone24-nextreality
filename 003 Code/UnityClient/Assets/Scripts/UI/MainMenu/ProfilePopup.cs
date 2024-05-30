@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace NextReality.Game.UI
 {
-	public class ProfilePopup : MonoBehaviour
+	public class ProfilePopup : MainMenuPopup
 	{
 		UserManager userManager;
 
@@ -22,7 +22,7 @@ namespace NextReality.Game.UI
 		public void Open()
 		{
 			this.gameObject.SetActive(true);
-			userManager = UserManager.Instance;
+			userManager = Managers.User;
 
 			userIdTxt.SetText(userManager.Id);
 			userNicknameTxt.SetText(userManager.Nickname);
@@ -37,6 +37,7 @@ namespace NextReality.Game.UI
 		public void OnClickLogout()
 		{
 			userManager.ResetUser();
+			mainMenu.ButtonChange(userManager.IsLogin);
 			mainLoginBtn.gameObject.SetActive(true);
 			mainProfileTxt.SetText("Guest");
 			this.Close();

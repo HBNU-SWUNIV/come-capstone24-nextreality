@@ -9,15 +9,12 @@ using NextReality.Data;
 
 namespace NextReality.Game.UI
 {
-	public class LoginPopup : MonoBehaviour
+	public class LoginPopup : MainMenuPopup
 	{
-
 		HttpRequests httpRequests;
+        MessageSetter messageSetter;
+        UserManager userManager;
 
-		UserManager userManager;
-		MessageSetter messageSetter;
-
-		public Button mainLoginBtn;
 		public Button closeBtn;
 
 		public TMP_InputField idField;
@@ -25,8 +22,6 @@ namespace NextReality.Game.UI
 		public TMP_Text msgTxt;
 
 		public TMP_Text nickname;
-
-		private string url = "http://192.168.50.140:8000/login";
 
 		public void Init()
 		{
@@ -36,9 +31,10 @@ namespace NextReality.Game.UI
 		public void Open()
 		{
 			this.gameObject.SetActive(true);
-			httpRequests = new HttpRequests();
-			userManager = UserManager.Instance;
-			messageSetter = new MessageSetter();
+			msgTxt.gameObject.SetActive(false);
+			httpRequests = Utilities.HttpUtil;
+            messageSetter = Utilities.MessageUtil;
+            userManager = Managers.User;	
 		}
 
 		public void Close()
@@ -60,47 +56,53 @@ namespace NextReality.Game.UI
 			Debug.Log("ID : " + idField.text + " | PW : " + pwField.text);
 			Debug.Log("String Json User Data : " + userDataJson);
 
-			StartCoroutine(httpRequests.RequestPost(url, userDataJson, (callback) =>
+			StartCoroutine(httpRequests.RequestPost
+				(httpRequests.GetServerUrl
+				(HttpRequests.ServerEndpoints.Login), userDataJson, (callback) =>
 			{
 				Debug.Log("RequestPost Callback : " + callback);
 
 				if (callback == null)
 				{
-					messageSetter.SetText(msgTxt, "Something Wrong. Try Again", Color.red);
+                    messageSetter.SetText(msgTxt, "Something Wrong. Try Again", Color.red);
                     userManager.ResetUser();
-                }
+					mainMenu.ButtonChange(userManager.IsLogin);
+				}
 				else
 				{
 
 					try
 					{
                         ResponseData responseData = JsonUtility.FromJson<ResponseData>(callback);
-                        if (responseData != null)
+                        if (callback != null)
                         {
-                            Debug.Log("response message : " + responseData.message);
-                            if (responseData.code.Equals("1"))
+                            if (responseData.CheckResult())
                             {
-								LoginResponseData loginResponseData = JsonUtility.FromJson<LoginResponseData>(callback);
+                                //Debug.Log(responseData.message);
+                                LoginResponseData loginResponseData = JsonUtility.FromJson<LoginResponseData>(callback);
+
                                 nickname.SetText(loginResponseData.message.nickname);
                                 msgTxt.gameObject.SetActive(false);
-								
-                                userManager.SetUser(loginResponseData.message.user_id, loginResponseData.message.nickname, loginResponseData.message.email);
-                                mainLoginBtn.gameObject.SetActive(false);
-                                this.Close();
-                            }
-                            else if (responseData.code.Equals("0"))
-                            {
 
+                                userManager.SetUser(loginResponseData.message.user_id, loginResponseData.message.nickname, loginResponseData.message.email);
+								mainMenu.ButtonChange(userManager.IsLogin);
+								this.Close();
+                            }
+                            else
+                            {
                                 messageSetter.SetText(msgTxt, responseData.message, Color.red);
                                 userManager.ResetUser();
-                            }
+								mainMenu.ButtonChange(userManager.IsLogin);
+							}
                         }
                     }
 					catch(System.Exception e)
 					{
+						Debug.Log("LoginPopup.RequestPost Error : " + e.ToString());
                         messageSetter.SetText(msgTxt, "Something Wrong. Try Again", Color.red);
                         userManager.ResetUser();
-                    }
+						mainMenu.ButtonChange(userManager.IsLogin);
+					}
                 }
 			}));
 

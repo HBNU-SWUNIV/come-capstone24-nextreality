@@ -1,6 +1,20 @@
-AssetCreate$userName;2024-04-12;2;3;0/0/0;0/0/0;1/1/1;true;false
-AssetCreate$userName;2024-04-12;3;4;10/0/10;0/0/0;1/1/1;true;false
-AssetCreate$userName;2024-04-12;5;5;20/0/20;0/0/0;1/1/1;true;false
-AssetCreate$userName;2024-04-12;7;6;30/0/30;0/0/0;1/1/1;true;false
+AssetCreate$UserName;638506752265295630;2;3;0/0/0;0/0/0;1/1/1;Object;true;false
+AssetCreate$UserName;638506753265295630;3;4;10/0/10;0/0/0;1/1/1;Object;true;false
+AssetCreate$UserName;638506754265295630;5;5;20/0/20;0/0/0;1/1/1;Object;true;false
+MapChange$userName;638506755265295630;0
 
-MapChange$userName;2024-04-15;0
+MapChange$userName;638506756265295630;0
+
+AssetDelete$userName;638506757265295630;3
+
+AssetDelete$userName;638506758265295630;3
+
+AssetDelete$userName;638506759265295630;3
+
+AssetDelete$userName;638506760265295630;3
+
+AssetDelete$userName;638506761265295630;3
+
+AssetDelete$userName;638506762265295630;3
+
+MapChange$userName;638506763265295630;0

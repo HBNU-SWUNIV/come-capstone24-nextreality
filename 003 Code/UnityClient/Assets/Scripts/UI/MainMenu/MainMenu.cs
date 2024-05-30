@@ -1,71 +1,119 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using NextReality;
+using UnityEngine.UI;
+using NextReality.Networking.Response;
+using TMPro;
 
 namespace NextReality.Game.UI
 {
-	public class MainMenu : MonoBehaviour
-	{
-		public LoginPopup loginPopup;
-		public ProfilePopup profilePopup;
-		UserManager userManager;
+    public class MainMenu : MonoBehaviour
+    {
+        public LoginPopup loginPopup;
+        public ProfilePopup profilePopup;
+        public UploadPopup uploadPopup;
+        public MapPopup mapPopup;
 
-		// Start is called before the first frame update
-		void Start()
-		{
+        public Button startBtn;
+        public Button uploadBtn;
+        public Button loginBtn;
+        public TMP_Text nickname;
 
-		}
+        UserManager userManager;
 
-		// Update is called once per frame
-		void Update()
-		{
+        void Awake()
+        {
+            loginPopup.SetMainMenu(this);
+            profilePopup.SetMainMenu(this);
+            uploadPopup.SetMainMenu(this);
+            mapPopup.SetMainMenu(this);
 
-		}
+        }
 
-		public void OnClickLogin()
-		{
-			this.loginPopup.closeBtn.onClick.AddListener(() =>
-			{
-				this.loginPopup.Close();
-			});
-			this.loginPopup.Open();
-		}
+        private void Start()
+        {
+            userManager = Managers.User;
+            if (userManager.IsLogin)
+            {
+                ButtonChange(userManager.IsLogin);
+                nickname.SetText(userManager.Nickname);
+            }
+        }
 
-		public void OnClickStart()
-		{
-			SceneManager.LoadScene("WorldGenerator_Scene");
-			Debug.Log("Start Clicked");
-		}
+        // Update is called once per frame
+        void Update()
+        {
 
-		public void OnClickOption()
-		{
-			Debug.Log("Option Clicked");
-		}
+        }
 
-		public void OnClickQuit()
-		{
+        public void ButtonChange(bool isLogin)
+        {
+            startBtn.gameObject.SetActive(isLogin);
+            uploadBtn.gameObject.SetActive(isLogin);
+            loginBtn.gameObject.SetActive(!isLogin);
+        }
+
+        public void OnClickLogin()
+        {
+            this.loginPopup.closeBtn.onClick.AddListener(() =>
+            {
+                this.loginPopup.Close();
+            });
+            this.loginPopup.Open();
+        }
+
+        public void OnClickUpload()
+        {
+            this.uploadPopup.closeBtn.onClick.AddListener(() =>
+            {
+                this.uploadPopup.Close();
+            });
+            this.uploadPopup.Open();
+        }
+
+
+        public void OnClickStart()
+        {
+            // SceneManager.LoadScene("WorldGenerator_Scene"); // Scene Change
+
+            this.mapPopup.closeBtn.onClick.AddListener(() =>
+            {
+                this.mapPopup.Close();
+            });
+            this.mapPopup.Open();
+
+
+            Debug.Log("Start Clicked");
+        }
+
+        public void OnClickOption()
+        {
+            Debug.Log("Option Clicked");
+        }
+
+        public void OnClickQuit()
+        {
 #if UNITY_EDITOR
-			UnityEditor.EditorApplication.isPlaying = false; // ����Ƽ �����Ϳ��� ���� ���� ���� �����ϴ� �Լ�
+            UnityEditor.EditorApplication.isPlaying = false; // ����Ƽ �����Ϳ��� ���� ���� ���� �����ϴ� �Լ�
 #else
-        Application.Quit(); // ���� ������ ���� �������� �� �����ϴ� �Լ�
+        Application.Quit();
 #endif
-		}
+        }
 
-		public void OnClickProfile()
-		{
-			userManager = UserManager.Instance;
-
-			Debug.Log(userManager.Id);
-			if (userManager.Id != null)
-			{
-				this.profilePopup.closeBtn.onClick.AddListener(() =>
-				{
-					this.profilePopup.Close();
-				});
-				this.profilePopup.Open();
-			}
-		}
+        public void OnClickProfile()
+        {
+            Debug.Log(userManager.Id);
+            if (userManager.Id != null)
+            {
+                this.profilePopup.closeBtn.onClick.AddListener(() =>
+                {
+                    this.profilePopup.Close();
+                });
+                this.profilePopup.Open();
+            }
+        }
 
 
-	}
+    }
 
 }

@@ -1,9 +1,17 @@
+using NextReality.Asset.UI;
+using NextReality.Game.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NextReality.Asset.UI
 {
+	public interface IInteractable
+	{
+		bool interactable { get; set; }
+	}
+
 	public class ObjectTransformer : MonoBehaviour
 	{
 		IDeformableObject targetCustomObject;
@@ -15,17 +23,50 @@ namespace NextReality.Asset.UI
 
 		RectTransform rectTransform;
 		ObjectEditorController objectEditorController;
+
+		[SerializeField] private SelectableColoredButton positionButton;
+		[SerializeField] private SelectableColoredButton rotationButton;
+		[SerializeField] private SelectableColoredButton scaleButton;
+		[SerializeField] private SelectableColoredButton deleteButton;
+		[SerializeField] private SelectableColoredButton closeButton;
+
+		private SelectableColoredButton[] transformButtons;
+
+		private List<IInteractable> interactableButtonList = new List<IInteractable>();
+		private IInteractable[] interactableButtons = new IInteractable[3];
+
+		private SidePopUpUI sidePopUpUI;
+
 		// Start is called before the first frame update
 		void Start()
 		{
+			sidePopUpUI = GetComponent<SidePopUpUI>();
 
+			positionButton.onClick.AddListener(() => this.SetDirectionMode(ObjectTransformCursor.DirectionMode.Position));
+			rotationButton.onClick.AddListener(() => this.SetDirectionMode(ObjectTransformCursor.DirectionMode.Rotation));
+			scaleButton.onClick.AddListener(() => this.SetDirectionMode(ObjectTransformCursor.DirectionMode.Scale));
+			deleteButton.onClick.AddListener(() => Managers.ObjectEditor.RemoveCustomObjectEvnet(TargetCustomObject));
+			closeButton.onClick.AddListener(() => Managers.ObjectEditor.SendDeselect());
+
+			transformButtons = new SelectableColoredButton[3];
+			transformButtons[0] = positionButton;
+			transformButtons[1] = rotationButton;
+			transformButtons[2] = scaleButton;
+
+			interactableButtonList.Add(positionButton);
+			interactableButtonList.Add(rotationButton);
+			interactableButtonList.Add(scaleButton);
+			interactableButtonList.Add(deleteButton);
+			interactableButtonList.Add(closeButton);
+
+			SelectTransfromButton(-1);
 		}
 
-		// Update is called once per frame
-		void Update()
-		{
-			SyncTransformerTransform();
-		}
+		//// Update is called once per frame
+		//void Update()
+		//{
+		//	SyncTransformerTransform();
+		//}
 
 
 		public void InitTransformer(ObjectEditorController _objectEditorController)
@@ -44,7 +85,10 @@ namespace NextReality.Asset.UI
 		public void EndTransformObject()
 		{
 			targetCustomObject = null;
-			gameObject.SetActive(false);
+			SelectTransfromButton(-1);
+			cursor.InitCoordinatesOrReset();
+
+			sidePopUpUI.PopUp(false);
 		}
 		public void DeleteCustomObject()
 		{
@@ -118,10 +162,11 @@ namespace NextReality.Asset.UI
 			if (targetObject != null)
 			{
 				this.targetCustomObject = targetObject;
-				this.gameObject.SetActive(true);
 				this.InitInterface();
-				this.SyncTransformerTransform();
+				//this.SyncTransformerTransform();
 				//if (!this.sendCoroutine) this.sendCoroutine = this.StartCoroutine(this.SendCustomObjectState());
+
+				sidePopUpUI.PopUp(true);
 			}
 		}
 
@@ -130,38 +175,42 @@ namespace NextReality.Asset.UI
 			if (this.targetCustomObject != null)
 			{
 				this.cursor.InitCoordinatesOrReset(this);
-				SetDirectionMode();
+				SetDirectionMode(CurDirectionMode);
 			}
 		}
 
-		protected void SetDirectionMode(ObjectTransformCursor.DirectionMode directionMode = ObjectTransformCursor.DirectionMode.None)
+		protected void SetDirectionMode(ObjectTransformCursor.DirectionMode directionMode)
 		{
-			if (directionMode == ObjectTransformCursor.DirectionMode.None) CurDirectionMode = directionMode;
-			//this.transformButton.gameObject.SetActive(false);
-			//this.rotationButton.gameObject.SetActive(false);
-			//this.scaleButton.gameObject.SetActive(false);
-			//this.colorButton.gameObject.SetActive(false);
-			//this.rotationResetButton.gameObject.SetActive(false);
+			CurDirectionMode = directionMode;
+			
 			switch (CurDirectionMode)
 			{
 				case ObjectTransformCursor.DirectionMode.Position:
-					//this.transformButton.gameObject.SetActive(true);
+					SelectTransfromButton(0);
 					break;
 				case ObjectTransformCursor.DirectionMode.Rotation:
-					//this.rotationButton.gameObject.SetActive(true);
-					//this.rotationResetButton.gameObject.SetActive(true);
+					SelectTransfromButton(1);
 					break;
 				case ObjectTransformCursor.DirectionMode.Scale:
-					//this.scaleButton.gameObject.SetActive(true);
+					SelectTransfromButton(2);
 					break;
 				case ObjectTransformCursor.DirectionMode.None:
+					SelectTransfromButton(-1);
 					break;
-					//this.transformButton.gameObject.SetActive(true);
-					//this.rotationButton.gameObject.SetActive(true);
-					//this.scaleButton.gameObject.SetActive(true);
 			}
 
 			this.cursor.UpdateCoordinatesByDirectionMode();
+		}
+
+		public void SelectTransfromButton(int index)
+		{
+			for(int i = 0; i < transformButtons.Length; i++)
+			{
+				if (i == index) transformButtons[i].Select(true);
+				else transformButtons[i].Select(false);
+			}
+
+			interactableButtonList.ForEach(button => { button.interactable = targetCustomObject != null; });
 		}
 
 		public bool IsOnActive { get { return this.gameObject.activeInHierarchy && this.targetCustomObject != null; } }
@@ -185,11 +234,10 @@ namespace NextReality.Asset.UI
 		public float ScaleCorrectedUnit { get { return scaleCorrectedUnit; } }
 
 		//FiexMe
-		public Vector3 CurMinPosition { get; }
-		public Vector3 CurMaxPosition { get; }
-
-		public Vector3 CurMinScale{ get; }
-		public Vector3 CurMaxScale { get; }
+		public Vector3 CurMinPosition { get { return GetMinMax(false); } }
+		public Vector3 CurMaxPosition { get { return GetMinMax(true); } }
+		public Vector3 CurMinScale { get { return new Vector3(0.1f,0.1f,0.1f); } }
+		public Vector3 CurMaxScale { get { return new Vector3(2f, 2f, 2f); } }
 
 		public ObjectTransformCursor.DirectionMode CurDirectionMode
 		{
@@ -197,6 +245,22 @@ namespace NextReality.Asset.UI
 			set { cursor.SetCurDirectionMode(value); }
 		}
 
+
+		public Vector3 GetMinMax(bool command)
+		{
+			float x = (Managers.Map.mapInfo.mapSize.horizontal) / 2;
+			float y = (Managers.Map.mapInfo.mapSize.height);
+			float z = (Managers.Map.mapInfo.mapSize.vertical) / 2;
+
+			if (command)
+			{
+				return new Vector3(x, y, z);
+			}
+			else
+			{
+				return - new Vector3(x, 0, z);
+			}
+		}
 	}
 
 }

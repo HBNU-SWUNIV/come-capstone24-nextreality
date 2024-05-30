@@ -15,7 +15,7 @@ namespace NextReality.Game.UI
 		public string pw;
 	}
 
-	public class RegisterPopup : MonoBehaviour
+	public class RegisterPopup : MainMenuPopup
 	{
 		HttpRequests httpRequests;
 

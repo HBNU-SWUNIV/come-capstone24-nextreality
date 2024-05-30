@@ -123,7 +123,7 @@ namespace NextReality.Asset.UI
 		{
 			this.assetItem = assetItem;
 			thumbnailText.text = assetItem.name;
-			if (assetItem.thumbnail != null) thumbnailImage.texture = assetItem.thumbnail;
+			if (assetItem.thumbnail2D != null) thumbnailImage.texture = assetItem.thumbnail2D;
 		}
 
 		public void SetActive(bool isActive)

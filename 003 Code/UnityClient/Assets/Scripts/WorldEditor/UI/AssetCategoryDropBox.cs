@@ -18,6 +18,15 @@ namespace NextReality.Asset.UI
 			get { return _curIndex; }
 			set { _curIndex = value; dropDown.value = value + 1; }
 		}
+
+		public AssetCategory CurAssetCategory
+		{
+			get
+			{
+				return CurIndex <0 ? null : assetCategories[CurIndex];
+			}
+		}
+
 		// Start is called before the first frame update
 		void Start()
 		{

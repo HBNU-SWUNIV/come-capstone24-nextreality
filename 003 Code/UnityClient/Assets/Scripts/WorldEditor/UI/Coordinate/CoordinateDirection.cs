@@ -17,14 +17,17 @@ namespace NextReality.Asset.UI
 
 		public override void InitEvent(ObjectTransformAction[] eventXYZ)
 		{
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < dirElementXYZ.Length; i++)
 			{
 				dirElementXYZ[i].SetInitEvent(this);
 				dirElementXYZ[i].SetTranslucent();
 
 			}
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < dirElementXYZ.Length; i++)
 			{
+
+				var action = eventXYZ[i];
+
 				dirElementXYZ[i].pointerDownAction = (data, direction) =>
 				{
 					direction.SetTranslucent(false);
@@ -32,17 +35,17 @@ namespace NextReality.Asset.UI
 				dirElementXYZ[i].beginDragAction = (data, direction) =>
 				{
 					direction.SetTranslucent(false);
-					this.Drag(data, eventXYZ[i]);
+					this.Drag(data, action);
 				};
 				dirElementXYZ[i].dragAction = (data, direction) =>
 				{
 					direction.SetTranslucent(false);
-					this.Drag(data, eventXYZ[i]);
+					this.Drag(data, action);
 				};
 				dirElementXYZ[i].endDragAction = (data, direction) =>
 				{
 					direction.SetTranslucent(true);
-					this.Drag(data, eventXYZ[i], false);
+					this.Drag(data, action, false);
 				};
 				dirElementXYZ[i].pointerUpAction = (data, direction) =>
 				{
@@ -50,12 +53,15 @@ namespace NextReality.Asset.UI
 				};
 
 			}
+
 		}
 
 		protected override void RenderDirection()
 		{
 			Transform cameraTransform = CanvasCamera?.transform;
-			if (!cameraTransform || TargetObject != null) return;
+
+			if (cameraTransform == null || TargetObject == null) return;
+
 			for (int i = 0; i < 3; i++) { sortDirectionArray[i] = dirElementXYZ[i].transform; }
 
 			Array.Sort(sortDirectionArray, (rectA, rectB) =>
@@ -69,14 +75,14 @@ namespace NextReality.Asset.UI
 
 			foreach (var rect in sortDirectionArray)
 			{
-				rect.parent.SetAsLastSibling();
+				rect.SetAsLastSibling();
 			}
 
 			foreach (var direction in dirElementXYZ)
 			{
-				direction.transform.rotation = cameraTransform.rotation;
-				direction.transform.localRotation = Quaternion.Euler(
-					new Vector3(0, direction.transform.localEulerAngles.y, 0)
+				direction.TargetTransform.rotation = cameraTransform.rotation;
+				direction.TargetTransform.localRotation = Quaternion.Euler(
+					new Vector3(0, direction.TargetTransform.localEulerAngles.y, 0)
 				);
 			}
 		}

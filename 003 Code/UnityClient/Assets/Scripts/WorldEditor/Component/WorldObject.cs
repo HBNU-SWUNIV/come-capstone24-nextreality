@@ -8,7 +8,10 @@ namespace NextReality.Asset
 	public class WorldObject : MonoBehaviour, IDeformableObject
 {
 
-		protected bool isEnabled;
+		protected bool isEnabled = true;
+		protected Bounds boyBounds;
+
+		WireFrame wireFrame;
 
 		public Vector3 Position
 		{
@@ -124,16 +127,69 @@ namespace NextReality.Asset
 			return transform.TransformPoint(point);
 		}
 
-		// Start is called before the first frame update
-		void Start()
+		public Bounds BodyBounds
 		{
+			get
+			{
+				if(boyBounds.size.magnitude == 0)
+				{
+					var cols = Colliders;
 
+					if (colliders.Count == 0) return new Bounds();
+					Vector3 tempEuler = EulerAngles;
+					EulerAngles = Vector3.zero;
+					boyBounds = cols[0].TargetCollider.bounds;
+
+					for (int i = 1; i < Colliders.Length; i++)
+					{
+						boyBounds.Encapsulate(Colliders[i].TargetCollider.bounds);
+
+					}
+
+					EulerAngles = tempEuler;
+				}
+
+				return boyBounds;
+			}
 		}
 
-		// Update is called once per frame
-		void Update()
-		{
+		public List<IDeformableObjectCollider> colliders =	new List<IDeformableObjectCollider>();
 
+        public IDeformableObjectCollider[] Colliders
+		{
+			get
+			{
+                return colliders.ToArray();
+            }
+		}
+
+		protected virtual void Awake()
+		{
+			colliders.Clear();
+			boyBounds = new Bounds(transform.position, Vector3.zero);
+		}
+
+		protected virtual void Start()
+		{
+			WireFrame?.SetActive(false);
+		}
+
+		protected void InitWireFrame()
+		{
+			if (WireFrame == null)
+			{
+				wireFrame = Instantiate(Managers.ObjectEditor.wireFramePrefab).SetTargetObject(gameObject);
+			}
+			wireFrame.SetActive(false);
+		}
+
+		public WireFrame WireFrame
+		{
+			get
+			{
+				if (wireFrame == null) wireFrame = gameObject.GetComponentInChildren<WireFrame>(true);
+				return wireFrame;
+			}
 		}
 	}
 

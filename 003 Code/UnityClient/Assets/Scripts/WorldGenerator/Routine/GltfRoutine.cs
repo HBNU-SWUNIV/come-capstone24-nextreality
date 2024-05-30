@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using NextReality.Networking.Request;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -13,7 +14,9 @@ namespace NextReality.Asset.Routine
 
 		public static void SetEnvironment()
 		{
-			glb_data = new Dictionary<int, byte[]>();
+			httpRequests = Utilities.HttpUtil;
+			glb_data = new Dictionary<string, byte[]>();
+			gltfServer = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.AssetDownload);
 
 			objectDir = Path.Combine(Application.persistentDataPath, localDirectory);
 			if (!Directory.Exists(objectDir)) // 디렉토리가 존재 여부 확인
@@ -66,9 +69,16 @@ namespace NextReality.Asset.Routine
 
 				if (TaskCount() != 0)
 				{
-					LoadTask task = Tasks.Dequeue();
+					if (GetReLoad())
+					{
+						Tasks.Clear();
+					}
+					else
+					{
+						LoadTask task = Tasks.Dequeue();
 
-					yield return ProceedTask(task); // Task 수행
+						yield return ProceedTask(task); // Task 수행
+					}
 				}
 			}
 		}

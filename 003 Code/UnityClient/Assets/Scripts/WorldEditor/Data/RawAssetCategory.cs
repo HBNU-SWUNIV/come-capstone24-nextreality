@@ -8,6 +8,7 @@ namespace NextReality.Asset
 	{
 		public RawAssetCategory[] result;
 	}
+
 	[Serializable]
 	public class RawAssetCategory
 	{

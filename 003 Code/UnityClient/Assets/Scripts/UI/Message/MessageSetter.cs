@@ -5,8 +5,35 @@ using UnityEngine;
 
 namespace NextReality.Game.UI
 {
-    public class MessageSetter
+    public class MessageSetter : MonoBehaviour
     {
+
+        private static MessageSetter instance = null;
+
+        public static MessageSetter Instance
+        {
+            get
+            {
+                if (instance == null)
+                    return null;
+                return instance;
+            }
+        }
+
+        private void Awake()
+        {
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(this.gameObject);
+            }
+            else
+            {
+                Destroy(this.gameObject);
+            }
+        }
+
+
         public void SetText(TMP_Text textObj, string text)
         {
             textObj.SetText(text);
@@ -17,6 +44,11 @@ namespace NextReality.Game.UI
             textObj.SetText(text);
             textObj.color = color;
             textObj.gameObject.SetActive(true);
+        }
+        public void ResetText(TMP_Text textObj)
+        {
+            textObj.SetText(string.Empty);
+            textObj.gameObject.SetActive(false);
         }
     }
 

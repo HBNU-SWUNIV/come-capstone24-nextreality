@@ -1,109 +1,279 @@
 ﻿using NextReality.Asset;
+using NextReality.Data.Schema;
+using NextReality.Game;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using Unity.VisualScripting;
 using UnityEngine;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 namespace NextReality.Data
 {
-	public class BroadcastHandler : MonoBehaviour
-	{
-		public static Dictionary<string, Action<string>> OnBroadcastReceiver = new Dictionary<string, Action<string>>();
 
-		void Awake()
-		{
-			PackageAddListener();
-			Debug.Log("Listener On");
-		}
+    public class BroadcastHandler : MonoBehaviour
+    {
 
-		// 이벤트 리스너를 추가하는 메서드
-		public void AddListener(string command, Action<string> handler)
-		{
-			if (!OnBroadcastReceiver.ContainsKey(command))
-			{
-				OnBroadcastReceiver.Add(command, handler);
-			}
-			else
-			{
-				OnBroadcastReceiver[command] += handler;
-			}
-		}
+        private static BroadcastHandler instance = null;
+        public static Dictionary<string, Action<ZSchema>> OnBroadcastSchemaMap = new Dictionary<string, Action<ZSchema>>();
+        public static Dictionary<string, Func<string, ZSchema>> SchemaTypeMap = new Dictionary<string, Func<string, ZSchema>>();
 
-		// 이벤트 리스너를 삭제하는 메서드
-		public void RemoveListener(string command, Action<string> handler)
-		{
-			if (OnBroadcastReceiver.ContainsKey(command))
-			{
-				OnBroadcastReceiver[command] -= handler;
-				if (OnBroadcastReceiver[command] == null)
-				{
-					OnBroadcastReceiver.Remove(command);
-				}
-			}
-		}
+        private void Awake()
+        {
+            if (null == instance)
+            {
+                instance = this;
+            }
+            else
+            {
+                Destroy(this.gameObject);
+            }
+        }
 
-		// 이벤트를 실행하는 메서드
-		public void InvokeEvent(string command, string message)
-		{
-			if (OnBroadcastReceiver.ContainsKey(command))
-			{
-				OnBroadcastReceiver[command]?.Invoke(message);
-			}
-			else
-			{
-				Debug.Log(command + " not in Key");
-			}
-		}
+        public static BroadcastHandler Instance
+        {
+            get
+            {
+                if (null == instance)
+                {
+                    return null;
+                }
+                return instance;
+            }
+        }
 
-		// 이벤트 리스너를 초기화하는 메서드
-		public void PackageAddListener()
-		{
-			OnBroadcastReceiver.Clear();
+        void Start()
+        {
+            PackageAddListener();
+            Debug.Log("Listener On");
+        }
 
-			AddListener("AssetCreate", (message) =>
-			{
-				Debug.Log("AssetCreate");
-				AssetCreateSchema astCreate = new AssetCreateSchema(message);
 
-				GltfRoutineManager.Instance.CreateObject(astCreate.objData);
-			});
+        public void AddListener<S>(Action<S> handler) where S : ZSchema, new()
+        {
+            S typeSchema = new S();
+            string typeName = typeSchema.SchemaType;
+            if (!OnBroadcastSchemaMap.ContainsKey(typeName))
+            {
+                OnBroadcastSchemaMap.Add(typeName, (ZSchema raw) =>
+                {
+                    Debug.Log("[BroadCastHandler] Invoke:   " + typeName);
+                    handler((S)raw);
+                });
+            }
+            else
+            {
+                OnBroadcastSchemaMap[typeName] += (ZSchema raw) =>
+                {
+                    Debug.Log("[BroadCastHandler] Invoke:   " + typeName);
+                    handler((S)raw);
+                };
+            }
 
-			AddListener("AssetDelete", (message) =>
-			{
-				Debug.Log("AssetDelete");
-			});
+            if (!SchemaTypeMap.ContainsKey(typeName))
+            {
+                SchemaTypeMap.Add(typeName, message => (S)Activator.CreateInstance(typeof(S), message));
+            }
+        }
 
-			AddListener("MapChange", (message) =>
-			{
-				Debug.Log("MapChange");
-				MapChangeSchema mapChange = new MapChangeSchema(message);
 
-				StartCoroutine(MapDataController.Instance.MapLoad(mapChange.map_id));
-			});
+        // 이벤트 리스너를 삭제하는 메서드 // FIXME
+        public void RemoveListener(string command, Action<ZSchema> handler)
+        {
+            if (OnBroadcastSchemaMap.ContainsKey(command))
+            {
+                OnBroadcastSchemaMap[command] -= handler;
+                if (OnBroadcastSchemaMap[command] == null)
+                {
+                    OnBroadcastSchemaMap.Remove(command);
+                }
+            }
+        }
 
-			AddListener("PlayerJoin", (message) =>
-			{
-				Debug.Log("PlayerJoin");
-				PlayerJoinSchema playerJoin = new PlayerJoinSchema(message);
+        // 이벤트를 실행하는 메서드
+        public void InvokeEvent(string wholeMessage)
+        {
 
-				StartCoroutine(Managers.Client.PlayerJoin(playerJoin.joinPlayerId, playerJoin.joinPlayerNickname));
+            string[] log = wholeMessage.Split(ProtocolConverter.commandSeparator);
+            if (log.Length >= 2)
+            {
+                InvokeEventByCommand(log[0], log[1]);
+            }
+        }
 
-			});
 
-			AddListener("PlayerLeave", (message) =>
-			{
-				Debug.Log("PlayerLeave");
-				PlayerLeaveSchema playerLeave = new PlayerLeaveSchema(message);
+        public void InvokeEventByCommand(string command, string message)
+        {
+            if (OnBroadcastSchemaMap.ContainsKey(command))
+            {
+                var schema = SchemaTypeMap[command](message);
+                OnBroadcastSchemaMap[command]?.Invoke(schema);
+            }
+            else
+            {
+                Debug.Log(command + " not in Key");
+            }
+        }
 
-				StartCoroutine(Managers.Client.PlayerLeave(playerLeave.leavePlayerId));
-			});
+        // 이벤트 리스너를 초기화하는 메서드
+        public void PackageAddListener()
+        {
+            OnBroadcastSchemaMap.Clear();
 
-			AddListener("PlayerMove", (message) =>
-			{
-				Debug.Log("PlayerMove");
-				PlayerMoveSchema playerMove = new PlayerMoveSchema(message);
+            AddListener<AssetCreateSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    Managers.Gltf.CreateObject(schema.objData);
+                }
+                else
+                {
+                    Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<AssetSelectSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    if (Managers.User.Id == schema.userId)
+                    {
+                        Managers.ObjectEditor.SelectObjectEvent(schema.objectId);
+                    }
 
-				StartCoroutine(Managers.Client.PlayerMove(playerMove.movePlayerId, playerMove.movePosition, playerMove.moveRotation));
-			});
-		}
-	}
+                    Managers.ObjectEditor.SetAssetOwner(schema.objectId, schema.userId);
+                }
+                else
+                {
+                    Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<AssetMoveSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    if (Managers.User && schema.userId == Managers.User.Id) return;
+
+                    AssetObject obj = Managers.Gltf.GetAssetObjectById(int.Parse(schema.objectId));
+
+                    if (obj != null)
+                    {
+                        obj.TransformBySchema(schema);
+                    }
+                }
+                else
+                {
+                    //Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<AssetDeselectSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    if (Managers.User.Id == schema.userId)
+                    {
+                        Managers.ObjectEditor.EndTransformObject();
+                    }
+
+                    Managers.ObjectEditor.UnSetAssetOwner(schema.objectId);
+                }
+                else
+                {
+                    Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<AssetDeleteSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    Managers.ObjectEditor.RemoveCustomObjectByObjID(schema.obj_id);
+                }
+                else
+                {
+                    Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<MapChangeSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    //StartCoroutine(Managers.Map.MapLoad(schema.map_id));
+                }
+                else
+                {
+                    Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<MapInitSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    StartCoroutine(Managers.Map.MapInit(schema.userId));
+                }
+                else
+                {
+                    Debug.Log("You are not Creator");
+                }
+            });
+            AddListener<PlayerJoinSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    if (!Managers.Client.GetContainPlayer(schema.joinPlayerId))
+                        Managers.Client.JoinPlayer(schema.joinPlayerId, schema.joinPlayerNickname);
+                }
+                else
+                {
+                    Debug.Log("Join Fail");
+                }
+            });
+
+            AddListener<PlayerJumpSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    var player = Managers.Client.GetPlayer(schema.jumpPlayerId);
+                    if (player != null && !player.userInfo.isLocal)
+                    {
+                        Managers.Client.GetPlayer(schema.jumpPlayerId)?.Jump(Managers.Chacacter.jumpSpeed);
+                    }
+
+                }
+                else
+                {
+                    Debug.Log("Jump Fail");
+                }
+            });
+
+            AddListener<PlayerMoveSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    Managers.Client.MovePlayer(schema.movePlayerId, schema.movePosition, schema.moveRotation, schema.messageTime);
+                }
+                else
+                {
+                    Debug.Log("Move Fail");
+                }
+            });
+
+            AddListener<PlayerLeaveSchema>((schema) =>
+            {
+                if (schema.isSuccess == "s")
+                {
+                    if (Managers.User.IsLocalUserId(schema.leavePlayerId))
+                    {
+                        Managers.Client.ExitGame();
+                    }
+                    else
+                    {
+                        Managers.Client.LeavePlayer(schema.leavePlayerId);
+                    }
+                }
+                else
+                {
+                    Debug.Log("Leave Fail");
+                }
+            });
+        }
+    }
 }

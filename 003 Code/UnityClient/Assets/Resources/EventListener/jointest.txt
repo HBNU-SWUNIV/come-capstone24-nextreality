@@ -1,15 +1,15 @@
-PlayerJoin$testID;testNickname
-PlayerMove$testID;0.5/0/0;0/0/0
-PlayerMove$testID;1/0/0;0/25/0
-PlayerMove$testID;1.5/0/0;0/0/0
-PlayerMove$testID;2.5/0/0;0/0/0
-PlayerMove$testID;3/0/0;0/0/0
-PlayerMove$testID;3.5/0/0;0/0/0
-PlayerMove$testID;4/0/0;0/0/0
-PlayerMove$testID;8/0/0;0/0/0
-PlayerMove$testID;10/0/0;0/0/0
-PlayerMove$testID;16/0/0;0/56/0
-
+PlayerJoin$testID;638506752265295630;testNickname;125
+PlayerMove$testID;638506753265295630;0.5/0/0;0/0/0
+PlayerMove$testID;638506754265295630;1/0/0;0/25/0
+PlayerMove$testID;638506755265295630;1.5/0/0;0/0/0
+PlayerMove$testID;638506756265295630;2.5/0/0;0/0/0
+PlayerMove$testID;638506757265295630;3/0/0;0/0/0
+PlayerMove$testID;638506758265295630;3.5/0/0;0/0/0
+PlayerMove$testID;638506759265295630;4/0/0;0/0/0
+PlayerMove$testID;638506760265295630;8/0/0;0/0/0
+PlayerMove$testID;638506761265295630;10/0/0;0/0/0
+PlayerMove$testID;638506762265295630;16/0/0;0/56/0
+PlayerLeave$testID;638506762265295630
 
 
 
