@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/logrusorgru/aurora"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -39,7 +38,7 @@ func ItemLock(userId string, itemId string) {
 func ItemUnlock(userId string, itemId string) {
 	mapId := UserMapid[userId]
 
-	lockedList, _ := MapidLockedList[mapId]
+	lockedList := MapidLockedList[mapId]
 
 	var itemIndex int
 
@@ -55,7 +54,7 @@ func ItemUnlock(userId string, itemId string) {
 	}
 
 	delete(LockObjUser, itemId)
-	// fmt.Printf("Item [%s] Unlocked\n", itemId)
+	//fmt.Printf("Item [%s] Unlocked\n", itemId)
 }
 
 func isLocked(userId string, itemId string) bool {
@@ -137,7 +136,7 @@ func isCreator(userId string) bool {
 }
 
 func isAdmin(userId string) bool {
-	if userId == "abc" || userId == "abcd" || userId == "abcde" {
+	if userId == "abc" || userId == "abcd" {
 		return true
 	} else {
 		return false
@@ -153,9 +152,7 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
 		mapid := m.OtherMessage[1]
 
-		fmt.Println(
-			aurora.Sprintf(
-				aurora.Gray(12, "%s | Player [%s] Join Map [%s] (Address : %s)"), time.Now().Format("2006-01-02 15:04:05.000"), m.SendUserId, mapid, addr))
+		fmt.Printf("%s | Player [%s] Join Map [%s] (Address : %s)\n", time.Now().Format("2006-01-02 15:04:05.000"), m.SendUserId, mapid, addr)
 
 		existAddr, isUserExists := UserAddr[m.SendUserId]
 		_, isAddrExists := AddrUser[addr]
@@ -163,12 +160,12 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 		sameIp := CompareIPAddress(existAddr, addr)
 		/*
 			fmt.Println(
-				aurora.Sprintf(
-					aurora.Gray(12, "Users Address : %s"), usersAddress))
+				fmt.Sprintf(
+					 .Gray(12, "Users Address : %s"), usersAddress))
 
 			fmt.Println(
-				aurora.Sprintf(
-					aurora.Gray(12, "Users Name : %s"), usersName))
+				fmt.Sprintf(
+					 .Gray(12, "Users Name : %s"), usersName))
 		*/
 
 		// id와 주소가 접속자 map에 있을 때
@@ -179,9 +176,9 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 				delete(AddrUser, existAddr)
 				UserAddr[m.SendUserId] = addr
 				AddrUser[addr] = m.SendUserId
-				fmt.Println(aurora.Sprintf(aurora.Gray(12, "%s | User [%s] Join same map [%s]"), time.Now().Format("2006-01-02 15:04:05.000"), m.SendUserId, mapid))
-				fmt.Printf("UserAddr : %s\nAddrUser : %s\n", UserAddr[m.SendUserId], AddrUser[addr])
-				return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s]"), m.SendUserId, mapid)
+				fmt.Printf("%s | User [%s] Join same map [%s]\n", time.Now().Format("2006-01-02 15:04:05.000"), m.SendUserId, mapid)
+				//fmt.Printf("UserAddr : %s\nAddrUser : %s\n", UserAddr[m.SendUserId], AddrUser[addr])
+				return true, fmt.Sprintf("Success : User [%s] joined Map [%s]\n", m.SendUserId, mapid)
 			}
 		}
 
@@ -195,7 +192,7 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 
 			if !err {
 				fmt.Printf("leave message parsing error\n")
-				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Parsing Leave Message"))
+				return false, "Error : Cannot Parsing Leave Message\n"
 			}
 
 			logData := LogMessage{
@@ -227,7 +224,7 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 				// IP:Port 형태를 UDPAddr 로 변경해서 저장 시도
 				udpAddr, err := net.ResolveUDPAddr("udp", addr)
 				if err != nil {
-					fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
+					fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s\n", err)
 				} else {
 					for _, user := range mapUsers {
 						conn.WriteToUDP([]byte("PlayerJoin$"+user+";12345678;"+user+";"+mapid+";s"), udpAddr)
@@ -241,24 +238,25 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 			}
 			MapidUserList[mapid] = mapUsers
 
-			// fmt.Printf("%s | Map Users : %v\n", time.Now().Format("2006-01-02 15:04:05.000"), mapUsers)
+			//fmt.Printf("%s | Map Users : %v\n", time.Now().Format("2006-01-02 15:04:05.000"), mapUsers)
 
-			return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s]"), m.SendUserId, mapid)
+			return true, fmt.Sprintf("Success : User [%s] joined Map [%s]\n", m.SendUserId, mapid)
 		} else if isUserExists { // 이미 유저ID가 있을 경우
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is already in this game."), m.SendUserId)
+			return false, fmt.Sprintf("Error : User [%s] is already in this game.\n", m.SendUserId)
 		} else if isAddrExists { // 이미 접속한 IP가 등록되어 있었을 경우
-			return false, aurora.Sprintf(aurora.Yellow("Error : Address [%s] is already in this game."), addr)
+			return false, fmt.Sprintf("Error : Address [%s] is already in this game.\n", addr)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : PlayerJoin Message Length Error : need 2, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf("Error : PlayerJoin Message Length Error : need 2, received %d\n", len(m.OtherMessage))
 	}
-	return false, aurora.Sprintf(aurora.Yellow("Error : Unknown (in PlayerJoin)"))
+	return false, "Error : Unknown (in PlayerJoin)\n"
 }
 
 func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 	// MapReady 메시지 형태 :
 	// MapReady$sendUserId;SendTime;
-	// fmt.Printf("MapReady Start\n")
+
+	//fmt.Printf("MapReady Start\n")
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
 		_, isUserAddrExists := UserAddr[m.SendUserId]
 
@@ -267,15 +265,16 @@ func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 			go SendBeforeLog(conn, UserMapid[m.SendUserId], m.SendUserId, boolChan)
 			result := <-boolChan
 			if result {
-				return true, aurora.Sprintf(aurora.Green("Send After Log Complete"))
+				return true, "Send After Log Complete\n"
 			} else {
-				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Send After Log"))
+				return false, "Error : Cannot Send After Log\n"
 			}
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf("Error : Cannot Found User [%s]\n", m.SendUserId)
 		}
+
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : MapReady Message Length Error : need 0, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf("Error : MapReady Message Length Error : need 0, received %d\n", len(m.OtherMessage))
 	}
 }
 
@@ -283,7 +282,7 @@ func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 func SendBeforeLog(conn *net.UDPConn, mapid string, userId string, result chan bool) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println(aurora.Sprintf(aurora.Red("Recovered from panic: %v"), r))
+			fmt.Printf("Recovered from panic: %v\n", r)
 			result <- false
 		}
 	}()
@@ -291,45 +290,45 @@ func SendBeforeLog(conn *net.UDPConn, mapid string, userId string, result chan b
 	mapSaveTimeString := controllerhttp.GetMapTime(mapid, MapServerURL)
 	mapSaveTime, err := time.Parse(time.RFC3339Nano, mapSaveTimeString.Message)
 	if err != nil {
-		fmt.Println(aurora.Sprintf(aurora.Red("Error in Parsing Saved Time : %s"), err))
+		fmt.Printf("Error in Parsing Saved Time : %s\n", err)
 		result <- false
 		return
 	}
 
 	logResult, err := FindDocumentsAfterTime(mapSaveTime, mapid)
 	if err != nil {
-		fmt.Println(aurora.Sprintf(aurora.Red("Error in Load Log Result : %s"), err))
+		fmt.Printf("Error in Load Log Result : %s\n", err)
 		result <- false
 		return
 	}
 
 	udpAddr, err := net.ResolveUDPAddr("udp", UserAddr[userId])
 	if err != nil {
-		fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
-
+		fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s\n", err)
 		result <- false
 		return
 	}
 
 	for _, logOne := range logResult {
-		// fmt.Printf("Log : %s\n", logOne.OriginalMessage)
+		//fmt.Printf("Log : %s\n", logOne.OriginalMessage)
 		_, err := conn.WriteToUDP([]byte(logOne.OriginalMessage+";s"), udpAddr)
 		if err != nil {
-			fmt.Println(aurora.Sprintf(aurora.Red("%s | SendBeforeLog -> UDP Error : %s (%s)"), time.Now().Format("2006-01-02 15:04:05.000"), err, logOne.OriginalMessage))
+			fmt.Printf("%s | SendBeforeLog -> UDP Error : %s (%s)\n", time.Now().Format("2006-01-02 15:04:05.000"), err, logOne.OriginalMessage)
 			continue
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
 	result <- true
+}
 
 func FindDocumentsAfterTime(parsedTimeFromMaptime time.Time, mapid string) ([]LogResponseData, error) {
 	collection := DBClient.Collection("log")
 
-	// fmt.Printf("Find Log Start\n\n")
+	//fmt.Printf("Find Log Start\n\n")
 	currentTime := time.Now().UTC()
-	// fmt.Printf("Parsed Time : %s\nCurrent Time : %s\nTime Duration : %f\n", parsedTimeFromMaptime, currentTime, currentTime.Sub(parsedTimeFromMaptime).Seconds())
+	//fmt.Printf("Parsed Time : %s\nCurrent Time : %s\nTime Duration : %f\n", parsedTimeFromMaptime, currentTime, currentTime.Sub(parsedTimeFromMaptime).Seconds())
 
-	// fmt.Printf("Parsed Time : %s\nCurrent Time : %s\n", strconv.FormatInt(parsedTimeFromMaptime.UnixMilli(), 10), strconv.FormatInt(currentTime.UnixMilli(), 10))
+	//fmt.Printf("Parsed Time : %s\nCurrent Time : %s\n", strconv.FormatInt(parsedTimeFromMaptime.UnixMilli(), 10), strconv.FormatInt(currentTime.UnixMilli(), 10))
 
 	/*
 		filter := bson.M{
@@ -353,6 +352,7 @@ func FindDocumentsAfterTime(parsedTimeFromMaptime time.Time, mapid string) ([]Lo
 			{"originalmessage": bson.M{"$regex": "^AssetMove"}},
 			{"originalmessage": bson.M{"$regex": "^AssetDelete"}},
 		},
+		"success": true,
 	}
 
 	cursor, err := collection.Find(context.TODO(), filter)
@@ -362,7 +362,7 @@ func FindDocumentsAfterTime(parsedTimeFromMaptime time.Time, mapid string) ([]Lo
 	defer cursor.Close(context.TODO())
 
 	var results []LogResponseData
-	// fmt.Printf("Next Cursor Start\n")
+	//fmt.Printf("Next Cursor Start\n")
 	for cursor.Next(context.TODO()) {
 		var elem LogResponseData
 		err := cursor.Decode(&elem)
@@ -370,7 +370,7 @@ func FindDocumentsAfterTime(parsedTimeFromMaptime time.Time, mapid string) ([]Lo
 			fmt.Printf("Error : %s\n", err)
 			return nil, err
 		}
-		// fmt.Printf("LogResponseData : %s\n", elem.OriginalMessage)
+		//fmt.Printf("LogResponseData : %s\n", elem.OriginalMessage)
 		results = append(results, elem)
 	}
 	if err := cursor.Err(); err != nil {
@@ -393,7 +393,7 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 			delete(UserAddr, m.SendUserId)
 			delete(AddrUser, addr)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : Cannot Found User [%s]\n"), m.SendUserId)
 		}
 		if isUserMapidExists {
 			userMapid := UserMapid[m.SendUserId]
@@ -423,13 +423,13 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 						unlockMessage := "AssetDeselect$" + m.SendUserId + ";" + strconv.FormatInt(time.Now().UnixMilli(), 10) + ";" + item
 
-						// fmt.Printf("Unlock Message : %s\n", unlockMessage)
+						//fmt.Printf("Unlock Message : %s\n", unlockMessage)
 
 						structUnlockMessage, err := MessageParser(unlockMessage)
 
 						if !err {
 							fmt.Printf("unlock message parsing error\n")
-							return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Parsing Unlock Message"))
+							return false, "Error : Cannot Parsing Unlock Message"
 						}
 
 						logData := LogMessage{
@@ -448,17 +448,15 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 			}
 
 			// delete(UserMapid, m.SendUserId)
-			fmt.Println(
-				aurora.Sprintf(
-					aurora.Gray(12, "%s | Player [%s] left Map [%s] (Address : %s)"), time.Now().Format("2006-01-02 15:04:05.000"), m.SendUserId, userMapid, addr))
+			fmt.Printf("%s | Player [%s] left Map [%s] (Address : %s)\n", time.Now().Format("2006-01-02 15:04:05.000"), m.SendUserId, userMapid, addr)
 
-			return true, aurora.Sprintf(aurora.Green("Success : User [%s] left Map [%s]\n"), m.SendUserId, userMapid)
+			return true, fmt.Sprintf(("Success : User [%s] left Map [%s]\n"), m.SendUserId, userMapid)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found Map ID of User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : Cannot Found Map ID of User [%s]\n"), m.SendUserId)
 		}
 	}
 
-	return false, aurora.Sprintf(aurora.Yellow("Error : Unknown (in PlayerLeave)"))
+	return false, "Error : Unknown (in PlayerLeave)"
 }
 
 func PlayerMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
@@ -469,9 +467,9 @@ func PlayerMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 	// 보낸 유저가 있는 유저면 return true
 	// 딱히 더 할 작업은 없음
 	if isUserExists(m.SendUserId, addr) {
-		return true, aurora.Sprintf(aurora.Green("Success : User [%s] move\n"), m.SendUserId)
+		return true, fmt.Sprintf(("Success : User [%s] move\n"), m.SendUserId)
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+		return false, fmt.Sprintf(("Error : Cannot Found User [%s]\n"), m.SendUserId)
 	}
 }
 
@@ -485,14 +483,14 @@ func AssetCreate(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
 		if isUserExists(m.SendUserId, addr) {
 			if isCreator(m.SendUserId) {
-				return true, aurora.Sprintf(aurora.Green("Success : User [%s] Asset [%s] Create\n"), m.SendUserId, m.OtherMessage[1])
+				return true, fmt.Sprintf(("Success : User [%s] Asset [%s] Create\n"), m.SendUserId, m.OtherMessage[1])
 			}
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is not Creator"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : User [%s] is not Creator\n"), m.SendUserId)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : Cannot Found User [%s]\n"), m.SendUserId)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : AssetCreate Message Length Error : need 8, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf(("Error : AssetCreate Message Length Error : need 8, received %d\n"), len(m.OtherMessage))
 	}
 }
 
@@ -509,20 +507,20 @@ func AssetMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) 
 				itemId := m.OtherMessage[0]
 				if isLocked(m.SendUserId, itemId) {
 					if LockObjUser[itemId] == m.SendUserId {
-						return true, aurora.Sprintf(aurora.Green("Success : User [%s] Asset [%s] Move\n"), m.SendUserId, m.OtherMessage[0])
+						return true, fmt.Sprintf(("Success : User [%s] Asset [%s] Move\n"), m.SendUserId, m.OtherMessage[0])
 					} else {
-						return false, aurora.Sprintf(aurora.Yellow("Error : Item [%s] is not locked by [%s]"), itemId, m.SendUserId)
+						return false, fmt.Sprintf(("Error : Item [%s] is not locked by [%s]\n"), itemId, m.SendUserId)
 					}
 				} else {
-					return false, aurora.Sprintf(aurora.Yellow("Error : Unavailable Access to Asset Move"))
+					return false, "Error : Unavailable Access to Asset Move\n"
 				}
 			}
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is not Creator"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : User [%s] is not Creator\n"), m.SendUserId)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : Cannot Found User [%s]\n"), m.SendUserId)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : AssetMove Message Length Error : need 8, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf(("Error : AssetMove Message Length Error : need 8, received %d\n"), len(m.OtherMessage))
 	}
 }
 
@@ -540,20 +538,20 @@ func AssetDelete(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 				if isLocked(m.SendUserId, itemId) {
 					if LockObjUser[itemId] == m.SendUserId {
 						ItemUnlock(m.SendUserId, itemId)
-						return true, aurora.Sprintf(aurora.Green("Success : User [%s] Asset [%s] Delete\n"), m.SendUserId, m.OtherMessage[0])
+						return true, fmt.Sprintf(("Success : User [%s] Asset [%s] Delete\n"), m.SendUserId, m.OtherMessage[0])
 					} else {
-						return false, aurora.Sprintf(aurora.Yellow("Error : Item [%s] is not locked by [%s]"), itemId, m.SendUserId)
+						return false, fmt.Sprintf(("Error : Item [%s] is not locked by [%s]\n"), itemId, m.SendUserId)
 					}
 				} else {
-					return false, aurora.Sprintf(aurora.Yellow("Error : Unavailable Access to Asset Delete"))
+					return false, "Error : Unavailable Access to Asset Delete\n"
 				}
 			}
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is not Creator"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : User [%s] is not Creator\n"), m.SendUserId)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf(("Error : Cannot Found User [%s]\n"), m.SendUserId)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : AssetDelete Message Length Error : need 8, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf(("Error : AssetDelete Message Length Error : need 8, received %d\n"), len(m.OtherMessage))
 	}
 }
 
@@ -582,7 +580,7 @@ func AssetSelect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 						if !err {
 							fmt.Printf("leave message parsing error\n")
-							return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Parsing Leave Message"))
+							return false, "Error : Cannot Parsing Leave Message\n"
 						}
 
 						logData := LogMessage{
@@ -603,24 +601,24 @@ func AssetSelect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 						broadcast(conn, m.SendUserId, unlockMessage, true)
 					}
 					ItemLock(m.SendUserId, itemId)
-					// fmt.Printf("MapidLockedList : %v\n", MapidLockedList[UserMapid[m.SendUserId]])
-					// fmt.Printf("LockObjUser : %s\n", LockObjUser[itemId])
+					//fmt.Printf("MapidLockedList : %v\n", MapidLockedList[UserMapid[m.SendUserId]])
+					//fmt.Printf("LockObjUser : %s\n", LockObjUser[itemId])
 
-					return true, aurora.Sprintf(aurora.Green("Success : User [%s] Asset [%s] Select\n"), m.SendUserId, itemId)
+					return true, fmt.Sprintf("Success : User [%s] Asset [%s] Select\n", m.SendUserId, itemId)
 				} else if isLocked(m.SendUserId, itemId) && LockObjUser[itemId] == m.SendUserId {
-					// fmt.Printf("MapidLockedList : %v\n", MapidLockedList[UserMapid[m.SendUserId]])
-					// fmt.Printf("LockObjUser : %s (Again)\n", LockObjUser[itemId])
-					return true, aurora.Sprintf(aurora.Gray(12, "Success : User[%s] Asset [%s] Select Again\n"), m.SendUserId, itemId)
+					//fmt.Printf("MapidLockedList : %v\n", MapidLockedList[UserMapid[m.SendUserId]])
+					//fmt.Printf("LockObjUser : %s (Again)\n", LockObjUser[itemId])
+					return true, fmt.Sprintf("Success : User[%s] Asset [%s] Select Again\n", m.SendUserId, itemId)
 				}
 
-				return false, aurora.Sprintf(aurora.Yellow("Error : Item [%s] is Locked"), itemId)
+				return false, fmt.Sprintf("Error : Item [%s] is Locked\n", itemId)
 			}
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is not Creator"), m.SendUserId)
+			return false, fmt.Sprintf("Error : User [%s] is not Creator\n", m.SendUserId)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf("Error : Cannot Found User [%s]\n", m.SendUserId)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : AssetSelect Message Length Error : need 1, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf("Error : AssetSelect Message Length Error : need 1, received %d\n", len(m.OtherMessage))
 	}
 }
 
@@ -640,23 +638,23 @@ func AssetDeselect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, stri
 					lockUser := LockObjUser[itemId]
 					if m.SendUserId == lockUser {
 						ItemUnlock(m.SendUserId, itemId)
-						return true, aurora.Sprintf(aurora.Green("Success : User [%s] Asset [%s] Deselect\n"), m.SendUserId, m.OtherMessage[0])
+						return true, fmt.Sprintf(("Success : User [%s] Asset [%s] Deselect\n"), m.SendUserId, m.OtherMessage[0])
 					} else {
-						return false, aurora.Sprintf(aurora.Yellow("Error : Item [%s] is Locked\n"), itemId)
+						return false, fmt.Sprintf(("Error : Item [%s] is Locked\n"), itemId)
 					}
 				} else {
 					fmt.Printf("Error : User [%s] not lock Asset [%s]\n", m.SendUserId, itemId)
 					fmt.Printf("Map [%s] Lock List : %v \n", UserMapid[m.SendUserId], MapidLockedList[UserMapid[m.SendUserId]])
-					return false, aurora.Sprintf(aurora.Yellow("Error : Unavailable Access to Asset Deselect [%s]\n"), itemId)
+					return false, fmt.Sprintf(("Error : Unavailable Access to Asset Deselect [%s]\n"), itemId)
 				}
 
 			}
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is not Creator"), m.SendUserId)
+			return false, fmt.Sprintf("Error : User [%s] is not Creator\n", m.SendUserId)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf("Error : Cannot Found User [%s]\n", m.SendUserId)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : AssetSelect Message Length Error : need 1, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf("Error : AssetSelect Message Length Error : need 1, received %d\n", len(m.OtherMessage))
 	}
 }
 
@@ -668,9 +666,9 @@ func PlayerJump(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 	// 보낸 유저가 있는 유저면 return true
 	// 딱히 더 할 작업은 없음
 	if isUserExists(m.SendUserId, addr) {
-		return true, aurora.Sprintf(aurora.Green("Success : User [%s] Jump\n"), m.SendUserId)
+		return true, fmt.Sprintf("Success : User [%s] Jump\n", m.SendUserId)
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+		return false, fmt.Sprintf("Error : Cannot Found User [%s]\n", m.SendUserId)
 	}
 }
 
@@ -684,13 +682,13 @@ func MapInit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
 		if isUserExists(m.SendUserId, addr) {
 			if isCreator(m.SendUserId) {
-				return true, aurora.Sprintf(aurora.Green("Success : User [%s] Init Map [%s]\n"), m.SendUserId, UserMapid[m.SendUserId])
+				return true, fmt.Sprintf("Success : User [%s] Init Map [%s]\n", m.SendUserId, UserMapid[m.SendUserId])
 			}
-			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is not Creator"), m.SendUserId)
+			return false, fmt.Sprintf("Error : User [%s] is not Creator\n", m.SendUserId)
 		} else {
-			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
+			return false, fmt.Sprintf("Error : Cannot Found User [%s]\n", m.SendUserId)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : MapInit Message Length Error : need 0, received %d"), len(m.OtherMessage))
+		return false, fmt.Sprintf("Error : MapInit Message Length Error : need 0, received %d\n", len(m.OtherMessage))
 	}
 }

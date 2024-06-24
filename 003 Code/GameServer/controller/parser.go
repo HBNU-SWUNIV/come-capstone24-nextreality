@@ -22,6 +22,7 @@ type LogMessage struct {
 	MapId           string
 	Message         ReceiveMessage
 	OriginalMessage string
+	Success         bool
 }
 
 type CreatorLists struct {

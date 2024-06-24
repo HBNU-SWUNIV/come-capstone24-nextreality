@@ -1,5 +1,5 @@
 {
-    "MapServerURL" : "http://172.25.1.177:8070",
+    "MapServerURL" : "http://172.25.20.140:8070",
     "MongoURL" : "mongodb://localhost:27017",
-    "GameServerPort" : "8050"
+    "GameServerPort" : "8090"
 }
