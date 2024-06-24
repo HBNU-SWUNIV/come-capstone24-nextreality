@@ -6,13 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/logrusorgru/aurora"
 )
 
 type Config struct {
@@ -53,7 +50,7 @@ func main() {
 	_config, err := LoadConfig("ServerConfig.json")
 
 	if err != nil {
-		log.Fatal(aurora.Sprintf("Config File Load Failed\nError : %s"), err)
+		fmt.Printf("Config File Load Failed\nError : %s", err)
 	}
 
 	mainConfig = _config
@@ -62,32 +59,33 @@ func main() {
 	controllerdb.ConnectDB(mainConfig.MongoURL)
 	controller.MapCreatorList, err = controllerdb.GetCreatorList(controller.DBClient)
 	controller.MapServerURL = mainConfig.MapServerURL
+	// fmt.Printf("Creators : %v", controller.MapCreatorList)
 
 	if err != nil {
-		log.Fatal(aurora.Sprintf("Config File Load Failed\nError : %s"), err)
+		fmt.Printf("Config File Load Failed\nError : %s", err)
 	}
 
 	// UDP 서버 소켓 생성
 	addr, err := net.ResolveUDPAddr("udp", ":"+mainConfig.GameServerPort)
 	if err != nil {
-		fmt.Println("Error : resolving UDP address:", err)
+		fmt.Printf("Error : resolving UDP address: %s\n", err)
 		return
 	}
 
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
-		fmt.Println("Error : listening:", err)
+		fmt.Printf("Error : listening: %s\n", err)
 		return
 	}
 	defer conn.Close()
 
-	fmt.Println(aurora.Green("============= Game Server Started ============="))
+	fmt.Printf("============= Game Server Started =============\n")
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go ExitTask(sigChan)
 
-	go GetOutboundIP()
+	// go GetOutboundIP()
 
 	// 클라이언트 요청 처리
 	for {
@@ -96,6 +94,7 @@ func main() {
 	}
 }
 
+/*
 func GetOutboundIP() {
 	conn, err := net.Dial("udp", "0.0.0.0:"+mainConfig.GameServerPort)
 	if err != nil {
@@ -105,10 +104,11 @@ func GetOutboundIP() {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	// fmt.Printf("Server Address : %s\n", localAddr.String())
-	fmt.Println(
-		aurora.Sprintf(
-			aurora.Gray(12, "Server Address : %s"), localAddr.String()))
+	// fmt.Println(
+	// 	aurora.Sprintf(
+	// 		aurora.Gray(12, "Server Address : %s"), localAddr.String()))
 }
+*/
 
 func LoadConfig(filename string) (Config, error) {
 	var config Config
@@ -130,7 +130,7 @@ func LoadConfig(filename string) (Config, error) {
 func ExitTask(sigChan chan os.Signal) {
 	sig := <-sigChan
 	fmt.Printf("\n\nReceived Signal : %s\n", sig)
-	fmt.Println(aurora.Green("============= Game Server Closed ============="))
+	fmt.Printf("============= Game Server Closed =============\n")
 
 	os.Exit(0)
 }

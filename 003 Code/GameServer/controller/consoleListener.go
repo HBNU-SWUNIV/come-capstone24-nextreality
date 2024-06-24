@@ -6,8 +6,6 @@ import (
 	"net"
 	"os"
 	"strings"
-
-	"github.com/logrusorgru/aurora"
 )
 
 var consoleListenerMap = map[string]consoleListeners{
@@ -102,7 +100,7 @@ func consoleUserCommand(consoleInput []string) {
 
 			udpAddr, err := net.ResolveUDPAddr("udp", userAddress)
 			if err != nil {
-				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
+				fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s\n", err)
 			} else {
 				HandleRequest(conn, udpAddr, msg)
 			}
@@ -119,6 +117,6 @@ func consoleUserCommand(consoleInput []string) {
 }
 
 func consoleExitCommand(consoleInput []string) {
-	fmt.Println(aurora.Green("============ Game Server Shut Down ============"))
+	fmt.Println("============ Game Server Shut Down ============")
 	os.Exit(0)
 }

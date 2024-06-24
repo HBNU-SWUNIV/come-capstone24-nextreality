@@ -6,7 +6,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/logrusorgru/aurora"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -52,9 +51,7 @@ func GetRequest(conn *net.UDPConn) {
 	buf := make([]byte, 1024)
 	n, addr, err := conn.ReadFromUDP(buf)
 	if err != nil {
-		fmt.Println(
-			aurora.Sprintf(
-				aurora.Red("Error : reading from UDP:"), err))
+		fmt.Printf("Error : reading from UDP: %s \n", err)
 		return
 	}
 
@@ -70,9 +67,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 
 	recvMsg, recvResult := MessageParser(msg)
 	if !recvResult {
-		fmt.Println(
-			aurora.Sprintf(
-				aurora.Yellow("Cannot Parsing Message : %s"), msg))
+		fmt.Printf("Cannot Parsing Message : %s\n", msg)
 		return
 	}
 	/*
@@ -81,9 +76,10 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 		}
 	*/
 
+	var logData LogMessage
 
 	if recvMsg.CommandName != "" {
-		logData := LogMessage{
+		logData = LogMessage{
 			Timestamp:       time.Now().UTC(),
 			MapId:           UserMapid[recvMsg.SendUserId],
 			Message:         recvMsg,
@@ -94,16 +90,10 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 			logData.MapId = recvMsg.OtherMessage[1]
 		}
 
-		_, err := DBClient.Collection("log").InsertOne(context.TODO(), logData)
-		if err != nil {
-			fmt.Printf("insert result : %s\n", err)
-		}
 	}
 
 	/*
-		fmt.Println(
-			aurora.Sprintf(
-				aurora.Gray(12, "Receive Command : %s, Send User : %s"), recvMsg.CommandName, recvMsg.SendUserId))
+		fmt.Printf(12, "Receive Command : %s, Send User : %s", recvMsg.CommandName, recvMsg.SendUserId)
 	*/
 	// TODO : ValidateMessage 구현
 	// ValidateMessage(recvMsg)
@@ -112,7 +102,6 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 	if ListenerMap[recvMsg.CommandName] != nil {
 
 		listenerResult, listenerMsg := ListenerMap[recvMsg.CommandName](conn, recvMsg, strAddr)
-
 
 		if listenerResult {
 			if recvMsg.CommandName == "MapReady" {
@@ -128,10 +117,15 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 			// fmt.Printf("Removed User [%s]\n\n\n", recvMsg.SendUserId)
 			delete(UserMapid, recvMsg.SendUserId)
 		}
+		logData.Success = listenerResult
+
+		_, err := DBClient.Collection("log").InsertOne(context.TODO(), logData)
+		if err != nil {
+			fmt.Printf("insert result : %s\n", err)
+		}
 
 	} else {
-		fmt.Println(
-			aurora.Sprintf(aurora.Yellow("%s | Unavailable Command Input : %s"), time.Now().Format("2006-01-02 15:04:05.000"), recvMsg.CommandName))
+		fmt.Printf("%s | Unavailable Command Input : %s\n", time.Now().Format("2006-01-02 15:04:05.000"), recvMsg.CommandName)
 	}
 
 	// fmt.Println("-----------------------------------------------")
@@ -141,8 +135,10 @@ func includeSendUserCheck(commandName string) bool {
 	switch commandName {
 	case "PlayerJoin", "PlayerLeave", "AssetCreate", "AssetDelete":
 		return true
+
 	case "PlayerMove", "AssetMove", "MapReady", "PlayerJump":
 		return false
+
 	}
 	return true
 }
@@ -156,9 +152,7 @@ func includeSendUserCheck(commandName string) bool {
 func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, includeSendUser bool) {
 
 	/*
-		fmt.Println(
-			aurora.Sprintf(
-				aurora.Green("BroadCasting Start From : %s (include Send User : %t)"), sendUserId, includeSendUser))
+		fmt.Println("BroadCasting Start From : %s (include Send User : %t)", sendUserId, includeSendUser)
 	*/
 	// 보낸 사람이 존재하는 맵 ID
 	sendUsersMap := UserMapid[sendUserId]
@@ -180,7 +174,7 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 		} else {
 			udpAddr, err := net.ResolveUDPAddr("udp", UserAddr[user])
 			if err != nil {
-				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
+				fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s", err)
 			} else {
 				// fmt.Println(originalMessage + ";s")
 				go conn.WriteToUDP([]byte(originalMessage+";s"), udpAddr)
@@ -192,11 +186,11 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 func errorReturn(conn *net.UDPConn, sendUserId string, originalMessage string, errorMessage string) {
 	udpAddr, err := net.ResolveUDPAddr("udp", UserAddr[sendUserId])
 	if err != nil {
-		fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
+		fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s", err)
 	} else {
 		go conn.WriteToUDP([]byte(originalMessage+";f"), udpAddr)
 	}
-	fmt.Println(aurora.Sprintf(aurora.Yellow("%s | BroadCast Skipped : %s (%s)\n"), time.Now().Format("2006-01-02 15:04:05.000"), errorMessage, originalMessage))
+	fmt.Printf("%s | BroadCast Skipped : %s (%s)\n", time.Now().Format("2006-01-02 15:04:05.000"), errorMessage, originalMessage)
 }
 
 /*

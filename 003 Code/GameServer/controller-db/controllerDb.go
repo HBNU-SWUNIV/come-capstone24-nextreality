@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/logrusorgru/aurora"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,11 +15,10 @@ func ConnectDB(uri string) {
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		fmt.Println(aurora.Sprintf(
-			aurora.Red("MongoDB Connection Error : %s"), err))
+		fmt.Printf("MongoDB Connection Error : %s\n", err)
 		return
 	}
-	fmt.Println(aurora.Green("MongoDB Connection Success"))
+	fmt.Printf("MongoDB Connection Success\n")
 	db := client.Database("GameServer")
 	controller.DBClient = db
 }
@@ -41,6 +39,7 @@ func GetCreatorList(db *mongo.Database) (map[string][]string, error) {
 			log.Println("Decode error:", err)
 			continue
 		}
+		// fmt.Printf("Map %s Creators : %v\n", creatorList.MapId, creatorList.Creators)
 		creatorMap[creatorList.MapId] = creatorList.Creators
 	}
 
