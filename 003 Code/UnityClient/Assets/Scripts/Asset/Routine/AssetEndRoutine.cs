@@ -39,12 +39,12 @@ namespace NextReality.Asset.Routine
                     {
                         Managers.Gltf.ActiveRigidbody(); // 모든 Rigidbody 활성화
 
-                        //if (Managers.Map.GetLoadStart())
-                        //{
-                        //    Debug.Log("Send MapReady");
-                        //    Managers.Map.SendMapReady();
-                        //    Managers.Map.ConvertLoadStart();
-                        //}
+                        if (Managers.Map.GetLoadStart())
+                        {
+                            Debug.Log("Send MapReady");
+                            Managers.Map.SendMapReady();
+                            Managers.Map.ConvertLoadStart();
+                        }
                     }
                 }
             }

@@ -69,7 +69,9 @@ namespace NextReality.Networking
         public string GetConfigData(string key)
         {
             //Debug.Log("Get Url: " +  key + configs[key]);
-            return configs[key];
+            if (configs.ContainsKey(key))
+                return configs[key];
+            else return null;
         }
     }
 }

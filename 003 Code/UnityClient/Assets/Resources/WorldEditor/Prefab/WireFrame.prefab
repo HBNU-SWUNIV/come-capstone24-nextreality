@@ -263,7 +263,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3899319734890392987}
-  - component: {fileID: 1392998453145300285}
+  - component: {fileID: 2278726372062427798}
   m_Layer: 0
   m_Name: WireFrame
   m_TagString: Untagged
@@ -288,7 +288,7 @@ Transform:
   - {fileID: 7383931612428123976}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1392998453145300285
+--- !u!114 &2278726372062427798
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -297,7 +297,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8968931748711955637}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae12a0d88c3691745bca2e8285256bd2, type: 3}
+  m_Script: {fileID: 11500000, guid: 696be6f86c623464a8b4374be61dc433, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   boundingBox: {fileID: 5694089703164963250}

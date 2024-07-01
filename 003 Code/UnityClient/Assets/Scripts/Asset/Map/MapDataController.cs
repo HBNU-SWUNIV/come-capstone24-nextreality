@@ -234,7 +234,7 @@ namespace NextReality.Asset
 
                 DestroyAllGameObjects(); // 모든 게임 오브젝트를 파괴
 
-                SendMapReady();
+                ConvertLoadStart();
                 StartCoroutine(ObjectLoad(mapDataTuple.Item2)); // 오브젝트 로드
 
                 //main.transform.position = Vector3.zero; // 메인 오브젝트 위치를 초기화
@@ -256,6 +256,8 @@ namespace NextReality.Asset
                 {
                     if (objData.type == "Null") // Null 키워드는 오브젝트가 하나도 존재하지 않음을 뜻함
                     {
+                        ConvertLoadStart();
+                        SendMapReady();
                         continue;
                     }
 

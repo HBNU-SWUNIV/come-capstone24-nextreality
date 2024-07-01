@@ -97,7 +97,7 @@ namespace NextReality.Networking
 
                     byte[] data = udpClient.Receive(ref serverEndPoint);
                     string message = Encoding.UTF8.GetString(data);
-                    // Debug.Log("Received:    " + message);
+                    Debug.Log("Received:    " + message);
 
                     // 수신한 메시지를 메인 스레드에서 처리할 수 있도록 전달
                     MainThreadDispatcher.Instance().Enqueue(() => HandleReceivedMessage(message));
