@@ -33,6 +33,8 @@ namespace NextReality.Game
 		protected PlayerAvatarAction localPlayerLeaveEvents;
 		protected PlayerAvatarAction playerLeaveEvents;
 
+		public DateTime JoinTime;
+
 		// 자신 Join Player 요청 시간
 		public float sendWaitTickSeconds = 2.0f;
 		public float maxSendWaitTickSeconds = 10f;
@@ -124,7 +126,7 @@ namespace NextReality.Game
 
 		}
 
-		public void JoinPlayer(string playerId, string playerNickname)
+		public void JoinPlayer(string playerId, string playerNickname, DateTime JoinTime)
 		{
 			if (!players.ContainsKey(playerId))
 			{
@@ -146,7 +148,11 @@ namespace NextReality.Game
 						new Data.UserInfo(playerId, playerNickname, isLocal)
 					);
 
-					if (isLocal) Managers.Chacacter.InitLocalPlayer(myPlayerAvatar);
+					if (isLocal)
+					{
+						Managers.Chacacter.InitLocalPlayer(myPlayerAvatar);
+						Managers.Client.JoinTime = JoinTime;
+					}
 
 					if (playerJoinEvents != null) playerJoinEvents(myPlayerAvatar, playerId);
 					if (isLocal && localPlayerJoinEvents != null) localPlayerJoinEvents(myPlayerAvatar, playerId);
