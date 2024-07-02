@@ -62,7 +62,7 @@ namespace NextReality.Asset
                         if (response.CheckResult())
                         {
                             downFailCount = 0;
-                            if (response.data.Count != 0 && response.data[0].id.Equals(downTask.astId)) 
+                            if (response.data.Count != 0 && response.data[0].id.Equals(downTask.astId))
                             {
                                 byte[] astData = Convert.FromBase64String(response.data[0].file);
                                 SaveGltf(downTask.astId, astData);
@@ -97,8 +97,8 @@ namespace NextReality.Asset
             {
                 if (byteData != null) // byte 배열이 null 값이 아닌 경우
                 {
-                    Task<bool> loadWork =  loadTask.gltfImport.LoadGltfBinary(byteData); // 에셋 로드
-					yield return new WaitUntil(() => loadWork.IsCompleted);
+                    Task<bool> loadWork = loadTask.gltfImport.LoadGltfBinary(byteData); // 에셋 로드
+                    yield return new WaitUntil(() => loadWork.IsCompleted);
 
                     if (loadWork.IsCompletedSuccessfully) // 에셋 로드 성공한 경우
                     {
@@ -133,9 +133,9 @@ namespace NextReality.Asset
                 if (wearTask.gltfObj != null) // 적용할 오브젝트가 null 값이 아닌 경우
                 {
                     Task<bool> wearWork = wearTask.gltfImport.InstantiateMainSceneAsync(wearTask.gltfObj.transform); // 에셋 적용
-					yield return new WaitUntil(() => wearWork.IsCompleted);
+                    yield return new WaitUntil(() => wearWork.IsCompleted);
 
-					if (wearWork.IsCompletedSuccessfully) // 에셋 적용 성공한 경우
+                    if (wearWork.IsCompletedSuccessfully) // 에셋 적용 성공한 경우
                     {
                         wearFailCount = 0;
                         wearTask.isWearSuccess = true;

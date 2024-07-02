@@ -48,6 +48,7 @@ namespace NextReality.Asset
             AssetRoutines.Add(gameObject.AddComponent<AssetLoadRoutine>());
             AssetRoutines.Add(gameObject.AddComponent<AssetWearRoutine>());
             AssetRoutines.Add(gameObject.AddComponent<AssetEndRoutine>());
+            gameObject.AddComponent<AssetDownTest>();
 
             for (int i = 0; i < AssetRoutines.Count; i++)
             {
