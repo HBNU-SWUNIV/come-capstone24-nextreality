@@ -48,7 +48,9 @@ namespace NextReality.Asset
             AssetRoutines.Add(gameObject.AddComponent<AssetLoadRoutine>());
             AssetRoutines.Add(gameObject.AddComponent<AssetWearRoutine>());
             AssetRoutines.Add(gameObject.AddComponent<AssetEndRoutine>());
-            gameObject.AddComponent<AssetDownTest>();
+
+            gameObject.AddComponent<AssetDownTest>(); // 캐싱 Test를 위한 컴포넌트
+            gameObject.AddComponent<DifTimer>();
 
             for (int i = 0; i < AssetRoutines.Count; i++)
             {
