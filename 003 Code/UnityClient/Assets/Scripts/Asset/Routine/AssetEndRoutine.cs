@@ -44,6 +44,9 @@ namespace NextReality.Asset.Routine
                             Debug.Log("Send MapReady");
                             Managers.Map.SendMapReady();
                             Managers.Map.ConvertLoadStart();
+
+                            DifTimer.Instance.SetEndTime(); // 캐싱 test 종료
+                            DifTimer.Instance.GetTimeDif(); // 캐싱 작업 시간 출력
                         }
                     }
                 }
