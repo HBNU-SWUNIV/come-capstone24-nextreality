@@ -7,6 +7,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 using System;
 using NextReality.Data.Schema;
 using NextReality.Data;
+using NextReality.Asset.Routine;
 
 namespace NextReality.Asset
 {
@@ -235,6 +236,9 @@ namespace NextReality.Asset
                 DestroyAllGameObjects(); // 모든 게임 오브젝트를 파괴
 
                 ConvertLoadStart();
+
+                DifTimer.Instance.SetStartTime(); // 캐싱 test 시작
+
                 StartCoroutine(ObjectLoad(mapDataTuple.Item2)); // 오브젝트 로드
 
                 //main.transform.position = Vector3.zero; // 메인 오브젝트 위치를 초기화
