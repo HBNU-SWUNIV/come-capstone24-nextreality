@@ -24,21 +24,23 @@ namespace NextReality.Asset
             if (GltfRoutineManager.instance == null)
             {
                 GltfRoutineManager.instance = this;
-            }
+                DontDestroyOnLoad(this.gameObject);
+
+			}
             else
             {
-                Destroy(GltfRoutineManager.instance.gameObject);
+                Destroy(this.gameObject);
                 Debug.Log("Destroy GltfRoutineManager Object");
             }
         }
 
-        private void OnDestroy()
-        {
-            if (GltfRoutineManager.instance == this)
-            {
-                GltfRoutineManager.instance = null;
-            }
-        }
+        //private void OnDestroy()
+        //{
+        //    if (GltfRoutineManager.instance == this)
+        //    {
+        //        GltfRoutineManager.instance = null;
+        //    }
+        //}
 
         private void Start()
         {

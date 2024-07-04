@@ -1,5 +1,5 @@
 assetServerUrl	http://172.25.16.47:8080
 loginServerUrl	http://172.25.16.47:8000
 mapServerUrl	http://172.25.16.47:8070
-gameServerIP	172.25.16.47
+gameServerIP	172.25.16.98
 gameServerPort	8090
