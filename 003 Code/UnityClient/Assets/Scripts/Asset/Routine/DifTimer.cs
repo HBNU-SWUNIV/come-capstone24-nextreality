@@ -19,10 +19,12 @@ namespace NextReality.Asset.Routine
 			if (DifTimer.instance == null)
 			{
 				DifTimer.instance = this;
+				DontDestroyOnLoad(this.gameObject);
 			}
 			else
 			{
 				Destroy(DifTimer.instance.gameObject);
+				Debug.Log("Destroy DifTimer Object");
 			}
 		}
 
