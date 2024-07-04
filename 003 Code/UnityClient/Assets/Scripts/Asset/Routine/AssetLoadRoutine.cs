@@ -21,7 +21,7 @@ namespace NextReality.Asset.Routine
                 {
                     // Debug.Log("Loading...	" + loadTask.astId);
                     //yield return StartCoroutine(LoadGltf(loadTask, glb_data[loadTask.astId])); // 에셋 로드
-                    yield return StartCoroutine(LoadGltf(loadTask, AssetDownTest.Instance.GetAsset(0, loadTask)));
+                    yield return StartCoroutine(LoadGltf(loadTask, AssetDownTest.Instance.GetAsset(AssetDownTest.Instance.mode, loadTask)));
 
                     if (loadTask.isFailOrStop) // 로드 실패 혹은 취소한 경우
                     {
