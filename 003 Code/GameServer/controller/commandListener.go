@@ -136,11 +136,14 @@ func isCreator(userId string) bool {
 }
 
 func isAdmin(userId string) bool {
-	if userId == "abc" || userId == "abcd" {
-		return true
-	} else {
-		return false
+	adminList := []string{"1234"}
+
+	for _, name := range adminList {
+		if name == userId {
+			return true
+		}
 	}
+	return false
 }
 
 func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
@@ -256,7 +259,7 @@ func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 	// MapReady 메시지 형태 :
 	// MapReady$sendUserId;SendTime;
 
-	//fmt.Printf("MapReady Start\n")
+	fmt.Printf("MapReady Start\n")
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
 		_, isUserAddrExists := UserAddr[m.SendUserId]
 
@@ -310,7 +313,7 @@ func SendBeforeLog(conn *net.UDPConn, mapid string, userId string, result chan b
 	}
 
 	for _, logOne := range logResult {
-		//fmt.Printf("Log : %s\n", logOne.OriginalMessage)
+		fmt.Printf("Log : %s\n", logOne.OriginalMessage)
 		_, err := conn.WriteToUDP([]byte(logOne.OriginalMessage+";s"), udpAddr)
 		if err != nil {
 			fmt.Printf("%s | SendBeforeLog -> UDP Error : %s (%s)\n", time.Now().Format("2006-01-02 15:04:05.000"), err, logOne.OriginalMessage)
