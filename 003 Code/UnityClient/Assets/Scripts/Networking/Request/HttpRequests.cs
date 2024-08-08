@@ -22,6 +22,7 @@ namespace NextReality.Networking.Request
             AssetSearch = 22,
             AssetInfo = 23,
             AssetDownload = 24,
+            AssetDownPart = 25,
             MapUpload = 31,
             MapList = 32,
             MapDownload = 34
@@ -29,9 +30,9 @@ namespace NextReality.Networking.Request
 
         private static HttpRequests instance = null;
 
-        public string assetServerUrl;// = "http://172.25.17.134:8080";
-        public string loginServerUrl;// = "http://172.25.17.134:8000";
-        public string mapServerUrl;// = "http://172.25.17.134:8070";
+        public string assetServerUrl;// = "http://192.168.50.63:8080";
+        public string loginServerUrl;// = "http://192.168.50.63:8000";
+        public string mapServerUrl;// = "http://192.168.50.63:8070";
 
         public static HttpRequests Instance
         {
@@ -77,6 +78,8 @@ namespace NextReality.Networking.Request
                     return assetServerUrl + "/asset_info";
                 case ServerEndpoints.AssetDownload:
                     return assetServerUrl + "/asset_down";
+                case ServerEndpoints.AssetDownPart:
+                    return assetServerUrl + "/asset_down_part";
                 case ServerEndpoints.MapUpload:
                 case ServerEndpoints.MapDownload:
                     return mapServerUrl + "/map_data";

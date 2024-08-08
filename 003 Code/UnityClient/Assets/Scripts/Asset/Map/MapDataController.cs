@@ -71,7 +71,7 @@ namespace NextReality.Asset
         //{
         //    if (Input.GetKeyDown(KeyCode.N))
         //    {
-        //        StartCoroutine(MapSave()); // 맵 저장
+        //        StartCoroutine(MapCreate()); // 맵 저장
         //    }
         //    else if (Input.GetKeyDown(KeyCode.M))
         //    {
@@ -79,6 +79,26 @@ namespace NextReality.Asset
         //        StartCoroutine(MapLoad(mapInfo.map_id)); // 맵 불러오기
         //    }
         //}
+
+        public IEnumerator MapCreate()
+        {
+            MapData mapData = new MapData();
+            List<MapObjectData> mapObjDatas = new List<MapObjectData>();
+
+            mapData.map_id = new System.Random().Next(0, 100000);
+            mapData.user_id = Managers.User.Id;
+            mapData.mapName = mapData.map_id.ToString();
+
+            mapData.mapCTime = DateTime.UtcNow.ToString("O");
+            mapData.version = 0;
+            mapData.chunkSize = chunkSize;
+            mapData.chunkNum = 0;
+            mapData.objCount = 0;
+
+            Debug.Log("Map Create Start:  " + mapData.map_id);
+            // 맵 데이터 저장
+            yield return mapToJson.SaveMapData((mapData, mapObjDatas));
+        }
 
         // 맵을 저장하는 메서드
         public IEnumerator MapSave()

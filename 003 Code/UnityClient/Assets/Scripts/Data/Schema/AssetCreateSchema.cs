@@ -38,6 +38,5 @@ namespace NextReality.Data.Schema
 				.CastAnyFromProperty(objData, nameof(ObjectData.isMeshCollider))
 				.CastAnyFromProperty(objData, nameof(ObjectData.isMeshCollider));
 		}
-
 	}
 }
