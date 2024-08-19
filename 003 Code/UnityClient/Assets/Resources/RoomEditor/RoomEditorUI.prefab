@@ -1003,7 +1003,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 514356233340778722}
   m_HandleRect: {fileID: 6251430089994500202}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1130,6 +1130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64bf484c54e64b14496eb1e41e284192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userListVIewContent: {fileID: 4989738979645827316}
 --- !u!1 &4772012019081118957
 GameObject:
   m_ObjectHideFlags: 0
@@ -1288,6 +1289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64bf484c54e64b14496eb1e41e284192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userListVIewContent: {fileID: 4798968376328799679}
 --- !u!1 &5497734442188107840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1515,6 +1517,9 @@ MonoBehaviour:
   removeAuthorityColor: {r: 0.83137256, g: 0.34117648, b: 0.20784314, a: 1}
   masterAuthorityColor: {r: 0.7176471, g: 0.20784314, b: 0.83137256, a: 1}
   unabledAuthorityColor: {r: 0.8039216, g: 0.7921569, b: 0.80784315, a: 1}
+  userListView: {fileID: 4204630432715988211}
+  managerListView: {fileID: 3503409077567515229}
+  listElementPrefab: {fileID: 1052188078276014024, guid: fb74ad44e0310784a9ffc343fba3c32a, type: 3}
 --- !u!1 &7448253270585434228
 GameObject:
   m_ObjectHideFlags: 0
@@ -1672,7 +1677,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2780918818631719123}
   m_HandleRect: {fileID: 8471937816735045711}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
