@@ -35,9 +35,9 @@ namespace NextReality.Game.UI
 		public void SetUser(UserRoomAuthority userData)
 		{
 			userRoomAuthority = userData;
-			userNameText.text = string.Format("{0}({1})", userData.user.nickname, userData.user.user_id);
+			userNameText.text = userData.user_id;
 
-			SetActionButton(userData.room_authority);
+			SetActionButton(userData.roomAuthority);
 		}
 
 		void SetActionButton(RoomAuthority authority)
@@ -67,29 +67,23 @@ namespace NextReality.Game.UI
 
 		private void ListenerEvent()
 		{
-			//if(authority == RoomAuthority.Manager)
-			//{
-			//	userRoomAuthority.roomAuthority = RoomAuthority.Normal;
-			//	UserRoomAuthorityEditor.Instance.AddManager(userRoomAuthority);
-			//} else if(authority == RoomAuthority.Normal) {
-			//	userRoomAuthority.roomAuthority = RoomAuthority.Manager;
-			//	UserRoomAuthorityEditor.Instance.RemoveManager(userRoomAuthority);
-			//}
+			if(authority == RoomAuthority.Manager)
+			{
+				userRoomAuthority.roomAuthority = RoomAuthority.Normal;
+				UserRoomAuthorityEditor.Instance.AddManager(userRoomAuthority);
+			} else if(authority == RoomAuthority.Normal) {
+				userRoomAuthority.roomAuthority = RoomAuthority.Manager;
+				UserRoomAuthorityEditor.Instance.RemoveManager(userRoomAuthority);
+			}
 
-			//SetActionButton(userRoomAuthority.roomAuthority);
-			UserRoomAuthorityEditor.Instance.SendConvertAuthority(userRoomAuthority);
-		}
-
-		public void RefreshButton()
-		{
-			SetActionButton(userRoomAuthority.room_authority);
+			SetActionButton(userRoomAuthority.roomAuthority);
 		}
 
 		public RoomAuthority authority
 		{
 			get
 			{
-				return userRoomAuthority?.room_authority ?? RoomAuthority.Error;
+				return userRoomAuthority?.roomAuthority ?? RoomAuthority.Error;
 			}
 		}
 

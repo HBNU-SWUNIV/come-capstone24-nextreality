@@ -26,8 +26,8 @@ namespace NextReality.Game.UI
 
 		private static UserRoomAuthorityEditor instance = null;
 
-		private Dictionary<string, UserRoomAuthority> userMap = new Dictionary<string, UserRoomAuthority>();
-		private Dictionary<string, UserRoomAuthority> managerMap = new Dictionary<string, UserRoomAuthority>();
+		private List<UserRoomAuthority> userList = new List<UserRoomAuthority>();
+		private List<UserRoomAuthority> managerList = new List<UserRoomAuthority>();
 
 		public UserRoomAuthorityListView userListView;
 		public UserRoomAuthorityListView managerListView;
@@ -57,62 +57,26 @@ namespace NextReality.Game.UI
 			creatorListServerUrl = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.CreatorList);
 
 			UserRoomAuthority user = new UserRoomAuthority();
-			user.user = new UserData();
-			user.user.user_id = "aaa";
-			user.room_authority = RoomAuthority.Manager;
+			user.user_id = "aaa";
+			user.roomAuthority = RoomAuthority.Manager;
 			
 			UserRoomAuthority user2 = new UserRoomAuthority();
-			user2.user = new UserData();
-			user2.user.user_id = "abcd";
-			user2.room_authority = RoomAuthority.Normal;
+			user2.user_id = "abcd";
+			user2.roomAuthority = RoomAuthority.Normal;
 
-			AddUser(user);
-			AddUser(user2);
+			userList.Add(user);
+			userList.Add(user2);
+
+			UserRoomAuthority user3 = new UserRoomAuthority();
+			user.user_id = "aaa";
+			user.roomAuthority = RoomAuthority.Manager;
 
 			UserRoomAuthority user4 = new UserRoomAuthority();
-			user4.user = new UserData();
-			user4.user.user_id = "abc";
-			user4.room_authority = RoomAuthority.Manager;
+			user2.user_id = "abc";
+			user2.roomAuthority = RoomAuthority.Normal;
 
-			AddManager(user);
-			AddManager(user4);
-
-		}
-
-		public void ResetUserList()
-		{
-			int mapId = Managers.Map.map_id;
-
-			if (mapId < 0)
-			{
-				Debug.Log("Map Id Fail");
-				return;
-			}
-
-			string command = string.Format("?map_id={0}", mapId);
-
-			StartCoroutine(httpRequests.RequestGet(creatorListServerUrl + command, (result) =>
-			{
-				try
-				{
-					CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
-					//if (response.CheckResult())
-					//{
-					//	foreach (string userId in Managers.Client.GetUserMap)
-					//	{
-					//		AddUser(userId);
-					//	}
-					//}
-					//else
-					//{
-					//	isRequestSuccess = false;
-					//	Debug.Log("Load Fail");
-					//}
-				}
-				catch
-				{
-					Debug.Log("Json Fail");
-				}
+			managerList.Add(user3);
+			managerList.Add(user4);
 
 			}));
 		}
