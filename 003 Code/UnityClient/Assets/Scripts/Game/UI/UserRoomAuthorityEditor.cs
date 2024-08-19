@@ -22,8 +22,8 @@ namespace NextReality.Game.UI
 
 		private static UserRoomAuthorityEditor instance = null;
 
-		private List<UserRoomAuthority> userList = new List<UserRoomAuthority>();
-		private List<UserRoomAuthority> managerList = new List<UserRoomAuthority>();
+		private Dictionary<string, UserRoomAuthority> userMap = new Dictionary<string, UserRoomAuthority>();
+		private Dictionary<string, UserRoomAuthority> managerMap = new Dictionary<string, UserRoomAuthority>();
 
 		public UserRoomAuthorityListView userListView;
 		public UserRoomAuthorityListView managerListView;
@@ -54,8 +54,8 @@ namespace NextReality.Game.UI
 			user2.user_id = "abcd";
 			user2.roomAuthority = RoomAuthority.Normal;
 
-			userList.Add(user);
-			userList.Add(user2);
+			AddUser(user);
+			AddUser(user2);
 
 			UserRoomAuthority user3 = new UserRoomAuthority();
 			user.user_id = "aaa";
@@ -65,8 +65,8 @@ namespace NextReality.Game.UI
 			user2.user_id = "abc";
 			user2.roomAuthority = RoomAuthority.Normal;
 
-			managerList.Add(user3);
-			managerList.Add(user4);
+			AddManager(user3);
+			AddManager(user4);
 
 		}
 
@@ -90,13 +90,27 @@ namespace NextReality.Game.UI
 
 		}
 
+		public void AddUser(UserRoomAuthority user)
+		{
+			userMap.Add(user.user_id, user);
+			userListView.AddUserRoomAuthority(user);
+		}
+
+		public void RemoveUser(UserRoomAuthority user)
+		{
+			userMap.Remove(user.user_id);
+			userListView.RemoveUserRoomAuthority(user);
+		}
+
 		public void AddManager(UserRoomAuthority user)
 		{
+			managerMap.Add(user.user_id, user);
 			managerListView.AddUserRoomAuthority(user);
 		}
 
 		public void RemoveManager(UserRoomAuthority user)
 		{
+			managerMap.Remove(user.user_id);
 			managerListView.RemoveUserRoomAuthority(user);
 		}
 
