@@ -67,15 +67,21 @@ namespace NextReality.Game.UI
 
 		private void ListenerEvent()
 		{
-			if(authority == RoomAuthority.Manager)
-			{
-				userRoomAuthority.roomAuthority = RoomAuthority.Normal;
-				UserRoomAuthorityEditor.Instance.AddManager(userRoomAuthority);
-			} else if(authority == RoomAuthority.Normal) {
-				userRoomAuthority.roomAuthority = RoomAuthority.Manager;
-				UserRoomAuthorityEditor.Instance.RemoveManager(userRoomAuthority);
-			}
+			//if(authority == RoomAuthority.Manager)
+			//{
+			//	userRoomAuthority.roomAuthority = RoomAuthority.Normal;
+			//	UserRoomAuthorityEditor.Instance.AddManager(userRoomAuthority);
+			//} else if(authority == RoomAuthority.Normal) {
+			//	userRoomAuthority.roomAuthority = RoomAuthority.Manager;
+			//	UserRoomAuthorityEditor.Instance.RemoveManager(userRoomAuthority);
+			//}
 
+			//SetActionButton(userRoomAuthority.roomAuthority);
+			UserRoomAuthorityEditor.Instance.SendConvertAuthority(userRoomAuthority);
+		}
+
+		public void RefreshButton()
+		{
 			SetActionButton(userRoomAuthority.roomAuthority);
 		}
 
