@@ -57,15 +57,11 @@ namespace NextReality.Game.UI
 			AddUser(user);
 			AddUser(user2);
 
-			UserRoomAuthority user3 = new UserRoomAuthority();
-			user.user_id = "aaa";
-			user.roomAuthority = RoomAuthority.Manager;
-
 			UserRoomAuthority user4 = new UserRoomAuthority();
-			user2.user_id = "abc";
-			user2.roomAuthority = RoomAuthority.Normal;
+			user4.user_id = "abc";
+			user4.roomAuthority = RoomAuthority.Manager;
 
-			AddManager(user3);
+			AddManager(user);
 			AddManager(user4);
 
 		}
@@ -92,26 +88,80 @@ namespace NextReality.Game.UI
 
 		public void AddUser(UserRoomAuthority user)
 		{
+			if (userMap.ContainsKey(user.user_id)) return;
 			userMap.Add(user.user_id, user);
 			userListView.AddUserRoomAuthority(user);
 		}
 
 		public void RemoveUser(UserRoomAuthority user)
 		{
+			if (!userMap.ContainsKey(user.user_id)) return;
 			userMap.Remove(user.user_id);
 			userListView.RemoveUserRoomAuthority(user);
 		}
 
+		public UserRoomAuthorityListElement GetUser(UserRoomAuthority user)
+		{
+			return userListView.GetUserRoomAuthorityListElement(user);
+		}
+
 		public void AddManager(UserRoomAuthority user)
 		{
+			if (managerMap.ContainsKey(user.user_id)) return;
 			managerMap.Add(user.user_id, user);
 			managerListView.AddUserRoomAuthority(user);
 		}
 
 		public void RemoveManager(UserRoomAuthority user)
 		{
+			if (!managerMap.ContainsKey(user.user_id)) return;
 			managerMap.Remove(user.user_id);
 			managerListView.RemoveUserRoomAuthority(user);
+		}
+		public UserRoomAuthorityListElement GetUManager(UserRoomAuthority user)
+		{
+			return managerListView.GetUserRoomAuthorityListElement(user);
+		}
+
+		public void SendConvertAuthority(UserRoomAuthority user)
+		{
+			if (user.roomAuthority == RoomAuthority.Manager)
+			{
+				user.roomAuthority = RoomAuthority.Normal;
+			}
+			else if (user.roomAuthority == RoomAuthority.Normal)
+			{
+				user.roomAuthority = RoomAuthority.Manager;
+			}
+
+			ConvertAuthority(user);
+		}
+
+		public void ConvertAuthority(UserRoomAuthority user)
+		{
+			if (user.roomAuthority == RoomAuthority.Normal)
+			{
+				if (managerMap.ContainsKey(user.user_id))
+				{
+					RemoveManager(user);
+				}	
+				if(userMap.ContainsKey(user.user_id))
+				{
+					GetUser(user).RefreshButton();
+				}
+			}
+			else if (user.roomAuthority == RoomAuthority.Manager)
+			{
+				if (!managerMap.ContainsKey(user.user_id))
+				{
+					AddManager(user);
+				}
+				if (userMap.ContainsKey(user.user_id))
+				{
+					GetUser(user).RefreshButton();
+				}
+			}
+
 		}
 
 		public static Color AddAuthorityColor { get { return Instance.addAuthorityColor; } }
