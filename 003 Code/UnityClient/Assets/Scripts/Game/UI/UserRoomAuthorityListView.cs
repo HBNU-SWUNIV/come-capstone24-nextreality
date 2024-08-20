@@ -7,7 +7,7 @@ namespace NextReality.Game.UI {
 	public class UserRoomAuthorityListView : MonoBehaviour
 	{
 
-		Dictionary<UserRoomAuthority,UserRoomAuthorityListElement> userRoomAuthorityListElements = new Dictionary<UserRoomAuthority, UserRoomAuthorityListElement>();
+		Dictionary<string,UserRoomAuthorityListElement> userRoomAuthorityListElements = new Dictionary<string, UserRoomAuthorityListElement>();
 
 		public RectTransform userListVIewContent;
 
@@ -25,17 +25,34 @@ namespace NextReality.Game.UI {
 
 		public void AddUserRoomAuthority(UserRoomAuthority userAuthority)
 		{
-			UserRoomAuthorityListElement element = new UserRoomAuthorityListElement();
+			UserRoomAuthorityListElement element = GameObject.Instantiate(UserRoomAuthorityEditor.Instance.listElementPrefab, userListVIewContent);
 			element.SetUser(userAuthority);
 
-			userRoomAuthorityListElements.Add(userAuthority, element);
+			
+
+			userRoomAuthorityListElements.Add(userAuthority.user_id, element);
 
 		}		
 		
 		public void RemoveUserRoomAuthority(UserRoomAuthority userAuthority)
 		{
+			UserRoomAuthorityListElement element;
+			if(userRoomAuthorityListElements.TryGetValue(userAuthority.user_id, out element))
+			{
+				userRoomAuthorityListElements.Remove(userAuthority.user_id);
+				GameObject.Destroy(element.gameObject);
+			}
 
-			userRoomAuthorityListElements.Remove(userAuthority);
+		}
+
+		public UserRoomAuthorityListElement GetUserRoomAuthorityListElement(UserRoomAuthority userAuthority)
+		{
+			UserRoomAuthorityListElement element;
+			if (userRoomAuthorityListElements.TryGetValue(userAuthority.user_id, out element))
+			{
+				return element;
+			}
+			else return null;
 		}
 	}
 
