@@ -35,9 +35,9 @@ namespace NextReality.Game.UI
 		public void SetUser(UserRoomAuthority userData)
 		{
 			userRoomAuthority = userData;
-			userNameText.text = userData.user_id;
+			userNameText.text = string.Format("{0}({1})", userData.user.nickname, userData.user.user_id);
 
-			SetActionButton(userData.roomAuthority);
+			SetActionButton(userData.room_authority);
 		}
 
 		void SetActionButton(RoomAuthority authority)
@@ -82,14 +82,14 @@ namespace NextReality.Game.UI
 
 		public void RefreshButton()
 		{
-			SetActionButton(userRoomAuthority.roomAuthority);
+			SetActionButton(userRoomAuthority.room_authority);
 		}
 
 		public RoomAuthority authority
 		{
 			get
 			{
-				return userRoomAuthority?.roomAuthority ?? RoomAuthority.Error;
+				return userRoomAuthority?.room_authority ?? RoomAuthority.Error;
 			}
 		}
 
