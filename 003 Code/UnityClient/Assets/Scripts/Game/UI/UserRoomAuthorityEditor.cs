@@ -47,19 +47,22 @@ namespace NextReality.Game.UI
 		private void Start()
 		{
 			UserRoomAuthority user = new UserRoomAuthority();
-			user.user_id = "aaa";
-			user.roomAuthority = RoomAuthority.Manager;
+			user.user = new UserData();
+			user.user.user_id = "aaa";
+			user.room_authority = RoomAuthority.Manager;
 			
 			UserRoomAuthority user2 = new UserRoomAuthority();
-			user2.user_id = "abcd";
-			user2.roomAuthority = RoomAuthority.Normal;
+			user2.user = new UserData();
+			user2.user.user_id = "abcd";
+			user2.room_authority = RoomAuthority.Normal;
 
 			AddUser(user);
 			AddUser(user2);
 
 			UserRoomAuthority user4 = new UserRoomAuthority();
-			user4.user_id = "abc";
-			user4.roomAuthority = RoomAuthority.Manager;
+			user4.user = new UserData();
+			user4.user.user_id = "abc";
+			user4.room_authority = RoomAuthority.Manager;
 
 			AddManager(user);
 			AddManager(user4);
@@ -88,15 +91,15 @@ namespace NextReality.Game.UI
 
 		public void AddUser(UserRoomAuthority user)
 		{
-			if (userMap.ContainsKey(user.user_id)) return;
-			userMap.Add(user.user_id, user);
+			if (userMap.ContainsKey(user.user.user_id)) return;
+			userMap.Add(user.user.user_id, user);
 			userListView.AddUserRoomAuthority(user);
 		}
 
 		public void RemoveUser(UserRoomAuthority user)
 		{
-			if (!userMap.ContainsKey(user.user_id)) return;
-			userMap.Remove(user.user_id);
+			if (!userMap.ContainsKey(user.user.user_id)) return;
+			userMap.Remove(user.user.user_id);
 			userListView.RemoveUserRoomAuthority(user);
 		}
 
@@ -107,15 +110,15 @@ namespace NextReality.Game.UI
 
 		public void AddManager(UserRoomAuthority user)
 		{
-			if (managerMap.ContainsKey(user.user_id)) return;
-			managerMap.Add(user.user_id, user);
+			if (managerMap.ContainsKey(user.user.user_id)) return;
+			managerMap.Add(user.user.user_id, user);
 			managerListView.AddUserRoomAuthority(user);
 		}
 
 		public void RemoveManager(UserRoomAuthority user)
 		{
-			if (!managerMap.ContainsKey(user.user_id)) return;
-			managerMap.Remove(user.user_id);
+			if (!managerMap.ContainsKey(user.user.user_id)) return;
+			managerMap.Remove(user.user.user_id);
 			managerListView.RemoveUserRoomAuthority(user);
 		}
 		public UserRoomAuthorityListElement GetUManager(UserRoomAuthority user)
@@ -125,13 +128,13 @@ namespace NextReality.Game.UI
 
 		public void SendConvertAuthority(UserRoomAuthority user)
 		{
-			if (user.roomAuthority == RoomAuthority.Manager)
+			if (user.room_authority == RoomAuthority.Manager)
 			{
-				user.roomAuthority = RoomAuthority.Normal;
+				user.room_authority = RoomAuthority.Normal;
 			}
-			else if (user.roomAuthority == RoomAuthority.Normal)
+			else if (user.room_authority == RoomAuthority.Normal)
 			{
-				user.roomAuthority = RoomAuthority.Manager;
+				user.room_authority = RoomAuthority.Manager;
 			}
 
 			ConvertAuthority(user);
@@ -139,24 +142,24 @@ namespace NextReality.Game.UI
 
 		public void ConvertAuthority(UserRoomAuthority user)
 		{
-			if (user.roomAuthority == RoomAuthority.Normal)
+			if (user.room_authority == RoomAuthority.Normal)
 			{
-				if (managerMap.ContainsKey(user.user_id))
+				if (managerMap.ContainsKey(user.user.user_id))
 				{
 					RemoveManager(user);
 				}	
-				if(userMap.ContainsKey(user.user_id))
+				if(userMap.ContainsKey(user.user.user_id))
 				{
 					GetUser(user).RefreshButton();
 				}
 			}
-			else if (user.roomAuthority == RoomAuthority.Manager)
+			else if (user.room_authority == RoomAuthority.Manager)
 			{
-				if (!managerMap.ContainsKey(user.user_id))
+				if (!managerMap.ContainsKey(user.user.user_id))
 				{
 					AddManager(user);
 				}
-				if (userMap.ContainsKey(user.user_id))
+				if (userMap.ContainsKey(user.user.user_id))
 				{
 					GetUser(user).RefreshButton();
 				}

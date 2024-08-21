@@ -43,9 +43,11 @@ namespace NextReality.Data
     }
 
 	[System.Serializable]
-	public class UserRoomAuthority : UserLoginData
-    {
-        public RoomAuthority roomAuthority = RoomAuthority.Normal;
+	public class UserRoomAuthority
+	{
+        public UserData user;
+        public RoomAuthority room_authority = RoomAuthority.Normal;
+        public int map_id;
     }
     
 }
