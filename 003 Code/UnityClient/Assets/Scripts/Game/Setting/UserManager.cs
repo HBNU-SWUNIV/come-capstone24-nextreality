@@ -2,18 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using NextReality.Game.UI;
+using NextReality.Data;
 
 namespace NextReality.Game
 {
     public class UserManager : MonoBehaviour
     {
-        // 로그인이 성공했을 때 여기에 유저 데이터를 저장.
-        // 이후 DontDestroy로 데이터 이동할 예정
+		// 로그인이 성공했을 때 여기에 유저 데이터를 저장.
+		// 이후 DontDestroy로 데이터 이동할 예정
 
-        private string userId = "testId";
+		private string userId = "testId";
         private string nickname = "testNickname";
         private string email = "test@test.com";
         private bool isLogin = false;
+
+        private UserData localUserData;
 
         // 싱글톤
         private static UserManager instance = null;
@@ -98,7 +101,12 @@ namespace NextReality.Game
             instance.email = _email;
             instance.isLogin = true;
 
-        }
+            localUserData = new UserData();
+            localUserData.email = _email;
+            localUserData.nickname = _nickname;
+            localUserData.user_id = _id;
+
+		}
 
         public void ResetUser()
         {
@@ -106,8 +114,15 @@ namespace NextReality.Game
             instance.nickname = null;
             instance.email = null;
             instance.isLogin = false;
+
+            localUserData = null;
+		}
+
+        public UserData GetLocalUserData()
+        {
+            return localUserData;
         }
 
-    }
+	}
 
 }

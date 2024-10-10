@@ -1,5 +1,7 @@
 using NextReality.Asset;
 using NextReality.Data;
+using NextReality.Networking.Request;
+using NextReality.Networking.Response;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,6 +22,8 @@ namespace NextReality.Game.UI
 		[SerializeField]
 		Color unabledAuthorityColor;
 
+		HttpRequests httpRequests;
+
 		private static UserRoomAuthorityEditor instance = null;
 
 		private Dictionary<string, UserRoomAuthority> userMap = new Dictionary<string, UserRoomAuthority>();
@@ -29,6 +33,8 @@ namespace NextReality.Game.UI
 		public UserRoomAuthorityListView managerListView;
 
 		public UserRoomAuthorityListElement listElementPrefab;
+
+		private string creatorListServerUrl;
 
 
 		private void Awake()
@@ -46,6 +52,10 @@ namespace NextReality.Game.UI
 
 		private void Start()
 		{
+			httpRequests = Utilities.HttpUtil;
+
+			creatorListServerUrl = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.CreatorList);
+
 			UserRoomAuthority user = new UserRoomAuthority();
 			user.user = new UserData();
 			user.user.user_id = "aaa";
@@ -67,6 +77,44 @@ namespace NextReality.Game.UI
 			AddManager(user);
 			AddManager(user4);
 
+		}
+
+		public void ResetUserList()
+		{
+			int mapId = Managers.Map.map_id;
+
+			if (mapId < 0)
+			{
+				Debug.Log("Map Id Fail");
+				return;
+			}
+
+			string command = string.Format("?map_id={0}", mapId);
+
+			StartCoroutine(httpRequests.RequestGet(creatorListServerUrl + command, (result) =>
+			{
+				try
+				{
+					CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
+					//if (response.CheckResult())
+					//{
+					//	foreach (string userId in Managers.Client.GetUserMap)
+					//	{
+					//		AddUser(userId);
+					//	}
+					//}
+					//else
+					//{
+					//	isRequestSuccess = false;
+					//	Debug.Log("Load Fail");
+					//}
+				}
+				catch
+				{
+					Debug.Log("Json Fail");
+				}
+
+			}));
 		}
 
 		private void OnDestroy()

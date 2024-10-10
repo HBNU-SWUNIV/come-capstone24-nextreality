@@ -112,5 +112,10 @@ namespace NextReality.Networking.Response
         public List<AssetDownload> data;
     }
 
+    [System.Serializable]
+    public class CreatorListResponseData : ResponseData
+    {
+        public new MapCreatorInfo message;
+	}
 }
 
