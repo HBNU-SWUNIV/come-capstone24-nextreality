@@ -98,4 +98,12 @@ namespace NextReality.Data
 		float ProtoVector.y { get => y; set { y = value; } }
 		float ProtoVector.z { get => z; set { z = value; } }
 	}
+
+	[System.Serializable]
+	public class MapCreatorInfo
+	{
+		public int map_id;
+		public string admin_id;
+		public List<string> creator_list = new List<string>();
+	}
 }

@@ -8,6 +8,7 @@ using NextReality.Data;
 
 using NextReality.Data.Schema;
 using NextReality.Game.UI;
+using System.Linq;
 
 
 namespace NextReality.Game
@@ -18,6 +19,8 @@ namespace NextReality.Game
 		public delegate void PlayerAvatarAction(GameAvatar avatar, string userId);
 
 		private Dictionary<string, GameAvatar> players = new Dictionary<string, GameAvatar>();
+
+		private Dictionary<string, UserData> userMap = new Dictionary<string, UserData>();
 
 		private static ClientManager instance = null;
 
@@ -140,7 +143,7 @@ namespace NextReality.Game
 					myPlayerAvatar.transform.rotation = spawnPoint.rotation;
 					myPlayerAvatar.transform.SetParent(playersSpace.transform);
 
-					players.Add(playerId, myPlayerAvatar);
+					AddPlayerList(playerId, myPlayerAvatar );
 
 					bool isLocal = Managers.User.IsLocalUserId(playerId);
 
@@ -166,7 +169,7 @@ namespace NextReality.Game
 					Debug.Log("Player Join Failed.\n Error Message : " + e);
 					if (players.ContainsKey(playerId))
 					{
-						players.Remove(playerId);
+						RemovePlayerList(playerId);
 					}
 				}
 
@@ -199,7 +202,7 @@ namespace NextReality.Game
 			if (playerLeaveEvents != null) playerLeaveEvents(leavePlayer, playerId);
 			if (leavePlayer.IsLocal && localPlayerLeaveEvents != null) localPlayerLeaveEvents(leavePlayer, playerId);
 
-			if (isRegistered) players.Remove(playerId);
+			if (isRegistered) RemovePlayerList(playerId);
 			if (leavePlayer != null) Destroy(leavePlayer.gameObject);
 		}
 		public void MovePlayer(string playerId, Vector3 position, Vector3 rotation, DateTime dateTime)
@@ -331,6 +334,50 @@ namespace NextReality.Game
 		public void ExitGame()
 		{
 			Managers.Scene.LoadMainMenu();
+		}
+
+		private void AddPlayerList(string playerId, GameAvatar avatar)
+		{
+			players.Add(playerId, avatar);
+			AddUser(playerId);
+		}
+
+		private void RemovePlayerList(string playerId)
+		{
+			players.Remove(playerId);
+			RemoveUser(playerId);
+		}
+
+		private void AddUser(string userId)
+		{
+			if (userMap.ContainsKey(userId)) return;
+
+			UserData user;
+			if(Managers.User.Id == userId)
+			{
+				user = Managers.User.GetLocalUserData();
+			} else
+			{
+				 user = new UserData();
+			}
+			user.user_id = userId;
+
+			userMap.Add(userId, user);
+		}
+
+		private void RemoveUser(string userId)
+		{
+			if (!userMap.ContainsKey(userId)) return;
+
+			userMap.Remove(userId);
+		}
+
+		public Dictionary<string, UserData> GetUserMap
+		{
+			get
+			{
+				return userMap;
+			}
 		}
 
 	}
