@@ -24,6 +24,7 @@ namespace NextReality.Networking.Request
             AssetDownload = 24,
             MapUpload = 31,
             MapList = 32,
+            MapCreate = 33,
             MapDownload = 34
         }
 
@@ -82,6 +83,8 @@ namespace NextReality.Networking.Request
                     return mapServerUrl + "/map_data";
                 case ServerEndpoints.MapList:
                     return mapServerUrl + "/maplist";
+                case ServerEndpoints.MapCreate:
+                    return mapServerUrl + "/new_amp";
             }
 
             return null;
