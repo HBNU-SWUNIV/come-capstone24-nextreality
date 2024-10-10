@@ -46,7 +46,7 @@ namespace NextReality.Game.UI
 
 		private void CreateMap()
 		{
-			if(creatorId == null)
+			if(creatorId == null || creatorId.Trim().Length==0)
 			{
 				messageSetter.SetText(messageText, "You have to login.", Color.red);
 				return;
