@@ -23,6 +23,7 @@ namespace NextReality.Data
 	{
         public string mapName;
         public int map_id;
+		public string user_id;
     }
 
 	[System.Serializable]
