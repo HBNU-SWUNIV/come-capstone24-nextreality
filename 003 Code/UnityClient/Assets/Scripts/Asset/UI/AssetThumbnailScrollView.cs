@@ -60,7 +60,7 @@ namespace NextReality.Asset.UI
 			Dictionary<string, string> searchQuery = new Dictionary<string, string>();
 			if(categoryid >=0 )
 			{
-				searchQuery.Add("categoryid", categoryid.ToString());
+				searchQuery.Add("category_id", categoryid.ToString());
 			}
 
 			assetName = assetName.Trim();

@@ -82,7 +82,7 @@ namespace NextReality.Networking.Request
                 case ServerEndpoints.MapDownload:
                     return mapServerUrl + "/map_data";
                 case ServerEndpoints.MapList:
-                    return mapServerUrl + "/maplist";
+                    return mapServerUrl + "/map_list";
                 case ServerEndpoints.MapCreate:
                     return mapServerUrl + "/new_map";
             }
