@@ -6298,6 +6298,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d49a7cd3c57ae0d40a3972e023b1d18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serverUrl: 
   assetServerUrl: http://172.25.17.134:8080
   loginServerUrl: http://172.25.17.134:8000
   mapServerUrl: http://172.25.17.134:8070

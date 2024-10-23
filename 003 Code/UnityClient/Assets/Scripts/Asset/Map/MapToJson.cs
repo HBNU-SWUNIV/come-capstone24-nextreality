@@ -122,7 +122,7 @@ namespace NextReality.Asset
             int mapDownFailCount = 0;
             while (mapDownFailCount < 5)
             {
-                string command = string.Format("?mapID={0}&version={1}&chunk={2}", map_id, 0, 0);
+                string command = string.Format("?map_id={0}&version={1}&chunk={2}", map_id, 0, 0);
                 Debug.Log("MapData Load from Server:    " + mapServer + command);
 
                 // 메타 데이터 다운
@@ -159,7 +159,7 @@ namespace NextReality.Asset
                     {
                         while (mapDownFailCount < 5)
                         {
-                            command = string.Format("?mapID={0}&version={1}&chunk={2}", map_id, 0, i / MapDataController.chunkSize + 1);
+                            command = string.Format("?map_id={0}&version={1}&chunk={2}", map_id, 0, i / MapDataController.chunkSize + 1);
                             Debug.Log("MapData Load from Server:    " + mapServer + command);
 
                             isRequestSuccess = false;

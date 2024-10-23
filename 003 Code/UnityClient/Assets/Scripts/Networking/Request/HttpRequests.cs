@@ -30,7 +30,8 @@ namespace NextReality.Networking.Request
 
         private static HttpRequests instance = null;
 
-        public string assetServerUrl;// = "http://172.25.17.134:8080";
+        public string serverUrl;// = "http://172.25.17.134";
+        public string assetServerUrl;// = "http://172.25.17.134:8080"
         public string loginServerUrl;// = "http://172.25.17.134:8000";
         public string mapServerUrl;// = "http://172.25.17.134:8070";
 
@@ -59,9 +60,14 @@ namespace NextReality.Networking.Request
 
         private void Start()
         {
-            assetServerUrl = Managers.Conf.GetConfigData("assetServerUrl");
-            loginServerUrl = Managers.Conf.GetConfigData("loginServerUrl");
-            mapServerUrl = Managers.Conf.GetConfigData("mapServerUrl");
+            serverUrl = "http://" + Managers.Conf.GetConfigData("serverIP");
+            assetServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("assetServerPort");
+            loginServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("loginServerPort");
+            mapServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("mapServerPort");
+            Debug.Log("서버 URL : " + serverUrl);
+            Debug.Log("에셋서버 URL : " + assetServerUrl);
+            Debug.Log("로그인서버 URL : " +  loginServerUrl);
+            Debug.Log("맵서버 URL : " + mapServerUrl);
         }
 
         public string GetServerUrl(ServerEndpoints endpointCode)
@@ -84,9 +90,8 @@ namespace NextReality.Networking.Request
                 case ServerEndpoints.MapList:
                     return mapServerUrl + "/map_list";
                 case ServerEndpoints.MapCreate:
-                    return mapServerUrl + "/new_map";
+                    return mapServerUrl + "/create_map";
             }
-
             return null;
         }
 
