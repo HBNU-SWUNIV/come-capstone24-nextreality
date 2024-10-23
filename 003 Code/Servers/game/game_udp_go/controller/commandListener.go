@@ -1,7 +1,6 @@
 package controller
 
 import (
-	controllerhttp "GameServer/controller-http"
 	"context"
 	"fmt"
 	"log"
@@ -13,6 +12,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Listener는 ReceiveMessage와 연결 정보를 받고
@@ -76,7 +76,7 @@ func isLocked(userId string, itemId string) bool {
 }
 
 func CreatorListLoad() error {
-	creatorCollection := DBClient.Collection("creators")
+	creatorCollection := GameDB.Collection("creators")
 
 	cursor, err := creatorCollection.Find(context.TODO(), bson.D{})
 	if err != nil {
@@ -265,14 +265,28 @@ func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 	}
 }
 
-// TODO : 유정이 답장오면 만들기
 func SendBeforeLog(conn *net.UDPConn, mapid string, userId string, result chan bool) {
-	mapSaveTimeString := controllerhttp.GetMapTime(mapid)
-	mapSaveTime, err := time.Parse(time.RFC3339Nano, mapSaveTimeString.Message)
+	mapTimeData := bson.M{"mapCTime": ""}
+
+	intmapid, _ := strconv.Atoi(mapid)
+
+	filter := bson.M{"map_id": intmapid, "mapCTime": bson.M{"$exists": true}}
+	projection := bson.M{"_id": 0, "mapCTime": 1}
+
+	err := MapDB.Collection("map").FindOne(context.TODO(), filter, options.FindOne().SetProjection(projection)).Decode(&mapTimeData)
+	if err != nil {
+		fmt.Println(aurora.Sprintf(aurora.Red("Error in Getting Data from MapDB : %s"), err))
+		result <- false
+	}
+
+	mapSaveTimeString := mapTimeData["mapCTime"].(string)
+
+	mapSaveTime, err := time.Parse(time.RFC3339Nano, mapSaveTimeString)
 	if err != nil {
 		fmt.Println(aurora.Sprintf(aurora.Red("Error in Parsing Saved Time : %s"), err))
 		result <- false
 	}
+	fmt.Printf("Map %s Saved at %s(in string : %s)\n", mapid, mapSaveTime, mapSaveTimeString)
 
 	logResult, err := FindDocumentsAfterTime(mapSaveTime, mapid)
 	if err != nil {
@@ -295,7 +309,7 @@ func SendBeforeLog(conn *net.UDPConn, mapid string, userId string, result chan b
 }
 
 func FindDocumentsAfterTime(parsedTimeFromMaptime time.Time, mapid string) ([]LogResponseData, error) {
-	collection := DBClient.Collection("log")
+	collection := GameDB.Collection("log")
 
 	fmt.Printf("Find start\n\n")
 	currentTime := time.Now().UTC()
@@ -396,7 +410,7 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 							OriginalMessage: unlockMessage,
 						}
 
-						_, insertErr := DBClient.Collection("log").InsertOne(context.TODO(), logData)
+						_, insertErr := GameDB.Collection("log").InsertOne(context.TODO(), logData)
 						if insertErr != nil {
 							fmt.Printf("insert result : %s\n", insertErr)
 						}
@@ -611,7 +625,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 			filter := bson.M{"map_id": sendUserMapid}
 
-			err = DBClient.Collection("creators").FindOne(context.TODO(), filter).Decode(&creatorList)
+			err = GameDB.Collection("creators").FindOne(context.TODO(), filter).Decode(&creatorList)
 
 			if err != nil {
 				if err == mongo.ErrNoDocuments {
@@ -643,7 +657,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 				},
 			}
 
-			_, err = DBClient.Collection("creators").UpdateOne(context.TODO(), filter, update)
+			_, err = GameDB.Collection("creators").UpdateOne(context.TODO(), filter, update)
 
 			if err != nil {
 				log.Fatal()

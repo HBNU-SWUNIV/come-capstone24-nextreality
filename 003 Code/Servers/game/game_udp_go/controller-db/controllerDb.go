@@ -9,9 +9,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Database {
+func ConnectDB(mongoUri string, databaseName string) *mongo.Database {
 	// 접속할 MongoDB 주소 설정
-	clientOptions := options.Client().ApplyURI("mongodb://mongo:27017")
+	clientOptions := options.Client().ApplyURI(mongoUri)
 
 	// MongoDB 연결
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -25,7 +25,7 @@ func ConnectDB() *mongo.Database {
 		log.Fatal("mongo ping err :", err)
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	fmt.Printf("Connected to %s!\n", mongoUri)
 
-	return client.Database("GameServer")
+	return client.Database(databaseName)
 }

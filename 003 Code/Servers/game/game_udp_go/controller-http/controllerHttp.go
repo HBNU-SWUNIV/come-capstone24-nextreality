@@ -1,7 +1,6 @@
 package controllerhttp
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -54,15 +53,4 @@ func HttpGet(url string) []byte {
 type MapTimeResponseData struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-}
-
-func GetMapTime(mapid string) MapTimeResponseData {
-	body := HttpGet(MapServerEndpoint + "/maptime?mapId=" + mapid)
-	var result MapTimeResponseData
-	err := json.Unmarshal(body, &result)
-	if err != nil {
-		fmt.Printf("Failed to unmarshal JSON response : %s\n", err)
-		return MapTimeResponseData{}
-	}
-	return result
 }

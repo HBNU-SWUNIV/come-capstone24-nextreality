@@ -42,7 +42,8 @@ var ListenerMap = map[string]listeners{
 	"ManagerEdit":   ManagerEdit,
 }
 
-var DBClient *mongo.Database
+var GameDB *mongo.Database
+var MapDB *mongo.Database
 
 // var timezone, _ = time.LoadLocation("Asia/Seoul")
 
@@ -60,7 +61,7 @@ func GetRequest(conn *net.UDPConn) {
 
 	// 수신한 메시지 파싱
 	msg := string(buf[:n])
-	fmt.Println(msg)
+	// fmt.Println(msg)
 
 	go HandleRequest(conn, addr, msg)
 
@@ -94,7 +95,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 			logData.MapId = recvMsg.OtherMessage[1]
 		}
 
-		_, err := DBClient.Collection("log").InsertOne(context.TODO(), logData)
+		_, err := GameDB.Collection("log").InsertOne(context.TODO(), logData)
 		if err != nil {
 			fmt.Printf("insert result : %s\n", err)
 		}

@@ -13,7 +13,8 @@ import (
 
 func main() {
 
-	controller.DBClient = controllerdb.ConnectDB()
+	controller.GameDB = controllerdb.ConnectDB("mongodb://mongo:27017", "GameServer")
+	controller.MapDB = controllerdb.ConnectDB("mongodb://mongo:27016", "go_map")
 	controller.CreatorListLoad()
 
 	// UDP 서버 소켓 생성
