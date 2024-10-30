@@ -62,7 +62,7 @@ func GetRequest(conn *net.UDPConn) {
 
 	// 수신한 메시지 파싱
 	msg := string(buf[:n])
-	// fmt.Println(msg)
+	fmt.Println(msg)
 
 	go HandleRequest(conn, addr, msg)
 
