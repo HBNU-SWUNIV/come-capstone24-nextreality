@@ -27,6 +27,7 @@ var MapidUserList map[string][]string = make(map[string][]string)
 var MapidLockedList map[string][]string = make(map[string][]string)
 var LockObjUser map[string]string = make(map[string]string)
 var MapidCreatorList map[string][]string = make(map[string][]string)
+var UserLoaded map[string]bool = make(map[string]bool)
 
 var ListenerMap = map[string]listeners{
 	"PlayerJoin":    PlayerJoin,
@@ -143,10 +144,10 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 
 func includeSendUserCheck(commandName string) bool {
 	switch commandName {
-	case "PlayerJoin", "PlayerLeave", "AssetCreate", "AssetDelete":
+	case "PlayerLeave", "AssetCreate", "AssetDelete":
 		return true
 
-	case "PlayerMove", "AssetMove", "MapReady", "PlayerJump":
+	case "PlayerMove", "AssetMove", "MapReady", "PlayerJump", "PlayerJoin":
 		return false
 
 	}
