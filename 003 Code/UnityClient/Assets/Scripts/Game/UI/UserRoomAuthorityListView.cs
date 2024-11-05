@@ -1,4 +1,5 @@
 using NextReality.Data;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,10 +30,12 @@ namespace NextReality.Game.UI
 			UserRoomAuthorityListElement element = GameObject.Instantiate(UserRoomAuthorityEditor.Instance.listElementPrefab, userListVIewContent);
 			element.SetUser(userAuthority);
 
+			
+
 			userRoomAuthorityListElements.Add(userAuthority.user.user_id, element);
 
-		}
-
+		}		
+		
 		public void RemoveUserRoomAuthority(UserRoomAuthority userAuthority)
 		{
 			if (!userRoomAuthorityListElements.ContainsKey(userAuthority.user.user_id)) return;
