@@ -67,6 +67,7 @@ namespace NextReality.Networking.Request
             assetServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("assetServerPort");
             loginServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("loginServerPort");
             mapServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("mapServerPort");
+			gameServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("gameServerPort");
             Debug.Log("서버 URL : " + serverUrl);
             Debug.Log("에셋서버 URL : " + assetServerUrl);
             Debug.Log("로그인서버 URL : " +  loginServerUrl);
@@ -91,7 +92,7 @@ namespace NextReality.Networking.Request
                 case ServerEndpoints.MapDownload:
                     return mapServerUrl + "/map_data";
                 case ServerEndpoints.MapList:
-                    return mapServerUrl + "/maplist";
+                    return mapServerUrl + "/map_list";
                 case ServerEndpoints.CreatorList:
                     return gameServerUrl + "/creator_list";
                 case ServerEndpoints.MapCreate:

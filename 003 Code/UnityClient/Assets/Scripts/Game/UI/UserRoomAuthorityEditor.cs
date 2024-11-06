@@ -5,6 +5,7 @@ using NextReality.Networking.Response;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NextReality.Game.UI
@@ -26,8 +27,7 @@ namespace NextReality.Game.UI
 
 		private static UserRoomAuthorityEditor instance = null;
 
-		private Dictionary<string, UserRoomAuthority> userMap = new Dictionary<string, UserRoomAuthority>();
-		private Dictionary<string, UserRoomAuthority> managerMap = new Dictionary<string, UserRoomAuthority>();
+		private Dictionary<string, UserRoomAuthority> allUserAuthorityMap = new Dictionary<string, UserRoomAuthority>();
 
 		public UserRoomAuthorityListView userListView;
 		public UserRoomAuthorityListView managerListView;
@@ -56,26 +56,7 @@ namespace NextReality.Game.UI
 
 			creatorListServerUrl = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.CreatorList);
 
-			UserRoomAuthority user = new UserRoomAuthority();
-			user.user = new UserData();
-			user.user.user_id = "aaa";
-			user.room_authority = RoomAuthority.Manager;
-			
-			UserRoomAuthority user2 = new UserRoomAuthority();
-			user2.user = new UserData();
-			user2.user.user_id = "abcd";
-			user2.room_authority = RoomAuthority.Normal;
-
-			AddUser(user);
-			AddUser(user2);
-
-			UserRoomAuthority user4 = new UserRoomAuthority();
-			user4.user = new UserData();
-			user4.user.user_id = "abc";
-			user4.room_authority = RoomAuthority.Manager;
-
-			AddManager(user);
-			AddManager(user4);
+			ResetUserList();
 
 		}
 
@@ -89,25 +70,31 @@ namespace NextReality.Game.UI
 				return;
 			}
 
-			string command = string.Format("?map_id={0}", mapId);
+			Dictionary<string, string> queryPair = new Dictionary<string, string>
+			{
+				{ "map_id", mapId.ToString() }
+			};
 
-			StartCoroutine(httpRequests.RequestGet(creatorListServerUrl + command, (result) =>
+			StartCoroutine(httpRequests.RequestGet(creatorListServerUrl, queryPair, (result) =>
 			{
 				try
 				{
 					CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
-					//if (response.CheckResult())
-					//{
-					//	foreach (string userId in Managers.Client.GetUserMap)
-					//	{
-					//		AddUser(userId);
-					//	}
-					//}
-					//else
-					//{
-					//	isRequestSuccess = false;
-					//	Debug.Log("Load Fail");
-					//}
+					if (response.CheckResult())
+					{
+
+
+                        foreach (var item in response.message.creator_list)
+                        {
+
+							SetUserRoomAuthority(item, RoomAuthority.Manager);
+						}
+                    }
+					else
+					{
+						
+						Debug.Log("Load Fail");
+					}
 				}
 				catch
 				{
@@ -137,38 +124,55 @@ namespace NextReality.Game.UI
 
 		}
 
-		public void AddUser(UserRoomAuthority user)
-		{
-			if (userMap.ContainsKey(user.user.user_id)) return;
-			userMap.Add(user.user.user_id, user);
-			userListView.AddUserRoomAuthority(user);
-		}
-
-		public void RemoveUser(UserRoomAuthority user)
-		{
-			if (!userMap.ContainsKey(user.user.user_id)) return;
-			userMap.Remove(user.user.user_id);
-			userListView.RemoveUserRoomAuthority(user);
-		}
-
 		public UserRoomAuthorityListElement GetUser(UserRoomAuthority user)
 		{
 			return userListView.GetUserRoomAuthorityListElement(user);
 		}
 
-		public void AddManager(UserRoomAuthority user)
+		public void SetUserRoomAuthority(string userId, RoomAuthority roomAuthority = RoomAuthority.Normal, int? mapId = null)
 		{
-			if (managerMap.ContainsKey(user.user.user_id)) return;
-			managerMap.Add(user.user.user_id, user);
-			managerListView.AddUserRoomAuthority(user);
+			UserData user;
+			if (!Managers.Client.GetUserMap.TryGetValue(userId, out user))
+			{
+				user = new UserData();
+				user.user_id = userId;
+			}
+
+			UserRoomAuthority userRoomAuthority;
+			if(allUserAuthorityMap.TryGetValue(user.user_id, out userRoomAuthority))
+			{
+				if(userRoomAuthority.room_authority == RoomAuthority.Normal) userRoomAuthority.room_authority = roomAuthority;
+			} else
+			{
+				if (mapId == null) mapId = Managers.Map.map_id;
+				userRoomAuthority = new UserRoomAuthority();
+				userRoomAuthority.user = user;
+				userRoomAuthority.room_authority = roomAuthority;
+				userRoomAuthority.map_id = mapId.Value;
+			}
+
+			if(roomAuthority == RoomAuthority.Normal)
+			{
+				userListView.AddUserRoomAuthority(userRoomAuthority);
+				managerListView.RemoveUserRoomAuthority(userRoomAuthority);
+			} else if(roomAuthority == RoomAuthority.Manager || roomAuthority == RoomAuthority.Master)
+			{
+				managerListView.AddUserRoomAuthority(userRoomAuthority);
+			}
 		}
 
-		public void RemoveManager(UserRoomAuthority user)
+		public void RemoveUser(string userId)
 		{
-			if (!managerMap.ContainsKey(user.user.user_id)) return;
-			managerMap.Remove(user.user.user_id);
-			managerListView.RemoveUserRoomAuthority(user);
+			UserRoomAuthority userRoomAuthority;
+			if (allUserAuthorityMap.TryGetValue(userId, out userRoomAuthority))
+			{
+				if(userRoomAuthority.room_authority == RoomAuthority.Normal && Managers.Client.GetUserMap.ContainsKey(userId))
+				{
+					allUserAuthorityMap.Remove(userId);
+				}
+			}
 		}
+
 		public UserRoomAuthorityListElement GetUManager(UserRoomAuthority user)
 		{
 			return managerListView.GetUserRoomAuthorityListElement(user);
@@ -176,6 +180,7 @@ namespace NextReality.Game.UI
 
 		public void SendConvertAuthority(UserRoomAuthority user)
 		{
+
 			if (user.room_authority == RoomAuthority.Manager)
 			{
 				user.room_authority = RoomAuthority.Normal;
@@ -183,36 +188,16 @@ namespace NextReality.Game.UI
 			else if (user.room_authority == RoomAuthority.Normal)
 			{
 				user.room_authority = RoomAuthority.Manager;
+				
 			}
 
-			ConvertAuthority(user);
+			RefreshAuthorityState(user);
 		}
 
-		public void ConvertAuthority(UserRoomAuthority user)
+		public void RefreshAuthorityState(UserRoomAuthority user)
 		{
-			if (user.room_authority == RoomAuthority.Normal)
-			{
-				if (managerMap.ContainsKey(user.user.user_id))
-				{
-					RemoveManager(user);
-				}	
-				if(userMap.ContainsKey(user.user.user_id))
-				{
-					GetUser(user).RefreshButton();
-				}
-			}
-			else if (user.room_authority == RoomAuthority.Manager)
-			{
-				if (!managerMap.ContainsKey(user.user.user_id))
-				{
-					AddManager(user);
-				}
-				if (userMap.ContainsKey(user.user.user_id))
-				{
-					GetUser(user).RefreshButton();
-				}
-			}
-
+			GetUser(user)?.RefreshButton();
+			SetUserRoomAuthority(user.user.user_id, user.room_authority);
 		}
 
 		public static Color AddAuthorityColor { get { return Instance.addAuthorityColor; } }
