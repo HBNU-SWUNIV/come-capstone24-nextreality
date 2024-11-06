@@ -364,9 +364,10 @@ namespace NextReality.Game
 				user = Managers.User.GetLocalUserData();
 			} else
 			{
-				 user = new UserData();
+				user = new UserData();
+				user.user_id = userId;
 			}
-			user.user_id = userId;
+			
 
 			userMap.Add(userId, user);
 		}
