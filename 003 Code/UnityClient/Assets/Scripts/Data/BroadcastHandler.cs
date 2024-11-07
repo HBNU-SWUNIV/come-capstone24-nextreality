@@ -281,6 +281,17 @@ namespace NextReality.Data
 					Debug.Log("Leave Fail");
 				}
 			});
+			AddListener<ManagerEditSchema>((schema) =>
+			{
+				if (schema.isSuccess == "s")
+				{
+					Managers.UserRoomAuthority.SetUserRoomAuthority(schema.editorUserId, schema.authority);
+				}
+				else
+				{
+					Debug.Log("ManagerEdit Fail");
+				}
+			});
 		}
 	}
 }

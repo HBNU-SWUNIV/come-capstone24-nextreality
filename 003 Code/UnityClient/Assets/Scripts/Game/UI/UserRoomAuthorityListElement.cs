@@ -67,6 +67,16 @@ namespace NextReality.Game.UI
 
 		private void ListenerEvent()
 		{
+			RoomAuthority targetAuthority = RoomAuthority.Error;
+			if (authority == RoomAuthority.Manager)
+			{
+				targetAuthority = RoomAuthority.Normal;
+			}
+			else if (authority == RoomAuthority.Normal)
+			{
+				targetAuthority = RoomAuthority.Manager;
+			}
+
 			//if(authority == RoomAuthority.Manager)
 			//{
 			//	userRoomAuthority.roomAuthority = RoomAuthority.Normal;
@@ -77,7 +87,7 @@ namespace NextReality.Game.UI
 			//}
 
 			//SetActionButton(userRoomAuthority.roomAuthority);
-			UserRoomAuthorityEditor.Instance.SendConvertAuthority(userRoomAuthority);
+			UserRoomAuthorityEditor.Instance.SendConvertAuthority(userRoomAuthority, targetAuthority);
 		}
 
 		public void RefreshButton()

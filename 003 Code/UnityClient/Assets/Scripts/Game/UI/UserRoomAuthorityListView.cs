@@ -32,16 +32,24 @@ namespace NextReality.Game.UI {
 
 			userRoomAuthorityListElements.Add(userAuthority.user.user_id, element);
 
-		}		
-		
-		public void RemoveUserRoomAuthority(UserRoomAuthority userAuthority)
+		}
+
+		public void RemoveUserRoomAuthority(string userId)
 		{
+			if (!userRoomAuthorityListElements.ContainsKey(userId)) return;
+
 			UserRoomAuthorityListElement element;
-			if(userRoomAuthorityListElements.TryGetValue(userAuthority.user.user_id, out element))
+			if (userRoomAuthorityListElements.TryGetValue(userId, out element))
 			{
-				userRoomAuthorityListElements.Remove(userAuthority.user.user_id);
+				userRoomAuthorityListElements.Remove(userId);
 				GameObject.Destroy(element.gameObject);
 			}
+
+		}
+
+		public void RemoveUserRoomAuthority(UserRoomAuthority userAuthority)
+		{
+			RemoveUserRoomAuthority(userAuthority.user.user_id);
 
 		}
 

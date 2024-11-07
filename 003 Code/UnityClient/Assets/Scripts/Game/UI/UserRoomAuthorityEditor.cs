@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NextReality.Game.UI
 {
@@ -32,9 +33,10 @@ namespace NextReality.Game.UI
 		public UserRoomAuthorityListView userListView;
 		public UserRoomAuthorityListView managerListView;
 
-		public UserRoomAuthorityListElement listElementPrefab;
+		[SerializeField] private Button closeButton;
+		[SerializeField] private GameObject editorViewer;
 
-		private string creatorListServerUrl;
+		public UserRoomAuthorityListElement listElementPrefab;
 
 
 		private void Awake()
@@ -53,11 +55,12 @@ namespace NextReality.Game.UI
 		private void Start()
 		{
 			httpRequests = Utilities.HttpUtil;
-
-			creatorListServerUrl = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.CreatorList);
-
 			ResetUserList();
 
+			closeButton.onClick.AddListener(() =>
+			{
+				SetActiveViewer(false);
+			});
 		}
 
 		public void ResetUserList()
@@ -75,7 +78,7 @@ namespace NextReality.Game.UI
 				{ "map_id", mapId.ToString() }
 			};
 
-			StartCoroutine(httpRequests.RequestGet(creatorListServerUrl, queryPair, (result) =>
+			StartCoroutine(httpRequests.RequestGet(httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.CreatorList), queryPair, (result) =>
 			{
 				try
 				{
@@ -89,7 +92,11 @@ namespace NextReality.Game.UI
 
 							SetUserRoomAuthority(item, RoomAuthority.Manager);
 						}
-                    }
+
+						if (response.message.admin_id == Managers.User.Id) Managers.GameSettingController.ActiveRoomAuthorityEditButton();
+
+						SetUserRoomAuthority(response.message.admin_id, RoomAuthority.Master);
+					}
 					else
 					{
 						
@@ -118,15 +125,43 @@ namespace NextReality.Game.UI
 		}
 
 
-		// Update is called once per frame
-		void Update()
+		public void SetActiveViewer(bool active)
 		{
-
+			editorViewer.SetActive(active);
 		}
 
 		public UserRoomAuthorityListElement GetUser(UserRoomAuthority user)
 		{
 			return userListView.GetUserRoomAuthorityListElement(user);
+		}
+
+		public void SetUserRoomAuthority(UserData user, RoomAuthority roomAuthority = RoomAuthority.Normal, int? mapId = null)
+		{
+			if (roomAuthority == RoomAuthority.Error) return;
+
+			UserRoomAuthority userRoomAuthority;
+			if (allUserAuthorityMap.TryGetValue(user.user_id, out userRoomAuthority))
+			{
+				if (userRoomAuthority.room_authority == RoomAuthority.Normal) userRoomAuthority.room_authority = roomAuthority;
+			}
+			else
+			{
+				if (mapId == null) mapId = Managers.Map.map_id;
+				userRoomAuthority = new UserRoomAuthority();
+				userRoomAuthority.user = user;
+				userRoomAuthority.room_authority = roomAuthority;
+				userRoomAuthority.map_id = mapId.Value;
+			}
+
+			if (roomAuthority == RoomAuthority.Normal)
+			{
+				userListView.AddUserRoomAuthority(userRoomAuthority);
+				managerListView.RemoveUserRoomAuthority(userRoomAuthority);
+			}
+			else if (roomAuthority == RoomAuthority.Manager || roomAuthority == RoomAuthority.Master)
+			{
+				managerListView.AddUserRoomAuthority(userRoomAuthority);
+			}
 		}
 
 		public void SetUserRoomAuthority(string userId, RoomAuthority roomAuthority = RoomAuthority.Normal, int? mapId = null)
@@ -138,27 +173,26 @@ namespace NextReality.Game.UI
 				user.user_id = userId;
 			}
 
-			UserRoomAuthority userRoomAuthority;
-			if(allUserAuthorityMap.TryGetValue(user.user_id, out userRoomAuthority))
+			SetUserRoomAuthority(user, roomAuthority, mapId);
+		}
+
+		public void SetUserRoomAuthority(string userId, string roomAuthorityString)
+		{
+			UserData user;
+			if (!Managers.Client.GetUserMap.TryGetValue(userId, out user))
 			{
-				if(userRoomAuthority.room_authority == RoomAuthority.Normal) userRoomAuthority.room_authority = roomAuthority;
-			} else
-			{
-				if (mapId == null) mapId = Managers.Map.map_id;
-				userRoomAuthority = new UserRoomAuthority();
-				userRoomAuthority.user = user;
-				userRoomAuthority.room_authority = roomAuthority;
-				userRoomAuthority.map_id = mapId.Value;
+				user = new UserData();
+				user.user_id = userId;
 			}
 
-			if(roomAuthority == RoomAuthority.Normal)
+			RoomAuthority targetAuthority = RoomAuthority.Error;
+			switch(roomAuthorityString)
 			{
-				userListView.AddUserRoomAuthority(userRoomAuthority);
-				managerListView.RemoveUserRoomAuthority(userRoomAuthority);
-			} else if(roomAuthority == RoomAuthority.Manager || roomAuthority == RoomAuthority.Master)
-			{
-				managerListView.AddUserRoomAuthority(userRoomAuthority);
+				case "Add": targetAuthority = RoomAuthority.Manager ; break;
+				case "Delete": targetAuthority = RoomAuthority.Normal; break;
 			}
+
+			SetUserRoomAuthority(user, targetAuthority);
 		}
 
 		public void RemoveUser(string userId)
@@ -166,9 +200,10 @@ namespace NextReality.Game.UI
 			UserRoomAuthority userRoomAuthority;
 			if (allUserAuthorityMap.TryGetValue(userId, out userRoomAuthority))
 			{
-				if(userRoomAuthority.room_authority == RoomAuthority.Normal && Managers.Client.GetUserMap.ContainsKey(userId))
+				if(userRoomAuthority.room_authority == RoomAuthority.Normal && !Managers.Client.GetUserMap.ContainsKey(userId))
 				{
 					allUserAuthorityMap.Remove(userId);
+					userListView.RemoveUserRoomAuthority(userId);
 				}
 			}
 		}
@@ -178,18 +213,38 @@ namespace NextReality.Game.UI
 			return managerListView.GetUserRoomAuthorityListElement(user);
 		}
 
-		public void SendConvertAuthority(UserRoomAuthority user)
+		public void SendConvertAuthority(UserRoomAuthority user, RoomAuthority roomAuthority)
 		{
 
-			if (user.room_authority == RoomAuthority.Manager)
-			{
-				user.room_authority = RoomAuthority.Normal;
-			}
-			else if (user.room_authority == RoomAuthority.Normal)
-			{
-				user.room_authority = RoomAuthority.Manager;
-				
-			}
+			user.room_authority = roomAuthority;
+
+			//StartCoroutine(httpRequests.RequestGet(httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.Cre), queryPair, (result) =>
+			//{
+			//	try
+			//	{
+			//		CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
+			//		if (response.CheckResult())
+			//		{
+
+
+			//			foreach (var item in response.message.creator_list)
+			//			{
+
+			//				SetUserRoomAuthority(item, RoomAuthority.Manager);
+			//			}
+			//		}
+			//		else
+			//		{
+
+			//			Debug.Log("Load Fail");
+			//		}
+			//	}
+			//	catch
+			//	{
+			//		Debug.Log("Json Fail");
+			//	}
+
+			//}));
 
 			RefreshAuthorityState(user);
 		}
@@ -197,7 +252,7 @@ namespace NextReality.Game.UI
 		public void RefreshAuthorityState(UserRoomAuthority user)
 		{
 			GetUser(user)?.RefreshButton();
-			SetUserRoomAuthority(user.user.user_id, user.room_authority);
+			SetUserRoomAuthority(user.user.user_id, user.room_authority, user.map_id);
 		}
 
 		public static Color AddAuthorityColor { get { return Instance.addAuthorityColor; } }
