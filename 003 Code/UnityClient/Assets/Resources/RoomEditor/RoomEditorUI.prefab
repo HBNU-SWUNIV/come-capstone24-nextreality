@@ -33,7 +33,7 @@ RectTransform:
   m_Father: {fileID: 7763174960316585093}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -109,7 +109,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.00071049767}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &5516739316978296627
@@ -643,9 +643,9 @@ RectTransform:
   m_Father: {fileID: 6303355758464669923}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -9, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6270616756433340468
 CanvasRenderer:
@@ -709,6 +709,7 @@ GameObject:
   - component: {fileID: 3388454298455796716}
   - component: {fileID: 8456625835870989876}
   - component: {fileID: 2254751785536270787}
+  - component: {fileID: 5871869155635055449}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -770,6 +771,50 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &5871869155635055449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2441834218489619559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 2254751785536270787}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2953176251281277117
 GameObject:
   m_ObjectHideFlags: 0
@@ -1003,7 +1048,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 514356233340778722}
   m_HandleRect: {fileID: 6251430089994500202}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1410,14 +1455,13 @@ GameObject:
   - component: {fileID: 2662525354272314365}
   - component: {fileID: 4132517338771649775}
   - component: {fileID: 6407415284493932059}
-  - component: {fileID: 1815330335530036869}
   m_Layer: 0
   m_Name: RoomEditorCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &844741137861224619
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1501,25 +1545,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &1815330335530036869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6396419175582838229}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb9a43a3a01cf3d47815047cc5e4323f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  addAuthorityColor: {r: 0.3647059, g: 0.83137256, b: 0.20784314, a: 1}
-  removeAuthorityColor: {r: 0.83137256, g: 0.34117648, b: 0.20784314, a: 1}
-  masterAuthorityColor: {r: 0.7176471, g: 0.20784314, b: 0.83137256, a: 1}
-  unabledAuthorityColor: {r: 0.8039216, g: 0.7921569, b: 0.80784315, a: 1}
-  userListView: {fileID: 4204630432715988211}
-  managerListView: {fileID: 3503409077567515229}
-  listElementPrefab: {fileID: 1052188078276014024, guid: fb74ad44e0310784a9ffc343fba3c32a, type: 3}
 --- !u!1 &7448253270585434228
 GameObject:
   m_ObjectHideFlags: 0
@@ -1677,7 +1702,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2780918818631719123}
   m_HandleRect: {fileID: 8471937816735045711}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1717,7 +1742,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.00071049767}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &7201133605239842612
@@ -1929,9 +1954,9 @@ RectTransform:
   m_Father: {fileID: 5095188653779214689}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -9, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &3364414037721803009
 CanvasRenderer:
@@ -2017,7 +2042,7 @@ RectTransform:
   m_Father: {fileID: 4355189263237220977}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2068,6 +2093,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4148150130880808439}
+  - component: {fileID: 4824053655123614571}
   m_Layer: 0
   m_Name: RoomEditorUI
   m_TagString: Untagged
@@ -2091,6 +2117,27 @@ Transform:
   - {fileID: 844741137861224619}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4824053655123614571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8820867347355949228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb9a43a3a01cf3d47815047cc5e4323f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addAuthorityColor: {r: 0.3647059, g: 0.83137256, b: 0.20784314, a: 1}
+  removeAuthorityColor: {r: 0.83137256, g: 0.34117648, b: 0.20784314, a: 1}
+  masterAuthorityColor: {r: 0.7176471, g: 0.20784314, b: 0.83137256, a: 1}
+  unabledAuthorityColor: {r: 0.8039216, g: 0.7921569, b: 0.80784315, a: 1}
+  userListView: {fileID: 4204630432715988211}
+  managerListView: {fileID: 3503409077567515229}
+  closeButton: {fileID: 5871869155635055449}
+  editorViewer: {fileID: 6396419175582838229}
+  listElementPrefab: {fileID: 1052188078276014024, guid: fb74ad44e0310784a9ffc343fba3c32a, type: 3}
 --- !u!1 &9129789040248584173
 GameObject:
   m_ObjectHideFlags: 0

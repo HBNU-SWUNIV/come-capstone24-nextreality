@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NextReality.Data.Schema
 {
-	public class ManagerEdit : ZSchema
+	public class ManagerEditSchema : ZSchema
 	{
 		public enum Action
 		{
@@ -18,7 +18,7 @@ namespace NextReality.Data.Schema
 			}
 		}
 
-		public string editroUserId;
+		public string editorUserId;
 		private string action = "Add";
 
 		public void SetAction(string action)
@@ -35,12 +35,20 @@ namespace NextReality.Data.Schema
 			SetAction("Delete");
 		}
 
-		public ManagerEdit() : base() { }
-		public ManagerEdit(string message) : base(message) { }
+		public string authority
+		{
+			get
+			{
+				return action;
+			}
+		}
+
+		public ManagerEditSchema() : base() { }
+		public ManagerEditSchema(string message) : base(message) { }
 
 		protected override ProtocolConverter GetProtocolStreamByIndividual(ProtocolConverter prev)
 		{
-			return prev.Cast(ref editroUserId).Cast(ref action);
+			return prev.Cast(ref editorUserId).Cast(ref action);
 		}
 
 	}
