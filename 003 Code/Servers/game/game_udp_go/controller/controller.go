@@ -27,7 +27,7 @@ var MapidUserList map[string][]string = make(map[string][]string)
 var MapidLockedList map[string][]string = make(map[string][]string)
 var LockObjUser map[string]string = make(map[string]string)
 var MapidCreatorList map[string][]string = make(map[string][]string)
-var UserLoaded map[string]bool = make(map[string]bool)
+var MapidLoadedList map[string][]string = make(map[string][]string)
 
 var ListenerMap = map[string]listeners{
 	"PlayerJoin":    PlayerJoin,
@@ -126,6 +126,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 			// fmt.Printf("User [%s] : Map [%s]\n\n", recvMsg.SendUserId, UserMapid[recvMsg.SendUserId])
 			broadcast(conn, recvMsg.SendUserId, msg, includeSendUserCheck(recvMsg.CommandName))
 		} else {
+			fmt.Println(listenerMsg)
 			errorReturn(conn, recvMsg.SendUserId, msg)
 		}
 
