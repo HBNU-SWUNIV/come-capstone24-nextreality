@@ -219,20 +219,22 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 					}
 				}
 			*/
+			udpAddr, err := net.ResolveUDPAddr("udp", addr)
+			if err != nil {
+				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
+				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Resolve UDP Address"))
+			}
+
 			if len(mapUsers) == 0 {
 				CreatorListLoad()
+				conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";12345678;"+m.SendUserId+";"+mapid+";s"), udpAddr)
 			} else if len(mapUsers) > 0 {
 				stringChan := make(chan string)
 				go FindLoadedPlayer(UserMapid[m.SendUserId], stringChan)
 				randomUser := <-stringChan
 
 				if randomUser != "" {
-					udpAddr, err := net.ResolveUDPAddr("udp", addr)
-					if err != nil {
-						fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
-					} else {
-						conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";12345678;"+m.SendUserId+";"+mapid+";s;"+UserAddr[randomUser]), udpAddr)
-					}
+					conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";12345678;"+m.SendUserId+";"+mapid+";s;"+UserAddr[randomUser]), udpAddr)
 					return true, aurora.Sprintf(aurora.Green("Send After Log Complete"))
 				} else {
 					return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Send After Log"))
