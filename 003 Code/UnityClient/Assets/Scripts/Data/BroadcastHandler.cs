@@ -93,7 +93,7 @@ namespace NextReality.Data
 		// 이벤트를 실행하는 메서드
 		public void InvokeEvent(string wholeMessage)
 		{
-
+			Debug.Log("Print Whole " + wholeMessage);
 			string[] log = wholeMessage.Split(ProtocolConverter.commandSeparator);
 			if (log.Length >= 2)
 			{
