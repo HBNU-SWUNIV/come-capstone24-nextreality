@@ -26,13 +26,15 @@ namespace NextReality.Game.UI
 
 		public void AddUserRoomAuthority(UserRoomAuthority userAuthority)
 		{
-			if (userRoomAuthorityListElements.ContainsKey(userAuthority.user.user_id)) return;
-			UserRoomAuthorityListElement element = GameObject.Instantiate(UserRoomAuthorityEditor.Instance.listElementPrefab, userListVIewContent);
-			element.SetUser(userAuthority);
-
-			
-
-			userRoomAuthorityListElements.Add(userAuthority.user.user_id, element);
+			UserRoomAuthorityListElement element;
+			if(userRoomAuthorityListElements.TryGetValue(userAuthority.user.user_id, out element))
+			{
+				element.SetUser(userAuthority);
+			} else
+			{
+				element = GameObject.Instantiate(UserRoomAuthorityEditor.Instance.listElementPrefab, userListVIewContent);
+				userRoomAuthorityListElements.Add(userAuthority.user.user_id, element);
+			}
 
 		}
 

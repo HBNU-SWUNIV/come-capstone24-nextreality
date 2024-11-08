@@ -1,5 +1,6 @@
 using NextReality.Asset;
 using NextReality.Data;
+using NextReality.Data.Schema;
 using NextReality.Networking.Request;
 using NextReality.Networking.Response;
 using System;
@@ -218,42 +219,20 @@ namespace NextReality.Game.UI
 
 			user.room_authority = roomAuthority;
 
-			//StartCoroutine(httpRequests.RequestGet(httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.Cre), queryPair, (result) =>
-			//{
-			//	try
-			//	{
-			//		CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
-			//		if (response.CheckResult())
-			//		{
+			ManagerEditSchema schema = new ManagerEditSchema();
+			if (roomAuthority == RoomAuthority.Normal) schema.SetActionDelete();
+			else if (roomAuthority == RoomAuthority.Manager) schema.SetActionAdd();
 
+			schema.editorUserId = user.user.user_id;
 
-			//			foreach (var item in response.message.creator_list)
-			//			{
-
-			//				SetUserRoomAuthority(item, RoomAuthority.Manager);
-			//			}
-			//		}
-			//		else
-			//		{
-
-			//			Debug.Log("Load Fail");
-			//		}
-			//	}
-			//	catch
-			//	{
-			//		Debug.Log("Json Fail");
-			//	}
-
-			//}));
-
-			RefreshAuthorityState(user);
+			Managers.Network.SendMessage(schema.StringifyData());
 		}
 
-		public void RefreshAuthorityState(UserRoomAuthority user)
-		{
-			GetUser(user)?.RefreshButton();
-			SetUserRoomAuthority(user.user.user_id, user.room_authority, user.map_id);
-		}
+		//public void RefreshAuthorityState(UserRoomAuthority user)
+		//{
+		//	GetUser(user)?.RefreshButton();
+		//	SetUserRoomAuthority(user.user.user_id, user.room_authority, user.map_id);
+		//}
 
 		public static Color AddAuthorityColor { get { return Instance.addAuthorityColor; } }
 		public static Color RemoveAuthorityColor { get { return Instance.removeAuthorityColor; } }
