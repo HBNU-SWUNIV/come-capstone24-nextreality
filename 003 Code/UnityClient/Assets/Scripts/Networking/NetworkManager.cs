@@ -64,7 +64,7 @@ namespace NextReality.Networking
 		void Start()
 		{
 			serverIP = Managers.Conf.GetConfigData("serverIP");
-			serverPort = int.Parse(Managers.Conf.GetConfigData("gameServerPort"));
+			serverPort = int.Parse(Managers.Conf.GetConfigData("udpServerPort"));
 			serverEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), serverPort);
 
 			// 수신 쓰레드 시작

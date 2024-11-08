@@ -3,3 +3,4 @@ assetServerPort	8080
 loginServerPort	8000
 mapServerPort	8070
 gameServerPort	8060
+udpServerPort	8050

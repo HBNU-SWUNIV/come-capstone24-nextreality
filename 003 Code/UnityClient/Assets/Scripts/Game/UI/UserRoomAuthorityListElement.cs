@@ -55,6 +55,7 @@ namespace NextReality.Game.UI
 					break;
 				case RoomAuthority.Master:
 					buttonText.text = "∏∂Ω∫≈Õ";
+					actionButton.enabled = false;
 					actionButtonRenderer.color = UserRoomAuthorityEditor.MasterAuthorityColor;
 					break;
 				default:

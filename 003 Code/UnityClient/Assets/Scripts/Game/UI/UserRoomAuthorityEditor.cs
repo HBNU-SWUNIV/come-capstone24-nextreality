@@ -83,6 +83,7 @@ namespace NextReality.Game.UI
 			{
 				try
 				{
+					Debug.Log("UserRoomAuthorityEditor: " + result);
 					CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
 					if (response.CheckResult())
 					{
@@ -91,12 +92,10 @@ namespace NextReality.Game.UI
                         foreach (var item in response.message.creator_list)
                         {
 
-							SetUserRoomAuthority(item, RoomAuthority.Manager);
+							SetUserRoomAuthority(item, item==response.message.admin_id? RoomAuthority.Master : RoomAuthority.Manager);
 						}
 
 						if (response.message.admin_id == Managers.User.Id) Managers.GameSettingController.ActiveRoomAuthorityEditButton();
-
-						SetUserRoomAuthority(response.message.admin_id, RoomAuthority.Master);
 					}
 					else
 					{
@@ -152,17 +151,26 @@ namespace NextReality.Game.UI
 				userRoomAuthority.user = user;
 				userRoomAuthority.room_authority = roomAuthority;
 				userRoomAuthority.map_id = mapId.Value;
+				allUserAuthorityMap.Add(user.user_id, userRoomAuthority);
 			}
 
-			if (roomAuthority == RoomAuthority.Normal)
+			if (Managers.Client.GetUserMap.ContainsKey(user.user_id))
 			{
 				userListView.AddUserRoomAuthority(userRoomAuthority);
-				managerListView.RemoveUserRoomAuthority(userRoomAuthority);
 			}
-			else if (roomAuthority == RoomAuthority.Manager || roomAuthority == RoomAuthority.Master)
+			if (userRoomAuthority.room_authority == RoomAuthority.Manager || userRoomAuthority.room_authority == RoomAuthority.Master)
 			{
 				managerListView.AddUserRoomAuthority(userRoomAuthority);
+			} else
+			{
+				managerListView.RemoveUserRoomAuthority(userRoomAuthority);
+				if (!Managers.Client.GetUserMap.ContainsKey(user.user_id))
+				{
+					allUserAuthorityMap.Remove(user.user_id);
+				}
 			}
+
+			//Debug.Log("UserRoomAuthorityEditor: List:" + String.Join(",",allUserAuthorityMap.Keys.Count));
 		}
 
 		public void SetUserRoomAuthority(string userId, RoomAuthority roomAuthority = RoomAuthority.Normal, int? mapId = null)
@@ -172,6 +180,18 @@ namespace NextReality.Game.UI
 			{
 				user = new UserData();
 				user.user_id = userId;
+
+				if(roomAuthority == RoomAuthority.Normal)
+				{
+					UserRoomAuthority userRoomAuthority;
+					if (allUserAuthorityMap.TryGetValue(userId, out userRoomAuthority))
+					{
+						allUserAuthorityMap.Remove(userId);
+						userListView.RemoveUserRoomAuthority(userId);
+						//Debug.Log("UserRoomAuthorityEditor: List: " + String.Join(",", allUserAuthorityMap.Keys.Count));
+						return;
+					}
+				}
 			}
 
 			SetUserRoomAuthority(user, roomAuthority, mapId);
@@ -179,12 +199,6 @@ namespace NextReality.Game.UI
 
 		public void SetUserRoomAuthority(string userId, string roomAuthorityString)
 		{
-			UserData user;
-			if (!Managers.Client.GetUserMap.TryGetValue(userId, out user))
-			{
-				user = new UserData();
-				user.user_id = userId;
-			}
 
 			RoomAuthority targetAuthority = RoomAuthority.Error;
 			switch(roomAuthorityString)
@@ -193,21 +207,21 @@ namespace NextReality.Game.UI
 				case "Delete": targetAuthority = RoomAuthority.Normal; break;
 			}
 
-			SetUserRoomAuthority(user, targetAuthority);
+			SetUserRoomAuthority(userId, targetAuthority);
 		}
 
-		public void RemoveUser(string userId)
-		{
-			UserRoomAuthority userRoomAuthority;
-			if (allUserAuthorityMap.TryGetValue(userId, out userRoomAuthority))
-			{
-				if(userRoomAuthority.room_authority == RoomAuthority.Normal && !Managers.Client.GetUserMap.ContainsKey(userId))
-				{
-					allUserAuthorityMap.Remove(userId);
-					userListView.RemoveUserRoomAuthority(userId);
-				}
-			}
-		}
+		//public void RemoveUser(string userId)
+		//{
+		//	UserRoomAuthority userRoomAuthority;
+		//	if (allUserAuthorityMap.TryGetValue(userId, out userRoomAuthority))
+		//	{
+		//		if(userRoomAuthority.room_authority == RoomAuthority.Normal && !Managers.Client.GetUserMap.ContainsKey(userId))
+		//		{
+		//			allUserAuthorityMap.Remove(userId);
+		//			userListView.RemoveUserRoomAuthority(userId);
+		//		}
+		//	}
+		//}
 
 		public UserRoomAuthorityListElement GetUManager(UserRoomAuthority user)
 		{

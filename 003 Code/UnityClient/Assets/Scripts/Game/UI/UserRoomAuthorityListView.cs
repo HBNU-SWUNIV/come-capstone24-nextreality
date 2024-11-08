@@ -29,12 +29,13 @@ namespace NextReality.Game.UI
 			UserRoomAuthorityListElement element;
 			if(userRoomAuthorityListElements.TryGetValue(userAuthority.user.user_id, out element))
 			{
-				element.SetUser(userAuthority);
+				
 			} else
 			{
 				element = GameObject.Instantiate(UserRoomAuthorityEditor.Instance.listElementPrefab, userListVIewContent);
 				userRoomAuthorityListElements.Add(userAuthority.user.user_id, element);
 			}
+			element.SetUser(userAuthority);
 
 		}
 
@@ -48,7 +49,6 @@ namespace NextReality.Game.UI
 				userRoomAuthorityListElements.Remove(userId);
 				GameObject.Destroy(element.gameObject);
 			}
-
 		}
 
 		public void RemoveUserRoomAuthority(UserRoomAuthority userAuthority)
