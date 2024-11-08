@@ -379,7 +379,7 @@ namespace NextReality.Game
 			if (!userMap.ContainsKey(userId)) return;
 
 			userMap.Remove(userId);
-			Managers.UserRoomAuthority.RemoveUser(userId);
+			Managers.UserRoomAuthority.SetUserRoomAuthority(userId);
 		}
 
 		public Dictionary<string, UserData> GetUserMap
