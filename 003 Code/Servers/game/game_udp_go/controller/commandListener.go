@@ -173,6 +173,9 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 
 	// otherMessage 길이 체크
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
+		var returnMessage []byte
+		var modeMessage string
+
 		mapid := m.OtherMessage[1]
 
 		fmt.Println(
@@ -227,38 +230,37 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Resolve UDP Address"))
 			}
 
-			if len(mapUsers) == 0 {
+			if len(mapUsers) == 0 { // 맵에 유저가 아무도 없을 때 => 크리에이터 리스트 전체 로드
 				CreatorListLoad()
-				conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";"+m.SendTime+";"+m.SendUserId+";"+mapid+";;s"), udpAddr)
-			} else if len(mapUsers) > 0 {
+				returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
+				modeMessage = "Main Server Mode"
+			} else if len(mapUsers) > 0 { // 맵에 유저가 있을 때
 				loadedPlayerList := FindLoadedUser(UserMapid[m.SendUserId])
 
-				if len(loadedPlayerList) > 0 {
+				if len(loadedPlayerList) > 0 { // 맵에 ""로딩된 유저"" 가 있을 때
 					userString := strings.Join(loadedPlayerList, ";")
-					returnMessage := []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";" + userString + ";s")
-					fmt.Printf("Return Message : %s", returnMessage)
-					conn.WriteToUDP(returnMessage, udpAddr)
-					return true, aurora.Sprintf(aurora.Green("Send PlayerJoin Return(TCP Mode) Complete"))
-				} else {
-					fmt.Printf("Map [%s] Player is not empty. but we can find MapReady User.\n", mapid)
-					returnMessage := []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
-					fmt.Printf("Return Message : %s", returnMessage)
-					conn.WriteToUDP(returnMessage, udpAddr)
+					returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";" + userString + ";s")
+					modeMessage = "TCP Mode"
 
-					return true, aurora.Sprintf(aurora.Green("Send PlayerJoin Return(Main Server Mode) Complete"))
+				} else { // 맵에 ""로딩된 유저"" 가 없을 때
+					fmt.Printf("Map [%s] Player is not empty. but we can find MapReady User.\n", mapid)
+					returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
+					modeMessage = "Main Server Mode"
 				}
 
 			}
 
-			mapUsers = append(MapidUserList[mapid], m.SendUserId)
+			fmt.Printf("Return Message : %s", returnMessage)
+			conn.WriteToUDP(returnMessage, udpAddr)
+
+			MapidUserList[mapid] = append(MapidUserList[mapid], m.SendUserId)
 
 			// if len(mapUsers) > 1 {
 			// sort.Strings(mapUsers) // 굳이 정렬할 필요 없을듯
 			// }
 			fmt.Printf("map Users : %v\n", mapUsers)
-			MapidUserList[mapid] = mapUsers
 
-			return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s]"), m.SendUserId, mapid)
+			return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s] | Mode : %s"), m.SendUserId, mapid, modeMessage)
 		} else if isUserExists { // 이미 유저ID가 있을 경우
 			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is already in this game."), m.SendUserId)
 		} else if isAddrExists { // 이미 접속한 IP가 등록되어 있었을 경우
