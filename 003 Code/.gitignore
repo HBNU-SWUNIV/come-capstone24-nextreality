@@ -2,3 +2,4 @@
 .vs/
 **/.metadata/
 Servers/**/logfile.txt
+**/build_info.txt

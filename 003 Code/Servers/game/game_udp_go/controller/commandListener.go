@@ -111,7 +111,9 @@ func otherMessageLengthCheck(commandName string, messageLength int) bool {
 		return messageLength == 8
 	case "AssetMove":
 		return messageLength == 4
-	case "PlayerJoin", "PlayerMove", "ManagerEdit":
+	case "PlayerJoin":
+		return messageLength == 3
+	case "PlayerMove", "ManagerEdit":
 		return messageLength == 2
 	case "AssetDelete", "AssetSelect", "AssetDeselect":
 		return messageLength == 1
@@ -166,7 +168,7 @@ func isAdmin(userId string) bool {
 
 func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 	// PlayerJoin 메시지 형태 :
-	// PlayerJoin$sendUserId;SendTime;SendUserNickname;MapId
+	// PlayerJoin$sendUserId;SendTime;SendUserNickname;MapId;;
 	// otherMessage length: 2
 
 	// otherMessage 길이 체크
@@ -227,19 +229,19 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 
 			if len(mapUsers) == 0 {
 				CreatorListLoad()
-				conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";12345678;"+m.SendUserId+";"+mapid+";s"), udpAddr)
+				conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";"+m.SendTime+";"+m.SendUserId+";"+mapid+";;s"), udpAddr)
 			} else if len(mapUsers) > 0 {
 				loadedPlayerList := FindLoadedUser(UserMapid[m.SendUserId])
 
 				if len(loadedPlayerList) > 0 {
 					userString := strings.Join(loadedPlayerList, ";")
-					returnMessage := []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";s;" + userString)
+					returnMessage := []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";" + userString + ";s")
 					fmt.Printf("Return Message : %s", returnMessage)
 					conn.WriteToUDP(returnMessage, udpAddr)
 					return true, aurora.Sprintf(aurora.Green("Send PlayerJoin Return(TCP Mode) Complete"))
 				} else {
 					fmt.Printf("Map [%s] Player is not empty. but we can find MapReady User.\n", mapid)
-					returnMessage := []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";s")
+					returnMessage := []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
 					fmt.Printf("Return Message : %s", returnMessage)
 					conn.WriteToUDP(returnMessage, udpAddr)
 
@@ -450,6 +452,10 @@ func FindLoadedUser(mapid string) []string {
 	*/
 
 	loadedUsers := MapidLoadedList[mapid]
+
+	if len(loadedUsers) == 0 {
+		return nil
+	}
 
 	selectedUsers := []string{}
 

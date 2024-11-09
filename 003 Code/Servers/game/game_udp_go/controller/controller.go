@@ -123,12 +123,14 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 			if recvMsg.CommandName == "MapReady" {
 				return
 			}
+
 			// fmt.Printf("User [%s] : Map [%s]\n\n", recvMsg.SendUserId, UserMapid[recvMsg.SendUserId])
 			broadcast(conn, recvMsg.SendUserId, msg, includeSendUserCheck(recvMsg.CommandName))
 		} else {
-			fmt.Println(listenerMsg)
+
 			errorReturn(conn, recvMsg.SendUserId, msg)
 		}
+		fmt.Println(listenerMsg)
 
 		if recvMsg.CommandName == "PlayerLeave" {
 			// fmt.Printf("Removed User [%s]\n\n\n", recvMsg.SendUserId)
@@ -181,6 +183,7 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 		}
 		fmt.Printf("]\n")
 	*/
+	fmt.Printf("Map User : [%s]", mapUsers)
 
 	for _, user := range mapUsers {
 		if (user == sendUserId) && !includeSendUser {
@@ -190,7 +193,8 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 			if err != nil {
 				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
 			} else {
-				// fmt.Println(originalMessage + ";s")
+				fmt.Printf("Broadcasting to [%s] : ", user)
+				fmt.Println(originalMessage + ";s")
 				go conn.WriteToUDP([]byte(originalMessage+";s"), udpAddr)
 			}
 		}
