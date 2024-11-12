@@ -253,6 +253,8 @@ namespace NextReality.Data
 			{
 				if (schema.isSuccess == "s")
 				{
+					if (!Managers.Client.GetContainPlayer(schema.movePlayerId))
+						Managers.Client.JoinPlayer(schema.movePlayerId, schema.movePlayerId, schema.messageTime);
 					Managers.Client.MovePlayer(schema.movePlayerId, schema.movePosition, schema.moveRotation, schema.messageTime);
 				}
 				else
