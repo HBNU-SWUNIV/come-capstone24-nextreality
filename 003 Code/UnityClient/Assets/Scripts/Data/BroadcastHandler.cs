@@ -106,7 +106,7 @@ namespace NextReality.Data
 		{
 			if (OnBroadcastSchemaMap.ContainsKey(command))
 			{
-				Debug.Log("Schema: " + message);
+				Debug.Log("Schema: " + command +";" + message);
 
 				var schema = SchemaTypeMap[command](message);
 				OnBroadcastSchemaMap[command]?.Invoke(schema);
