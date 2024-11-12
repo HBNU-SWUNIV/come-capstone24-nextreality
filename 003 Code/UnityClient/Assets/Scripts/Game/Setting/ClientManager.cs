@@ -140,7 +140,7 @@ namespace NextReality.Game
 				{
 					myPlayerAvatar = Instantiate(playerAvatarPrefabs);
 
-					myPlayerAvatar.Init();
+					myPlayerAvatar.Init(playerId);
 
 					myPlayerAvatar.transform.position = spawnPoint.position;
 					myPlayerAvatar.transform.rotation = spawnPoint.rotation;

@@ -60,6 +60,8 @@ namespace NextReality.Game
 
 		bool jumpTrigger = false;
 
+		private string playerId;
+
 		private void Awake()
 		{
 			if(characterController == null) characterController = GetComponent<CharacterController>();
@@ -72,8 +74,10 @@ namespace NextReality.Game
 			if (IsLocal) StartCoroutine(ReplaceSpawnPoint());
 		}
 
-		public void Init()
+		public void Init(string playerId)
 		{
+			this.playerId = playerId;
+
 			characterController = GetComponent<CharacterController>();
 			animator = GetComponent<Animator>();
 			if (headIK == null)
@@ -132,8 +136,11 @@ namespace NextReality.Game
 			}
 
 			moveDirection.y = yVelocity;
-			characterController.Move(moveDirection * intervalCallDeltaTime);
+			moveDirection = new Vector3(moveDirection.x * delta, moveDirection.y * Time.deltaTime, moveDirection.z * delta);
+			characterController.Move(moveDirection);
 			//Debug.Log("[CharacterMove]" + this.gameObject.name + ": " + moveDirection + "\t" + Math.Round(delta, 7) + "/" + Math.Round(moveDirection.magnitude*delta, 7));
+
+			Debug.Log("[GameAvatar] " + playerId + ": " + intervalCallDeltaTime.ToString() +"/\t" + yVelocity.ToString());
 
 			if (characterController.isGrounded) // 캐릭터가 땅에 붙어있을 때
 			{
@@ -220,6 +227,8 @@ namespace NextReality.Game
 			isJumped = true;
 			if(IsLocal) jumpTrigger = true;
 
+
+			
         }
 		public void Teleport(Vector3 position, Vector3 eulerAngles)
 		{
