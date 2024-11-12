@@ -140,8 +140,6 @@ namespace NextReality.Game
 			characterController.Move(moveDirection);
 			//Debug.Log("[CharacterMove]" + this.gameObject.name + ": " + moveDirection + "\t" + Math.Round(delta, 7) + "/" + Math.Round(moveDirection.magnitude*delta, 7));
 
-			Debug.Log("[GameAvatar] " + playerId + ": " + intervalCallDeltaTime.ToString() +"/\t" + yVelocity.ToString());
-
 			if (characterController.isGrounded) // 캐릭터가 땅에 붙어있을 때
 			{
 				if (!isJumped) yVelocity = 0;
