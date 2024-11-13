@@ -2672,6 +2672,30 @@ PrefabInstance:
       propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8482636028135023106, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8482636028135023106, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8482636028135023106, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8662808668597714766, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8662808668597714766, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8662808668597714766, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8820867347355949228, guid: eeab96bcb74cf4249920d7afdd21e48f, type: 3}
       propertyPath: m_Name
       value: RoomEditorUI

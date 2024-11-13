@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NextReality.Game.UI {
+namespace NextReality.Game.UI
+{
 	public class UserRoomAuthorityListView : MonoBehaviour
 	{
 
-		Dictionary<string,UserRoomAuthorityListElement> userRoomAuthorityListElements = new Dictionary<string, UserRoomAuthorityListElement>();
+		Dictionary<string, UserRoomAuthorityListElement> userRoomAuthorityListElements = new Dictionary<string, UserRoomAuthorityListElement>();
 
 		public RectTransform userListVIewContent;
 
@@ -64,6 +65,11 @@ namespace NextReality.Game.UI {
 				return element;
 			}
 			else return null;
+		}
+
+		public Dictionary<string, UserRoomAuthorityListElement> GetUserRoomAuthorityListElements()
+		{
+			return this.userRoomAuthorityListElements;
 		}
 	}
 
