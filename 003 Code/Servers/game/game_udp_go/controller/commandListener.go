@@ -780,6 +780,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 			if m.OtherMessage[1] == "Add" {
 				newCreatorList = append(creatorList.Creator_list, m.OtherMessage[0])
+
 			} else if m.OtherMessage[1] == "Delete" {
 				for _, creator := range creatorList.Creator_list {
 					if m.OtherMessage[0] == creator {
@@ -793,7 +794,9 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 				return false, aurora.Sprintf(aurora.Yellow("Error : Unavailable Command [%s]"), m.OtherMessage[1])
 			}
 
-			filter = bson.M{"ID": creatorList.ID}
+			fmt.Printf("New Creator List : %s\n", newCreatorList)
+
+			filter = bson.M{"map_id": sendUserMapid}
 			update := bson.M{
 				"$set": bson.M{
 					"creator_list": newCreatorList,
