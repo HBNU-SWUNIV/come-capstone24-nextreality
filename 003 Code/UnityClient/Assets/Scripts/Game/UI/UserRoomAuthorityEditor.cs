@@ -39,6 +39,7 @@ namespace NextReality.Game.UI
 
 		public UserRoomAuthorityListElement listElementPrefab;
 
+		private bool isCreatorListReady = false;
 
 		private void Awake()
 		{
@@ -87,15 +88,23 @@ namespace NextReality.Game.UI
 					CreatorListResponseData response = JsonUtility.FromJson<CreatorListResponseData>(result);
 					if (response.CheckResult())
 					{
+						isCreatorListReady = true;
 
 
-                        foreach (var item in response.message.creator_list)
+						foreach (var item in response.message.creator_list)
                         {
 
-							SetUserRoomAuthority(item, item==response.message.admin_id? RoomAuthority.Master : RoomAuthority.Manager);
+							SetUserRoomAuthority(item, item==response.message.admin_id? RoomAuthority.Master : RoomAuthority.Manager, mapId);
 						}
 
-						if (response.message.admin_id == Managers.User.Id) Managers.GameSettingController.ActiveRoomAuthorityEditButton();
+                        foreach (var item in Managers.Client.GetUserMap)
+                        {
+                            if(!response.message.creator_list.Contains(item.Key))
+							{
+								SetUserRoomAuthority(item.Key, RoomAuthority.Normal, mapId);
+							}
+                        }
+                        if (response.message.admin_id == Managers.User.Id) Managers.GameSettingController.ActiveRoomAuthorityEditButton();
 					}
 					else
 					{
@@ -135,21 +144,28 @@ namespace NextReality.Game.UI
 			return userListView.GetUserRoomAuthorityListElement(user);
 		}
 
-		public void SetUserRoomAuthority(UserData user, RoomAuthority roomAuthority = RoomAuthority.Normal, int? mapId = null)
+		public void SetUserRoomAuthority(UserData user, RoomAuthority roomAuthority = RoomAuthority.None, int? mapId = null)
 		{
 			if (roomAuthority == RoomAuthority.Error) return;
 
 			UserRoomAuthority userRoomAuthority;
 			if (allUserAuthorityMap.TryGetValue(user.user_id, out userRoomAuthority))
 			{
-				if (userRoomAuthority.room_authority == RoomAuthority.Normal) userRoomAuthority.room_authority = roomAuthority;
+				if(roomAuthority != RoomAuthority.None) userRoomAuthority.room_authority = roomAuthority;
 			}
 			else
 			{
 				if (mapId == null) mapId = Managers.Map.map_id;
 				userRoomAuthority = new UserRoomAuthority();
 				userRoomAuthority.user = user;
-				userRoomAuthority.room_authority = roomAuthority;
+				if(isCreatorListReady && roomAuthority == RoomAuthority.None)
+				{
+					userRoomAuthority.room_authority = RoomAuthority.Normal;
+				} else
+				{
+					userRoomAuthority.room_authority = roomAuthority;
+				}
+
 				userRoomAuthority.map_id = mapId.Value;
 				allUserAuthorityMap.Add(user.user_id, userRoomAuthority);
 			}
@@ -173,7 +189,7 @@ namespace NextReality.Game.UI
 			//Debug.Log("UserRoomAuthorityEditor: List:" + String.Join(",",allUserAuthorityMap.Keys.Count));
 		}
 
-		public void SetUserRoomAuthority(string userId, RoomAuthority roomAuthority = RoomAuthority.Normal, int? mapId = null)
+		public void SetUserRoomAuthority(string userId, RoomAuthority roomAuthority = RoomAuthority.None, int? mapId = null)
 		{
 			UserData user;
 			if (!Managers.Client.GetUserMap.TryGetValue(userId, out user))
@@ -181,16 +197,15 @@ namespace NextReality.Game.UI
 				user = new UserData();
 				user.user_id = userId;
 
-				if(roomAuthority == RoomAuthority.Normal)
+				if (allUserAuthorityMap.TryGetValue(userId, out UserRoomAuthority userRoomAuthority))
 				{
-					UserRoomAuthority userRoomAuthority;
-					if (allUserAuthorityMap.TryGetValue(userId, out userRoomAuthority))
+					userListView.RemoveUserRoomAuthority(userId);
+					if (userRoomAuthority.room_authority < RoomAuthority.Manager || roomAuthority < RoomAuthority.Manager)
 					{
 						allUserAuthorityMap.Remove(userId);
-						userListView.RemoveUserRoomAuthority(userId);
-						//Debug.Log("UserRoomAuthorityEditor: List: " + String.Join(",", allUserAuthorityMap.Keys.Count));
-						return;
 					}
+					//Debug.Log("UserRoomAuthorityEditor: List: " + String.Join(",", allUserAuthorityMap.Keys.Count));
+					return;
 				}
 			}
 

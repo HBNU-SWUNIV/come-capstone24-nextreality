@@ -35,7 +35,7 @@ namespace NextReality.Game.UI
 				element = GameObject.Instantiate(UserRoomAuthorityEditor.Instance.listElementPrefab, userListVIewContent);
 				userRoomAuthorityListElements.Add(userAuthority.user.user_id, element);
 			}
-			element.SetUser(userAuthority);
+			element.SetButton(userAuthority);
 
 		}
 

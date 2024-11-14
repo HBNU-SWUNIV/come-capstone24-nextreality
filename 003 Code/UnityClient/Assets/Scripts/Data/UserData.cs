@@ -36,7 +36,8 @@ namespace NextReality.Data
 
     public enum RoomAuthority
     {
-        Error = -1,
+        Error = -2,
+        None = -1,
         Normal = 0,
         Manager = 1,
         Master = 2,
