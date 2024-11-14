@@ -58,7 +58,7 @@ func ItemUnlock(userId string, itemId string) {
 	}
 
 	delete(LockObjUser, itemId)
-	fmt.Printf("Item [%s] Unlocked", itemId)
+	fmt.Printf("Item [%s] Unlocked\n", itemId)
 }
 
 func isLocked(userId string, itemId string) bool {
@@ -136,6 +136,9 @@ func isUserExists(userId string, addr string) bool {
 			userListExt = true
 		}
 	}
+
+	fmt.Printf("\nUser ID : %s\nUser Exist : %t\nAddress Exist : %t\nMap Exist : %t\nUser List Exist : %t\n", userId, usrExt, addExt, mapExt, userListExt)
+
 	return usrExt && addExt && mapExt && userListExt
 }
 
@@ -754,6 +757,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 			sendUserMapid, err := strconv.Atoi(UserMapid[m.SendUserId])
 			if err != nil {
 				log.Fatal()
+				fmt.Printf("Error : Cannot Convert Mapid [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Convert Mapid [%s]"), err)
 			}
 
@@ -765,8 +769,10 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 			if err != nil {
 				if err == mongo.ErrNoDocuments {
+					fmt.Printf("Error : No Creator Lists in Map [%d]", sendUserMapid)
 					return false, aurora.Sprintf(aurora.Yellow("Error : No Creator Lists in Map [%s]"), sendUserMapid)
 				}
+				fmt.Printf("Error : MongoDB Error [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : MongoDB Error [%s]"), err)
 			}
 
@@ -783,6 +789,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 					}
 				}
 			} else {
+				fmt.Printf("Error : Unavailable Command [%s]", m.OtherMessage[1])
 				return false, aurora.Sprintf(aurora.Yellow("Error : Unavailable Command [%s]"), m.OtherMessage[1])
 			}
 
@@ -797,12 +804,14 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 			if err != nil {
 				log.Fatal()
+				fmt.Printf("Error : Creator List Update Error [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Creator List Update Error [%s]"), err)
 			}
 
 			err = CreatorListLoad()
 			if err != nil {
 				log.Fatal()
+				fmt.Printf("Error : Creator List Error [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Refresh Creator List Error [%s]"), err.Error())
 			}
 

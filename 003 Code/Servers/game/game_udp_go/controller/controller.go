@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"time"
 
@@ -54,6 +55,9 @@ func GetRequest(conn *net.UDPConn) {
 	buf := make([]byte, 1024)
 	n, addr, err := conn.ReadFromUDP(buf)
 	if err != nil {
+		log.Println(
+			aurora.Sprintf(
+				aurora.Red("Error : reading from UDP:"), err))
 		fmt.Println(
 			aurora.Sprintf(
 				aurora.Red("Error : reading from UDP:"), err))
@@ -62,6 +66,7 @@ func GetRequest(conn *net.UDPConn) {
 
 	// 수신한 메시지 파싱
 	msg := string(buf[:n])
+	log.Println(msg)
 	fmt.Println(msg)
 
 	go HandleRequest(conn, addr, msg)
@@ -73,6 +78,9 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 
 	recvMsg, recvResult := MessageParser(msg)
 	if !recvResult {
+		log.Println(
+			aurora.Sprintf(
+				aurora.Yellow("Cannot Parsing Message : %s"), msg))
 		fmt.Println(
 			aurora.Sprintf(
 				aurora.Yellow("Cannot Parsing Message : %s"), msg))
@@ -98,6 +106,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 
 		_, err := GameDB.Collection("log").InsertOne(context.TODO(), logData)
 		if err != nil {
+			log.Printf("insert result : %s\n", err)
 			fmt.Printf("insert result : %s\n", err)
 		}
 	}
@@ -116,6 +125,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 		listenerResult, listenerMsg := ListenerMap[recvMsg.CommandName](conn, recvMsg, strAddr)
 
 		if (recvMsg.CommandName == "AssetCreate") || (recvMsg.CommandName == "AssetDelete") || (recvMsg.CommandName == "AssetSelect") || (recvMsg.CommandName == "AssetDeselect") || (recvMsg.CommandName == "MapReady") {
+			log.Println(listenerMsg)
 			fmt.Println(listenerMsg)
 		}
 
@@ -130,6 +140,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 
 			errorReturn(conn, recvMsg.SendUserId, msg)
 		}
+		log.Println(listenerMsg)
 		fmt.Println(listenerMsg)
 
 		if recvMsg.CommandName == "PlayerLeave" {
@@ -138,6 +149,8 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 		}
 
 	} else {
+		log.Println(
+			aurora.Sprintf(aurora.Yellow("Unavailable Command Input : %s"), recvMsg.CommandName))
 		fmt.Println(
 			aurora.Sprintf(aurora.Yellow("Unavailable Command Input : %s"), recvMsg.CommandName))
 	}
@@ -183,7 +196,8 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 		}
 		fmt.Printf("]\n")
 	*/
-	fmt.Printf("Map User : [%s]", mapUsers)
+	log.Printf("Map User : [%s]\n", mapUsers)
+	fmt.Printf("Map User : [%s]\n", mapUsers)
 
 	for _, user := range mapUsers {
 		if (user == sendUserId) && !includeSendUser {
@@ -191,8 +205,11 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 		} else {
 			udpAddr, err := net.ResolveUDPAddr("udp", UserAddr[user])
 			if err != nil {
-				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
+				log.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s\n"), err))
+				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s\n"), err))
 			} else {
+				log.Printf("Broadcasting to [%s] : ", user)
+				log.Println(originalMessage + ";s")
 				fmt.Printf("Broadcasting to [%s] : ", user)
 				fmt.Println(originalMessage + ";s")
 				go conn.WriteToUDP([]byte(originalMessage+";s"), udpAddr)
@@ -204,18 +221,11 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 func errorReturn(conn *net.UDPConn, sendUserId string, originalMessage string) {
 	udpAddr, err := net.ResolveUDPAddr("udp", UserAddr[sendUserId])
 	if err != nil {
+		log.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
 		fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
 	} else {
 		go conn.WriteToUDP([]byte(originalMessage+";f"), udpAddr)
 	}
+	log.Println(aurora.Sprintf(aurora.Yellow("BroadCast Skipped : %s\n"), originalMessage))
 	fmt.Println(aurora.Sprintf(aurora.Yellow("BroadCast Skipped : %s\n"), originalMessage))
 }
-
-/*
-AssetCreate, AssetMove, AssetDelete 는 뒤에 s(success), f(fail)을 붙여서
-본인에게 돌려줘야 할 것 같음
-*/
-
-/*
-TODO : PlayerJoin하면 기존의 플레이어 리스트 보내줘야함
-*/
