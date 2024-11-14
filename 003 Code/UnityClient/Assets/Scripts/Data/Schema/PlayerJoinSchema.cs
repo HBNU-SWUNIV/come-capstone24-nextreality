@@ -15,9 +15,9 @@ namespace NextReality.Data.Schema
             }
         }
         public string joinPlayerNickname;
-		public int mapId; 
-		
+		public int mapId;
 
+		public string targetIP_Port = "";
 		public override string SchemaType
 		{
 			get
@@ -43,7 +43,7 @@ namespace NextReality.Data.Schema
 		protected override ProtocolConverter GetProtocolStreamByIndividual(ProtocolConverter prev)
 		{
 			//Debug.Log("PlayerJoinSchema : " + message);
-			return prev.Cast(ref joinPlayerNickname).Cast(ref mapId);
+			return prev.Cast(ref joinPlayerNickname).Cast(ref mapId).Cast(ref targetIP_Port);
 		}
     }
 }

@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/logrusorgru/aurora"
@@ -58,7 +58,7 @@ func ItemUnlock(userId string, itemId string) {
 	}
 
 	delete(LockObjUser, itemId)
-	fmt.Printf("Item [%s] Unlocked", itemId)
+	fmt.Printf("Item [%s] Unlocked\n", itemId)
 }
 
 func isLocked(userId string, itemId string) bool {
@@ -111,7 +111,9 @@ func otherMessageLengthCheck(commandName string, messageLength int) bool {
 		return messageLength == 8
 	case "AssetMove":
 		return messageLength == 4
-	case "PlayerJoin", "PlayerMove", "ManagerEdit":
+	case "PlayerJoin":
+		return messageLength == 3
+	case "PlayerMove", "ManagerEdit":
 		return messageLength == 2
 	case "AssetDelete", "AssetSelect", "AssetDeselect":
 		return messageLength == 1
@@ -134,6 +136,9 @@ func isUserExists(userId string, addr string) bool {
 			userListExt = true
 		}
 	}
+
+	fmt.Printf("\nUser ID : %s\nUser Exist : %t\nAddress Exist : %t\nMap Exist : %t\nUser List Exist : %t\n", userId, usrExt, addExt, mapExt, userListExt)
+
 	return usrExt && addExt && mapExt && userListExt
 }
 
@@ -166,11 +171,14 @@ func isAdmin(userId string) bool {
 
 func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 	// PlayerJoin 메시지 형태 :
-	// PlayerJoin$sendUserId;SendTime;SendUserNickname;MapId
+	// PlayerJoin$sendUserId;SendTime;SendUserNickname;MapId;;
 	// otherMessage length: 2
 
 	// otherMessage 길이 체크
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
+		var returnMessage []byte
+		var modeMessage string
+
 		mapid := m.OtherMessage[1]
 
 		fmt.Println(
@@ -219,36 +227,43 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 					}
 				}
 			*/
-			if len(mapUsers) == 0 {
-				CreatorListLoad()
-			} else if len(mapUsers) > 0 {
-				stringChan := make(chan string)
-				go FindLoadedPlayer(UserMapid[m.SendUserId], stringChan)
-				randomUser := <-stringChan
+			udpAddr, err := net.ResolveUDPAddr("udp", addr)
+			if err != nil {
+				fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s\n", err)
+				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Resolve UDP Address"))
+			}
 
-				if randomUser != "" {
-					udpAddr, err := net.ResolveUDPAddr("udp", addr)
-					if err != nil {
-						fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s"), err))
-					} else {
-						conn.WriteToUDP([]byte("PlayerJoin$"+m.SendUserId+";12345678;"+m.SendUserId+";"+mapid+";s;"+UserAddr[randomUser]), udpAddr)
-					}
-					return true, aurora.Sprintf(aurora.Green("Send After Log Complete"))
-				} else {
-					return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Send After Log"))
+			if len(mapUsers) == 0 { // 맵에 유저가 아무도 없을 때 => 크리에이터 리스트 전체 로드
+				CreatorListLoad()
+				returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
+				modeMessage = "Main Server Mode"
+			} else if len(mapUsers) > 0 { // 맵에 유저가 있을 때
+				loadedPlayerList := FindLoadedUser(UserMapid[m.SendUserId])
+
+				if len(loadedPlayerList) > 0 { // 맵에 ""로딩된 유저"" 가 있을 때
+					userString := strings.Join(loadedPlayerList, ";")
+					returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";" + userString + ";s")
+					modeMessage = "TCP Mode"
+
+				} else { // 맵에 ""로딩된 유저"" 가 없을 때
+					fmt.Printf("Map [%s] Player is not empty. but we can find MapReady User.\n", mapid)
+					returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
+					modeMessage = "Main Server Mode"
 				}
 
 			}
 
-			mapUsers = append(MapidUserList[mapid], m.SendUserId)
+			fmt.Printf("Return Message : %s", returnMessage)
+			conn.WriteToUDP(returnMessage, udpAddr)
+
+			MapidUserList[mapid] = append(MapidUserList[mapid], m.SendUserId)
 
 			// if len(mapUsers) > 1 {
 			// sort.Strings(mapUsers) // 굳이 정렬할 필요 없을듯
 			// }
 			fmt.Printf("map Users : %v\n", mapUsers)
-			MapidUserList[mapid] = mapUsers
 
-			return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s]"), m.SendUserId, mapid)
+			return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s] | Mode : %s"), m.SendUserId, mapid, modeMessage)
 		} else if isUserExists { // 이미 유저ID가 있을 경우
 			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is already in this game."), m.SendUserId)
 		} else if isAddrExists { // 이미 접속한 IP가 등록되어 있었을 경우
@@ -258,6 +273,25 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 		return false, aurora.Sprintf(aurora.Yellow("Error : PlayerJoin Message Length Error : need 2, received %d"), len(m.OtherMessage))
 	}
 	return false, aurora.Sprintf(aurora.Yellow("Error : Unknown (in PlayerJoin)"))
+}
+
+func contains(slice []string, value string) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+func remove(slice []string, value string) []string {
+	for i, v := range slice {
+		if v == value {
+			// 특정 값을 찾으면 해당 인덱스를 기준으로 슬라이스를 다시 결합하여 반환
+			return append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return slice
 }
 
 func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
@@ -273,7 +307,9 @@ func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
 			go SendBeforeLog(conn, UserMapid[m.SendUserId], m.SendUserId, boolChan)
 			result := <-boolChan
 			if result {
-				UserLoaded[m.SendUserId] = true
+				if !contains(MapidLoadedList[UserMapid[m.SendUserId]], m.SendUserId) {
+					MapidLoadedList[UserMapid[m.SendUserId]] = append(MapidLoadedList[UserMapid[m.SendUserId]], m.SendUserId)
+				}
 				return true, aurora.Sprintf(aurora.Green("Send After Log Complete"))
 			} else {
 				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Send After Log"))
@@ -374,40 +410,83 @@ func FindDocumentsAfterTime(parsedTimeFromMaptime time.Time, mapid string) ([]Lo
 	return results, nil
 }
 
-func FindLoadedPlayer(mapid string, result chan string) {
+func FindLoadedUser(mapid string) []string {
 	// mapid 맵 내에 있는 플레이어 중에서 맵 로딩이 모두 완료된 플레이어의 아이디를 랜덤으로 골라 Return
+	// 241107 변경사항 : 맵 로딩이 완료된 모든 플레이어의 ID를 return
+	// 다섯 번 검사하는 동안 아무도 로딩이 안되면 그냥 nil
 
-	var selectedNumber []int
+	/*
 
-	for {
-		randomNumber := rand.Intn(len(MapidUserList[mapid]))
-		for !contains(selectedNumber, randomNumber) {
-			randomNumber = rand.Intn(len(MapidUserList[mapid]))
-		}
+		var selectedNumber []int
 
-		randomUser := MapidUserList[mapid][randomNumber]
-		loaded, exists := UserLoaded[randomUser]
-		if exists && loaded {
-			result <- randomUser
-		} else {
-			selectedNumber = append(selectedNumber, randomNumber)
-			if len(selectedNumber) == len(MapidUserList[mapid]) {
-				selectedNumber = []int{}
-				time.Sleep(1 * time.Second)
+		for {
+			randomNumber := rand.Intn(len(MapidUserList[mapid]))
+			for !contains(selectedNumber, randomNumber) {
+				randomNumber = rand.Intn(len(MapidUserList[mapid]))
 			}
-			continue
-		}
-	}
-}
 
-// 슬라이스에 값이 있는지 확인하는 함수
-func contains(slice []int, value int) bool {
-	for _, v := range slice {
-		if v == value {
-			return true
+			randomUser := MapidUserList[mapid][randomNumber]
+			loaded, exists := UserLoaded[randomUser]
+			if exists && loaded {
+				result <- randomUser
+			} else {
+				selectedNumber = append(selectedNumber, randomNumber)
+				if len(selectedNumber) == len(MapidUserList[mapid]) {
+					selectedNumber = []int{}
+					time.Sleep(1 * time.Second)
+				}
+				continue
+			}
 		}
+	*/
+
+	fmt.Printf("Find Loaded Player Start\n")
+
+	howMuchUsers := 1
+	epoch := 0
+
+	/*
+		var loadedPlayersCount int
+
+
+			if len(MapidLoadedList[mapid]) <= 10 {
+				loadedPlayersCount = 10
+			} else {
+				loadedPlayersCount = int(float64(len(MapidLoadedList[mapid])) * 0.1)
+			}
+	*/
+
+	loadedUsers := MapidLoadedList[mapid]
+
+	if len(loadedUsers) == 0 {
+		return nil
 	}
-	return false
+
+	selectedUsers := []string{}
+
+	for epoch < howMuchUsers {
+		fmt.Printf("Epoch %d\n", epoch+1)
+		fmt.Printf("Loaded Users : %s\n", loadedUsers)
+
+		firstLoadedUsers := loadedUsers[0]
+		selectedUsers = append(selectedUsers, firstLoadedUsers)
+		loadedUsers = append(loadedUsers[1:], firstLoadedUsers)
+
+		epoch += 1
+	}
+
+	MapidLoadedList[mapid] = loadedUsers
+
+	for index, userid := range selectedUsers {
+		selectedUsers[index] = UserAddr[userid]
+	}
+
+	fmt.Printf("Mapid Loaded List : %s\n", MapidLoadedList[mapid])
+
+	fmt.Printf("Selected Users : %s\n", selectedUsers)
+
+	return selectedUsers
+
 }
 
 func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
@@ -481,7 +560,7 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 				aurora.Sprintf(
 					aurora.Gray(12, "Player [%s] left Map [%s] | (%s)"), m.SendUserId, userMapid, addr))
 
-			delete(UserLoaded, m.SendUserId) // 로딩 된 플레이어 목록에서 삭제
+			MapidLoadedList[userMapid] = remove(MapidLoadedList[userMapid], m.SendUserId) // 로딩 된 플레이어 목록에서 삭제
 
 			return true, aurora.Sprintf(aurora.Green("Success : User [%s] left Map [%s]\n"), m.SendUserId, userMapid)
 		} else {
@@ -678,6 +757,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 			sendUserMapid, err := strconv.Atoi(UserMapid[m.SendUserId])
 			if err != nil {
 				log.Fatal()
+				fmt.Printf("Error : Cannot Convert Mapid [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Convert Mapid [%s]"), err)
 			}
 
@@ -689,8 +769,10 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 			if err != nil {
 				if err == mongo.ErrNoDocuments {
+					fmt.Printf("Error : No Creator Lists in Map [%d]", sendUserMapid)
 					return false, aurora.Sprintf(aurora.Yellow("Error : No Creator Lists in Map [%s]"), sendUserMapid)
 				}
+				fmt.Printf("Error : MongoDB Error [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : MongoDB Error [%s]"), err)
 			}
 
@@ -707,6 +789,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 					}
 				}
 			} else {
+				fmt.Printf("Error : Unavailable Command [%s]", m.OtherMessage[1])
 				return false, aurora.Sprintf(aurora.Yellow("Error : Unavailable Command [%s]"), m.OtherMessage[1])
 			}
 
@@ -721,12 +804,14 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 
 			if err != nil {
 				log.Fatal()
+				fmt.Printf("Error : Creator List Update Error [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Creator List Update Error [%s]"), err)
 			}
 
 			err = CreatorListLoad()
 			if err != nil {
 				log.Fatal()
+				fmt.Printf("Error : Creator List Error [%s]", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Refresh Creator List Error [%s]"), err.Error())
 			}
 

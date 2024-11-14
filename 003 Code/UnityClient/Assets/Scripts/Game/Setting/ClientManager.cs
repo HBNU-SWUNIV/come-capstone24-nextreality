@@ -46,13 +46,19 @@ namespace NextReality.Game
 
 		private void Awake()
 		{
-			if (null == instance)
+			if (instance != null) 
 			{
-				instance = this;
+				Destroy(ClientManager.instance.gameObject);
 			}
-			else
+
+			instance = this;
+		}
+
+		private void OnDestroy()
+		{
+			if (ClientManager.instance == this)
 			{
-				Destroy(this.gameObject);
+				ClientManager.instance = null;
 			}
 		}
 
@@ -134,7 +140,7 @@ namespace NextReality.Game
 				{
 					myPlayerAvatar = Instantiate(playerAvatarPrefabs);
 
-					myPlayerAvatar.Init();
+					myPlayerAvatar.Init(playerId);
 
 					myPlayerAvatar.transform.position = spawnPoint.position;
 					myPlayerAvatar.transform.rotation = spawnPoint.rotation;

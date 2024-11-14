@@ -54,6 +54,8 @@ func MessageParser(msg string) (ReceiveMessage, bool) {
 
 	if len(parsingMessage) > 2 {
 		_otherMessage = parsingMessage[2:]
+		// fmt.Printf("Other Message : %s\n", _otherMessage)
+		// fmt.Printf("Other Message Length : %d\n", len(_otherMessage))
 	}
 
 	recvMsg := ReceiveMessage{

@@ -93,7 +93,7 @@ namespace NextReality.Data
 		// 이벤트를 실행하는 메서드
 		public void InvokeEvent(string wholeMessage)
 		{
-
+			Debug.Log("Print Whole " + wholeMessage);
 			string[] log = wholeMessage.Split(ProtocolConverter.commandSeparator);
 			if (log.Length >= 2)
 			{
@@ -106,6 +106,8 @@ namespace NextReality.Data
 		{
 			if (OnBroadcastSchemaMap.ContainsKey(command))
 			{
+				Debug.Log("Schema: " + command +";" + message);
+
 				var schema = SchemaTypeMap[command](message);
 				OnBroadcastSchemaMap[command]?.Invoke(schema);
 			}
@@ -251,6 +253,8 @@ namespace NextReality.Data
 			{
 				if (schema.isSuccess == "s")
 				{
+					if (!Managers.Client.GetContainPlayer(schema.movePlayerId))
+						Managers.Client.JoinPlayer(schema.movePlayerId, schema.movePlayerId, schema.messageTime);
 					Managers.Client.MovePlayer(schema.movePlayerId, schema.movePosition, schema.moveRotation, schema.messageTime);
 				}
 				else
