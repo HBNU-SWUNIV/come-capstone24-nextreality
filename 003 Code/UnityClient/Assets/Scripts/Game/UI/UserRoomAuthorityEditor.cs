@@ -231,7 +231,7 @@ namespace NextReality.Game.UI
 		public void SendConvertAuthority(UserRoomAuthority user, RoomAuthority roomAuthority)
 		{
 
-			user.room_authority = roomAuthority;
+			//user.room_authority = roomAuthority;
 
 			ManagerEditSchema schema = new ManagerEditSchema();
 			if (roomAuthority == RoomAuthority.Normal) schema.SetActionDelete();
