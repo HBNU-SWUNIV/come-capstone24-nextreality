@@ -128,7 +128,16 @@ namespace NextReality.Asset
 			else
 				mode = 1;
 
-			byte[] astData = FileClient.Instance.RequestFile(downTask.astId, mode);
+			byte[] astData = null;
+			yield return FileClient.Instance.RequestFile(downTask.astId, mode, (result) =>
+			{
+				if (result != null)
+				{
+					astData = result;
+					downTask.isDownSuccess = true;
+				}
+			});
+
 			if (mode == 0)
 			{
 				SaveGltf(downTask.astId, astData.Concat(File.ReadAllBytes(fullFilePath)).ToArray());
@@ -138,7 +147,6 @@ namespace NextReality.Asset
 				SaveGltf(downTask.astId, astData);
 				SaveGltfLocal(downTask.astId, astData[(astData.Length / 2)..]);
 			}
-			yield return null;
 		}
 
 		// 에셋 로드 메서드
