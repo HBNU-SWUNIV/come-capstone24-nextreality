@@ -35,7 +35,7 @@ namespace Assets.Scripts.Networking.P2P
 		{
 			TcpClient client = null;
 			NetworkStream stream = null;
-
+			Debug.Log("serverIP: " + serverIP + " serverPort: " + port);
 			client = new TcpClient();
 			client.Connect(serverIP, port);
 			stream = client.GetStream();

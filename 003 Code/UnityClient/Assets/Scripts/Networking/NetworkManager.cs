@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 
@@ -42,7 +43,7 @@ namespace NextReality.Networking
 				serverEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), serverPort);
 
 				// 포트 자동으로 만듬
-				udpClient = new UdpClient();
+				udpClient = new UdpClient(serverPort);
 				udpClient.EnableBroadcast = true;
 				//udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, serverPort));
 			}
@@ -139,8 +140,15 @@ namespace NextReality.Networking
 
 		public void SetP2PServer()
 		{
+			foreach (var ip in Dns.GetHostAddresses(Dns.GetHostName()))
+			{
+				if (ip.AddressFamily == AddressFamily.InterNetwork) // IPv4만 반환
+				{
+					FileServer.Instance.localAddress = ip;
+					break;
+				}
+			}
 			IPEndPoint localEndPoint = (IPEndPoint)udpClient.Client.LocalEndPoint;
-			FileServer.Instance.localAddress = localEndPoint.Address;
 			FileServer.Instance.port = localEndPoint.Port;
 		}
 	}

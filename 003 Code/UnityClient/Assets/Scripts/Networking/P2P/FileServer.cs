@@ -41,7 +41,7 @@ namespace Assets.Scripts.Networking.P2P
 			Managers.Network.SetP2PServer();
 			listener = new TcpListener(localAddress, port);
 			listener.Start();
-			Debug.Log("Server Start");
+			Debug.Log("Server Start: " + localAddress +" " + port);
 
 			listener.BeginAcceptTcpClient(HandleClientConnected, null);
 		}
