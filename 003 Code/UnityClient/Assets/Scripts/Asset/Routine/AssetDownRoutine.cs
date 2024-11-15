@@ -15,7 +15,7 @@ namespace NextReality.Asset.Routine
             if (!downTask.isDownSuccess)
             {
                 //yield return StartCoroutine(DownGltf(downTask)); // 에셋 다운로드
-                yield return StartCoroutine(AssetDownTest.Instance.AssetSecurity(AssetDownTest.Instance.mode, downTask));
+                yield return StartCoroutine(DownGltf(downTask));
 
                 if (downTask.isFailOrStop) // 다운로드 실패 혹은 취소한 경우
                 {
