@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -130,10 +129,23 @@ func isUserExists(userId string, addr string) bool {
 	userListExt := false
 	if mapExt {
 		mapidUserList := MapidUserList[mapid]
-		mapidUserIndex := sort.SearchStrings(mapidUserList, userId)
+		/*
+			mapidUserIndex := sort.SearchStrings(mapidUserList, userId)
 
-		if mapidUserIndex != len(mapidUserList) {
-			userListExt = true
+			if mapidUserIndex != len(mapidUserList) {
+				userListExt = true
+			}
+		*/
+		for index, user := range mapidUserList {
+			if index != len(mapidUserList)-1 && user != userId {
+				continue
+			}
+			if user == userId {
+				userListExt = true
+				break
+			} else if index == len(mapidUserList)-1 && user != userId {
+				userListExt = false
+			}
 		}
 	}
 

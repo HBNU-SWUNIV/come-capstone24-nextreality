@@ -341,7 +341,7 @@ func DownAssetHalf() gin.HandlerFunc {
 			}
 			result := models.DownFile{
 				ID:   asset.ID.Hex(),
-				File: asset.File,
+				File: asset.File[:int(len(asset.File)/2)],
 			}
 			results = append(results, result)
 		}
