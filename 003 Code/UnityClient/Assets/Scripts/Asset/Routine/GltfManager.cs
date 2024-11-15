@@ -74,7 +74,7 @@ namespace NextReality.Asset
 			while (!downTask.isDownSuccess && !GltfRoutine.GetReLoad()) // 다운로드를 완료하지 않은 경우 반복
 			{
 				string command = string.Format("?id={0}", downTask.astId);
-				Debug.Log("AssetData Down from Server	: " + command);
+				Debug.Log("AssetData Down from Server	: " + serverUrl + command);
 
 				// 에셋 다운
 				yield return StartCoroutine(Utilities.HttpUtil.RequestGet(serverUrl + command, (result) =>
@@ -88,11 +88,13 @@ namespace NextReality.Asset
 							byte[] astData = Convert.FromBase64String(response.data[0].file);
 							if (!File.Exists(fullFilePath))
 							{
+								Debug.Log(astData.Length);
 								SaveGltf(downTask.astId, astData);
 								SaveGltfLocal(downTask.astId, astData[(astData.Length / 2)..]);
 							}
 							else
 							{
+								Debug.Log(astData.Length + " " + File.ReadAllBytes(fullFilePath).Length);
 								SaveGltf(downTask.astId, astData.Concat(File.ReadAllBytes(fullFilePath)).ToArray());
 							}
 							downTask.isDownSuccess = true;

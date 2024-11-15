@@ -86,7 +86,7 @@ namespace NextReality.Networking.Request
                 case ServerEndpoints.AssetDownload:
                     return assetServerUrl + "/asset_down";
                 case ServerEndpoints.AssetDownPart:
-                    return assetServerUrl + "/asset_down_part";
+                    return assetServerUrl + "/asset_down_half";
                 case ServerEndpoints.MapUpload:
                 case ServerEndpoints.MapDownload:
                     return mapServerUrl + "/map_data";
