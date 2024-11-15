@@ -65,10 +65,10 @@ namespace NextReality.Networking.Request
             assetServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("assetServerPort");
             loginServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("loginServerPort");
             mapServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("mapServerPort");
-            Debug.Log("���� URL : " + serverUrl);
-            Debug.Log("���¼��� URL : " + assetServerUrl);
-            Debug.Log("�α��μ��� URL : " +  loginServerUrl);
-            Debug.Log("�ʼ��� URL : " + mapServerUrl);
+            Debug.Log("server URL : " + serverUrl);
+            Debug.Log("assetServer URL : " + assetServerUrl);
+            Debug.Log("loginServer URL : " +  loginServerUrl);
+            Debug.Log("mapServer URL : " + mapServerUrl);
         }
 
         public string GetServerUrl(ServerEndpoints endpointCode)
