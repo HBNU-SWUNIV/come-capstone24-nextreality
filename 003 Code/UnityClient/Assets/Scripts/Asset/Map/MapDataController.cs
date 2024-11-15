@@ -8,6 +8,7 @@ using System;
 using NextReality.Data.Schema;
 using NextReality.Data;
 using NextReality.Asset.Routine;
+using Assets.Scripts.Networking.P2P;
 
 namespace NextReality.Asset
 {
@@ -20,6 +21,7 @@ namespace NextReality.Asset
         public MapData mapInfo = new MapData();
         public int map_id;
         public bool isLoadStart = false;
+        public bool isMapReady = false;
         // public string map_name = "";
 
 
@@ -257,7 +259,7 @@ namespace NextReality.Asset
 
                 ConvertLoadStart();
 
-                DifTimer.Instance.SetStartTime(); // 캐싱 test 시작
+                //DifTimer.Instance.SetStartTime(); // 캐싱 test 시작
 
                 StartCoroutine(ObjectLoad(mapDataTuple.Item2)); // 오브젝트 로드
 
@@ -303,7 +305,9 @@ namespace NextReality.Asset
 
         public void SendMapReady()
         {
+            isMapReady = true;
             Managers.Network.SendMessage(mapReadyMessage);
+            GameObject.Find("P2P").AddComponent<FileServer>();
         }
 
         public string mapReadyMessage

@@ -1,3 +1,4 @@
+using Assets.Scripts.Networking.P2P;
 using NextReality.Data;
 using NextReality.Game;
 using System;
@@ -134,6 +135,13 @@ namespace NextReality.Networking
 			if (endUDPEvnets == null) endUDPEvnets = action;
 			else endUDPEvnets += action;
 
+		}
+
+		public void SetP2PServer()
+		{
+			IPEndPoint localEndPoint = (IPEndPoint)udpClient.Client.LocalEndPoint;
+			FileServer.Instance.localAddress = localEndPoint.Address;
+			FileServer.Instance.port = localEndPoint.Port;
 		}
 	}
 }
