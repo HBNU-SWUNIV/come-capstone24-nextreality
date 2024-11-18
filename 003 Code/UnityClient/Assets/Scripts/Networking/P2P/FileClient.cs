@@ -35,10 +35,19 @@ namespace Assets.Scripts.Networking.P2P
 		{
 			TcpClient client = null;
 			NetworkStream stream = null;
-			Debug.Log("serverIP: " + serverIP + " serverPort: " + port);
-			client = new TcpClient();
-			client.Connect(serverIP, port);
-			stream = client.GetStream();
+			try
+			{
+				Debug.Log("serverIP: " + serverIP + " serverPort: " + port);
+				client = new TcpClient();
+				client.Connect(serverIP, port);
+				stream = client.GetStream();
+			}
+			catch (Exception e)
+			{
+				Debug.LogError("P2P Failure");
+				client.Close();
+				onComplete?.Invoke(null);
+			}
 
 			// 파일 요청 생성 및 전송
 			FileRequest request = new FileRequest { assetId = filename, mode = mode };
@@ -48,6 +57,7 @@ namespace Assets.Scripts.Networking.P2P
 
 			stream.Write(lengthPrefix, 0, lengthPrefix.Length);
 			stream.Write(requestData, 0, requestData.Length);
+
 
 			// 파일 수신 및 저장
 			yield return StartCoroutine(ReceiveFile(stream, onComplete));

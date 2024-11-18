@@ -44,12 +44,21 @@ namespace NextReality.Asset
 			{
 				if (!Managers.Map.isMapReady && FileClient.Instance.serverIP != "")
 				{
-					Debug.Log("Start P2P");
-					yield return StartCoroutine(DownGltfAtPlayer(downTask));
+					Debug.Log("Start AssetDown at P2P");
+					bool P2P_success = false;
+					yield return StartCoroutine(DownGltfAtPlayer(downTask, (result) =>
+					{
+						P2P_success = result;
+					}));
+
+					if (!P2P_success)
+					{
+						yield return StartCoroutine(DownGltfAtServer(downTask));
+					}
 				}
 				else
 				{
-					Debug.Log("Start AssetServer");
+					Debug.Log("Start AssetDown at Server");
 					yield return StartCoroutine(DownGltfAtServer(downTask));
 				}
 			}
@@ -88,13 +97,11 @@ namespace NextReality.Asset
 							byte[] astData = Convert.FromBase64String(response.data[0].file);
 							if (!File.Exists(fullFilePath))
 							{
-								Debug.Log(astData.Length);
 								SaveGltf(downTask.astId, astData);
 								SaveGltfLocal(downTask.astId, astData[(astData.Length / 2)..]);
 							}
 							else
 							{
-								Debug.Log(astData.Length + " " + File.ReadAllBytes(fullFilePath).Length);
 								SaveGltf(downTask.astId, astData.Concat(File.ReadAllBytes(fullFilePath)).ToArray());
 							}
 							downTask.isDownSuccess = true;
@@ -119,7 +126,7 @@ namespace NextReality.Asset
 			}
 		}
 
-		protected IEnumerator DownGltfAtPlayer(LoadTask downTask)
+		protected IEnumerator DownGltfAtPlayer(LoadTask downTask, Action<bool> onComplete)
 		{
 			string fullFilePath = Path.Combine(Application.persistentDataPath, localDirectory, downTask.astId.ToString() + ".glb");
 			int mode = 0;
@@ -136,6 +143,10 @@ namespace NextReality.Asset
 					astData = result;
 					downTask.isDownSuccess = true;
 				}
+				else
+				{
+					onComplete?.Invoke(false);
+				}
 			});
 
 			if (mode == 0)
@@ -147,6 +158,8 @@ namespace NextReality.Asset
 				SaveGltf(downTask.astId, astData);
 				SaveGltfLocal(downTask.astId, astData[(astData.Length / 2)..]);
 			}
+
+			onComplete?.Invoke(true);
 		}
 
 		// 에셋 로드 메서드

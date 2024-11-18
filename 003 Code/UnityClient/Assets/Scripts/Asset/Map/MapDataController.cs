@@ -307,7 +307,7 @@ namespace NextReality.Asset
         {
             isMapReady = true;
             Managers.Network.SendMessage(mapReadyMessage);
-            GameObject.Find("P2P").AddComponent<FileServer>();
+            FileServer.Instance.StartP2P();
         }
 
         public string mapReadyMessage

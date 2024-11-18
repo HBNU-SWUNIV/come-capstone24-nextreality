@@ -35,13 +35,16 @@ namespace Assets.Scripts.Networking.P2P
 			}
 		}
 
-		// Use this for initialization
-		void Start()
+		public void StartP2P()
 		{
-			Managers.Network.SetP2PServer();
+			if (localAddress == null || port == 0)
+			{
+				Managers.Network.SetP2PServer();
+			}
 			listener = new TcpListener(localAddress, port);
+			listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 			listener.Start();
-			Debug.Log("Server Start: " + localAddress +" " + port);
+			Debug.Log("Server Start: " + localAddress + " " + port);
 
 			listener.BeginAcceptTcpClient(HandleClientConnected, null);
 		}
