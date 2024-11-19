@@ -67,3 +67,17 @@ func MessageParser(msg string) (ReceiveMessage, bool) {
 
 	return recvMsg, true
 }
+
+func reverseParser(msg ReceiveMessage, othersLength int) (string, bool) {
+	if len(msg.OtherMessage) < othersLength {
+		return "", false
+	}
+
+	result := msg.CommandName + "$" + msg.SendUserId + ";" + msg.SendTime
+
+	for i := 0; i < othersLength; i++ {
+		result = result + ";" + msg.OtherMessage[i]
+	}
+
+	return result, true
+}

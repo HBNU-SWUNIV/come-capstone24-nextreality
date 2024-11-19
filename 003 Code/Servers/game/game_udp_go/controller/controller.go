@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/logrusorgru/aurora"
@@ -118,11 +119,10 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 	*/
 	// TODO : ValidateMessage 구현
 	// ValidateMessage(recvMsg)
-	strAddr := addr.String()
 
 	if ListenerMap[recvMsg.CommandName] != nil {
 
-		listenerResult, listenerMsg := ListenerMap[recvMsg.CommandName](conn, recvMsg, strAddr)
+		listenerResult, listenerMsg := ListenerMap[recvMsg.CommandName](conn, recvMsg)
 
 		if (recvMsg.CommandName == "AssetCreate") || (recvMsg.CommandName == "AssetDelete") || (recvMsg.CommandName == "AssetSelect") || (recvMsg.CommandName == "AssetDeselect") || (recvMsg.CommandName == "MapReady") {
 			log.Println(listenerMsg)
@@ -178,6 +178,18 @@ func includeSendUserCheck(commandName string) bool {
 // 4. 본인 포함 여부
 func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, includeSendUser bool) {
 
+	if strings.HasPrefix(originalMessage, "PlayerJoin") {
+		parsedMsg, _ := MessageParser(originalMessage)
+		newOriginalMsg, err := reverseParser(parsedMsg, 2)
+		if !err {
+			log.Println(aurora.Sprintf(aurora.Red("Error : PlayerJoin Command Error Occured.\n")))
+			fmt.Println(aurora.Sprintf(aurora.Red("Error : PlayerJoin Command Error Occured.\n")))
+		}
+
+		originalMessage = newOriginalMsg + ";"
+
+	}
+
 	/*
 		fmt.Println(
 			aurora.Sprintf(
@@ -209,13 +221,15 @@ func broadcast(conn *net.UDPConn, sendUserId string, originalMessage string, inc
 				fmt.Println(aurora.Sprintf(aurora.Red("Error : Resolve UDP Address Error Occured.\nError Message : %s\n"), err))
 			} else {
 				log.Printf("Broadcasting to [%s] : ", user)
-				log.Println(originalMessage + ";s")
+				log.Println(originalMessage + ";s\n")
 				fmt.Printf("Broadcasting to [%s] : ", user)
-				fmt.Println(originalMessage + ";s")
+				fmt.Println(originalMessage + ";s\n")
 				go conn.WriteToUDP([]byte(originalMessage+";s"), udpAddr)
 			}
 		}
 	}
+
+	fmt.Printf("Broadcasting done.\n")
 }
 
 func errorReturn(conn *net.UDPConn, sendUserId string, originalMessage string) {

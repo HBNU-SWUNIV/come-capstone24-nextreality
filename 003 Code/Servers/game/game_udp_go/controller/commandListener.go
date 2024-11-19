@@ -18,13 +18,8 @@ import (
 // Listener는 ReceiveMessage와 연결 정보를 받고
 // 서버에 유효한 결과를 도출했는지 bool로 반환함
 // 에러가 있을 경우 string도 추가로 반환
-type listeners func(*net.UDPConn, ReceiveMessage, string) (bool, string)
+type listeners func(*net.UDPConn, ReceiveMessage) (bool, string)
 
-/*
-func ValidateMessage(m ReceiveMessage) {
-
-}
-*/
 func ItemLock(userId string, itemId string) {
 	mapId := UserMapid[userId]
 
@@ -122,9 +117,9 @@ func otherMessageLengthCheck(commandName string, messageLength int) bool {
 	return false
 }
 
-func isUserExists(userId string, addr string) bool {
-	_, usrExt := UserAddr[userId]
-	_, addExt := AddrUser[addr]
+func isUserExists(userId string) bool {
+	userAddr, usrExt := UserAddr[userId]
+	_, addExt := AddrUser[userAddr]
 	mapid, mapExt := UserMapid[userId]
 	userListExt := false
 	if mapExt {
@@ -181,24 +176,28 @@ func isAdmin(userId string) bool {
 	}
 }
 
-func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func PlayerJoin(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// PlayerJoin 메시지 형태 :
-	// PlayerJoin$sendUserId;SendTime;SendUserNickname;MapId;;
-	// otherMessage length: 2
+	// PlayerJoin$sendUserId;SendTime;SendUserNickname;MapId;SendUserIP:Port;
+	// otherMessage length: 3
+
+	// 중요 : PlayerJoin은 Original Message 그대로 주는게 아니라 SendUserIP:Port 부분을 TCP 유저 IP:Port로 바꾸거나, 비워야함 (Main Server쓸 때)
 
 	// otherMessage 길이 체크
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
 		var returnMessage []byte
 		var modeMessage string
+		var alreadyIn bool
 
 		mapid := m.OtherMessage[1]
+		sendUserAddr := m.OtherMessage[2]
 
 		fmt.Println(
 			aurora.Sprintf(
-				aurora.Gray(12, "Player [%s] Join Map [%s] | (%s)"), m.SendUserId, mapid, addr))
+				aurora.Gray(12, "Player [%s] Join Map [%s] | (%s)"), m.SendUserId, mapid, sendUserAddr))
 
-		_, isUserExists := UserAddr[m.SendUserId]
-		_, isAddrExists := AddrUser[addr]
+		userAddr, isUserExists := UserAddr[m.SendUserId]
+		_, isAddrExists := AddrUser[userAddr]
 		/*
 			fmt.Println(
 				aurora.Sprintf(
@@ -209,22 +208,15 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 					aurora.Gray(12, "Users Name : %s"), usersName))
 		*/
 
-		// id와 주소가 접속자 map에 있을 때
-		if isUserExists && isAddrExists {
-			// 같은 맵에 접속하려고 하는거면 true.
-			if UserMapid[m.SendUserId] == mapid {
-				fmt.Println("User Join same map")
-				return true, aurora.Sprintf(aurora.Green("Success : User [%s] joined Map [%s]"), m.SendUserId, mapid)
-			}
-		}
-
-		// id와 주소가 접속자 map에 없을 때
-		if !isUserExists && !isAddrExists {
-			UserAddr[m.SendUserId] = addr
-			AddrUser[addr] = m.SendUserId
+		// id와 주소가 접속자 map에 없을 때 or 있지만 같은 맵에 들어오려고 할 때
+		if (!isUserExists && !isAddrExists) || (isUserExists && isAddrExists && UserMapid[m.SendUserId] == mapid) {
+			UserAddr[m.SendUserId] = sendUserAddr
+			AddrUser[sendUserAddr] = m.SendUserId
 			UserMapid[m.SendUserId] = mapid
 
 			mapUsers := MapidUserList[mapid]
+
+			alreadyIn = isUserExists && isAddrExists && UserMapid[m.SendUserId] == mapid
 
 			/*
 				if len(mapUsers) > 0 {
@@ -239,11 +231,12 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 					}
 				}
 			*/
-			udpAddr, err := net.ResolveUDPAddr("udp", addr)
+			udpAddr, err := net.ResolveUDPAddr("udp", sendUserAddr)
 			if err != nil {
 				fmt.Printf("Error : Resolve UDP Address Error Occured.\nError Message : %s\n", err)
 				return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Resolve UDP Address"))
 			}
+			fmt.Printf("Player Join User IP:Port = %s\n", udpAddr)
 
 			if len(mapUsers) == 0 { // 맵에 유저가 아무도 없을 때 => 크리에이터 리스트 전체 로드
 				CreatorListLoad()
@@ -262,13 +255,21 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 					returnMessage = []byte("PlayerJoin$" + m.SendUserId + ";" + m.SendTime + ";" + m.SendUserId + ";" + mapid + ";;s")
 					modeMessage = "Main Server Mode"
 				}
-
 			}
 
-			fmt.Printf("Return Message : %s", returnMessage)
-			conn.WriteToUDP(returnMessage, udpAddr)
-
-			MapidUserList[mapid] = append(MapidUserList[mapid], m.SendUserId)
+			fmt.Printf("Return Message : %s\n", returnMessage)
+			go conn.WriteToUDP(returnMessage, udpAddr)
+			/*
+				intvalue, udpError := conn.WriteToUDP(returnMessage, udpAddr)
+				fmt.Printf("UDP Result : %d\n", intvalue)
+				if udpError != nil {
+					fmt.Printf("Error : Udp Return Error [%s]\n", udpError)
+					return false, aurora.Sprintf(aurora.Yellow("Error : Udp Return Error [%s]"), udpError)
+				}
+			*/
+			if !alreadyIn {
+				MapidUserList[mapid] = append(MapidUserList[mapid], m.SendUserId)
+			}
 
 			// if len(mapUsers) > 1 {
 			// sort.Strings(mapUsers) // 굳이 정렬할 필요 없을듯
@@ -279,10 +280,10 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string)
 		} else if isUserExists { // 이미 유저ID가 있을 경우
 			return false, aurora.Sprintf(aurora.Yellow("Error : User [%s] is already in this game."), m.SendUserId)
 		} else if isAddrExists { // 이미 접속한 IP가 등록되어 있었을 경우
-			return false, aurora.Sprintf(aurora.Yellow("Error : Address [%s] is already in this game."), addr)
+			return false, aurora.Sprintf(aurora.Yellow("Error : Address [%s] is already in this game."), sendUserAddr)
 		}
 	} else {
-		return false, aurora.Sprintf(aurora.Yellow("Error : PlayerJoin Message Length Error : need 2, received %d"), len(m.OtherMessage))
+		return false, aurora.Sprintf(aurora.Yellow("Error : PlayerJoin Message Length Error : need 3, received %d"), len(m.OtherMessage))
 	}
 	return false, aurora.Sprintf(aurora.Yellow("Error : Unknown (in PlayerJoin)"))
 }
@@ -306,7 +307,7 @@ func remove(slice []string, value string) []string {
 	return slice
 }
 
-func MapReady(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func MapReady(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// MapReady 메시지 형태 :
 	// MapReady$sendUserId;SendTime;
 
@@ -501,17 +502,17 @@ func FindLoadedUser(mapid string) []string {
 
 }
 
-func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func PlayerLeave(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// PlayerLeave 형태 :
 	// PlayerLeave$SendUserId;SendTime
 	// otherMessage length : 0
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		_, isUserAddrExists := UserAddr[m.SendUserId]
+		userAddr, isUserAddrExists := UserAddr[m.SendUserId]
 		_, isUserMapidExists := UserMapid[m.SendUserId]
 
 		if isUserAddrExists {
 			delete(UserAddr, m.SendUserId)
-			delete(AddrUser, addr)
+			delete(AddrUser, userAddr)
 		} else {
 			return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
 		}
@@ -570,7 +571,7 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 			// delete(UserMapid, m.SendUserId)
 			fmt.Println(
 				aurora.Sprintf(
-					aurora.Gray(12, "Player [%s] left Map [%s] | (%s)"), m.SendUserId, userMapid, addr))
+					aurora.Gray(12, "Player [%s] left Map [%s] | (%s)"), m.SendUserId, userMapid, userAddr))
 
 			MapidLoadedList[userMapid] = remove(MapidLoadedList[userMapid], m.SendUserId) // 로딩 된 플레이어 목록에서 삭제
 
@@ -583,21 +584,21 @@ func PlayerLeave(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	return false, aurora.Sprintf(aurora.Yellow("Error : Unknown (in PlayerLeave)"))
 }
 
-func PlayerMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func PlayerMove(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// PlayerMove 형태 :
 	// PlayerMove$SendUserId;SendTime;Position;Rotation
 	// otherMessage length : 2
 
 	// 보낸 유저가 있는 유저면 return true
 	// 딱히 더 할 작업은 없음
-	if isUserExists(m.SendUserId, addr) {
+	if isUserExists(m.SendUserId) {
 		return true, aurora.Sprintf(aurora.Green("Success : User [%s] move\n"), m.SendUserId)
 	} else {
 		return false, aurora.Sprintf(aurora.Yellow("Error : Cannot Found User [%s]"), m.SendUserId)
 	}
 }
 
-func AssetCreate(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func AssetCreate(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// AssetCreate 형태 :
 	// AssetCreate$SendUserId;SendTime;AssetId;ObjectId;Position;Rotation;Scale;Type;MeshCollider;Rigidbody
 	// otherMessage length : 8
@@ -605,7 +606,7 @@ func AssetCreate(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	// 보낸 유저가 있는 유저고, Creator List에 있으면 return true
 	// 딱히 더 할 작업은 없음
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		if isUserExists(m.SendUserId, addr) {
+		if isUserExists(m.SendUserId) {
 			if isCreator(m.SendUserId) {
 				return true, aurora.Sprintf(aurora.Green("Success : User [%s] Asset [%s] Create\n"), m.SendUserId, m.OtherMessage[1])
 			}
@@ -618,7 +619,7 @@ func AssetCreate(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	}
 }
 
-func AssetMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func AssetMove(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// AssetMove 형태 :
 	// AssetMove$SendUserId;SendTime;ObjectId;Position;Rotation;Scale
 	// otherMessage length : 4
@@ -626,7 +627,7 @@ func AssetMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) 
 	// 보낸 유저가 있는 유저고, Creator List에 있으면 return true
 	// 딱히 더 할 작업은 없음
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		if isUserExists(m.SendUserId, addr) {
+		if isUserExists(m.SendUserId) {
 			if isCreator(m.SendUserId) {
 				itemId := m.OtherMessage[0]
 				if isLocked(m.SendUserId, itemId) {
@@ -648,7 +649,7 @@ func AssetMove(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) 
 	}
 }
 
-func AssetDelete(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func AssetDelete(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// PlayerMove 형태 :
 	// PlayerMove$sendUserId;sendTime;ObjectId
 	// otherMessage length : 1
@@ -656,7 +657,7 @@ func AssetDelete(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	// 보낸 유저가 있는 유저고, Creator List에 있으면 return true
 	// 딱히 더 할 작업은 없음
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		if isUserExists(m.SendUserId, addr) {
+		if isUserExists(m.SendUserId) {
 			if isCreator(m.SendUserId) {
 				itemId := m.OtherMessage[0]
 				if isLocked(m.SendUserId, itemId) {
@@ -679,7 +680,7 @@ func AssetDelete(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	}
 }
 
-func AssetSelect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func AssetSelect(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// AssetSelect 형태 :
 	// AssetSelect$SendUserId;SendTime;ObjectId;
 	// otherMessage length : 1
@@ -687,7 +688,7 @@ func AssetSelect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	// Lock 함. 이미 누가 Lock 해놨으면 false 날리기
 
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		if isUserExists(m.SendUserId, addr) {
+		if isUserExists(m.SendUserId) {
 			if isCreator(m.SendUserId) {
 				itemId := m.OtherMessage[0]
 
@@ -708,7 +709,7 @@ func AssetSelect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	}
 }
 
-func AssetDeselect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func AssetDeselect(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// AssetDeselect 형태 :
 	// AssetDeselect$SendUserId;SendTime;ObjectId;
 	// otherMessage length : 1
@@ -716,7 +717,7 @@ func AssetDeselect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, stri
 	// Unlock 함.
 
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		if isUserExists(m.SendUserId, addr) {
+		if isUserExists(m.SendUserId) {
 			if isCreator(m.SendUserId) {
 				itemId := m.OtherMessage[0]
 
@@ -742,21 +743,21 @@ func AssetDeselect(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, stri
 	}
 }
 
-func PlayerJump(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func PlayerJump(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// PlayerJump 형태 :
 	// PlayerJump$SendUserId;SendTime
 	// otherMessage length : 0
 
 	// 보낸 유저가 있는 유저면 return true
 	// 딱히 더 할 작업은 없음
-	if isUserExists(m.SendUserId, addr) {
+	if isUserExists(m.SendUserId) {
 		return true, aurora.Sprintf(aurora.Green("Success : User [%s] Jump\n"), m.SendUserId)
 	} else {
 		return false, aurora.Sprintf(aurora.Yellow("Errodr : Cannot Found User [%s]"), m.SendUserId)
 	}
 }
 
-func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string) {
+func ManagerEdit(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 	// NewMapCreate 형태 :
 	// ManagerEdit$SendUserId;SendTime;EditUserId;{Add|Delete}
 	// otherMessage length : 2
@@ -765,7 +766,7 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage, addr string) (bool, string
 	// 2-1. {Add의 경우} SendUserId가 있는 맵의 Creator List 중 EditUserId가 없어야 함 (있으면 그냥 break)
 	// 2-2. {Delete의 경우} SendUserId가 있는 맵의 Creator List 중 EditUserId가 있어야 함 (없으면 그냥 break)
 	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
-		if isUserExists(m.SendUserId, addr) {
+		if isUserExists(m.SendUserId) {
 			sendUserMapid, err := strconv.Atoi(UserMapid[m.SendUserId])
 			if err != nil {
 				log.Fatal()
