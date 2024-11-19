@@ -25,6 +25,10 @@ namespace NextReality
         public static NetworkManager Network { get { return NetworkManager.Instance; } }
 		public static GltfRoutineManager Gltf { get { return GltfRoutineManager.Instance; } }
 		public static ConfigManager Conf { get { return ConfigManager.Instance; } }
+
+        public static UserRoomAuthorityEditor UserRoomAuthority { get { return UserRoomAuthorityEditor.Instance; } }
+
+        public static GameSettingController GameSettingController { get { return GameSettingController.Instance;} }
     }
 
     public static class Utilities

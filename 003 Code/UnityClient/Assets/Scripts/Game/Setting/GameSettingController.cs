@@ -23,6 +23,33 @@ namespace NextReality.Game
 		bool isDrawerOpen = false;
 
 		Coroutine saveButtonCoroutine = null;
+
+		private static GameSettingController instance = null;
+
+		private void Awake()
+		{
+			if (null == instance)
+			{
+				instance = this;
+			}
+			else
+			{
+				Destroy(this.gameObject);
+			}
+		}
+
+		public static GameSettingController Instance
+		{
+			get
+			{
+				if (null == instance)
+				{
+					return null;
+				}
+				return instance;
+			}
+		}
+
 		// Start is called before the first frame update
 		void Start()
 		{
@@ -70,7 +97,18 @@ namespace NextReality.Game
                     if (saveButtonCoroutine != null) StopCoroutine(saveButtonCoroutine);
                     saveButtonCoroutine = StartCoroutine(StartWaitSaveTime(gameSettingButtons[2]));
                 });
+
+				gameSettingButtons[3].gameObject.SetActive(false);
 			}
+		}
+
+		public void ActiveRoomAuthorityEditButton()
+		{
+			gameSettingButtons[3].gameObject.SetActive(true);
+			gameSettingButtons[3].AddListener(() =>
+			{
+				Managers.UserRoomAuthority.SetActiveViewer(true);
+			});
 		}
 
 		IEnumerator StartWaitSaveTime(GameSettingButton button)

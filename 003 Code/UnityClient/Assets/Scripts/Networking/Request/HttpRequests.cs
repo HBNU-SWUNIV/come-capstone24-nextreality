@@ -26,7 +26,8 @@ namespace NextReality.Networking.Request
             MapUpload = 31,
             MapList = 32,
             MapCreate = 33,
-            MapDownload = 34
+            MapDownload = 34,
+            CreatorList = 35
         }
 
         private static HttpRequests instance = null;
@@ -35,6 +36,8 @@ namespace NextReality.Networking.Request
         public string assetServerUrl;// = "http://172.25.17.134:8080"
         public string loginServerUrl;// = "http://172.25.17.134:8000";
         public string mapServerUrl;// = "http://172.25.17.134:8070";
+        public string gameServerUrl;// = "http://172.25.16.44:8060";
+
 
         public static HttpRequests Instance
         {
@@ -65,6 +68,7 @@ namespace NextReality.Networking.Request
             assetServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("assetServerPort");
             loginServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("loginServerPort");
             mapServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("mapServerPort");
+			gameServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("gameServerPort");
             Debug.Log("server URL : " + serverUrl);
             Debug.Log("assetServer URL : " + assetServerUrl);
             Debug.Log("loginServer URL : " +  loginServerUrl);
@@ -92,6 +96,8 @@ namespace NextReality.Networking.Request
                     return mapServerUrl + "/map_data";
                 case ServerEndpoints.MapList:
                     return mapServerUrl + "/map_list";
+                case ServerEndpoints.CreatorList:
+                    return gameServerUrl + "/creator_list";
                 case ServerEndpoints.MapCreate:
                     return mapServerUrl + "/create_map";
             }
