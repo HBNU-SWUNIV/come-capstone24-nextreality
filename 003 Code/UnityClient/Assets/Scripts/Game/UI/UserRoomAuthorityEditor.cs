@@ -200,12 +200,13 @@ namespace NextReality.Game.UI
 				if (allUserAuthorityMap.TryGetValue(userId, out UserRoomAuthority userRoomAuthority))
 				{
 					userListView.RemoveUserRoomAuthority(userId);
-					if (userRoomAuthority.room_authority < RoomAuthority.Manager || roomAuthority < RoomAuthority.Manager)
+					if (userRoomAuthority.room_authority < RoomAuthority.Manager)
 					{
 						allUserAuthorityMap.Remove(userId);
+						return;
 					}
 					//Debug.Log("UserRoomAuthorityEditor: List: " + String.Join(",", allUserAuthorityMap.Keys.Count));
-					return;
+					
 				}
 			}
 
