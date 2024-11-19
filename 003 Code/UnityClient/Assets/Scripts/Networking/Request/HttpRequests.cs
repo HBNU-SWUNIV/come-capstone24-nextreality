@@ -22,6 +22,7 @@ namespace NextReality.Networking.Request
             AssetSearch = 22,
             AssetInfo = 23,
             AssetDownload = 24,
+            AssetDownPart = 25,
             MapUpload = 31,
             MapList = 32,
             MapCreate = 33,
@@ -68,10 +69,10 @@ namespace NextReality.Networking.Request
             loginServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("loginServerPort");
             mapServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("mapServerPort");
 			gameServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("gameServerPort");
-            Debug.Log("¼­¹ö URL : " + serverUrl);
-            Debug.Log("¿¡¼Â¼­¹ö URL : " + assetServerUrl);
-            Debug.Log("·Î±×ÀÎ¼­¹ö URL : " +  loginServerUrl);
-            Debug.Log("¸Ê¼­¹ö URL : " + mapServerUrl);
+            Debug.Log("server URL : " + serverUrl);
+            Debug.Log("assetServer URL : " + assetServerUrl);
+            Debug.Log("loginServer URL : " +  loginServerUrl);
+            Debug.Log("mapServer URL : " + mapServerUrl);
         }
 
         public string GetServerUrl(ServerEndpoints endpointCode)
@@ -88,6 +89,8 @@ namespace NextReality.Networking.Request
                     return assetServerUrl + "/asset_info";
                 case ServerEndpoints.AssetDownload:
                     return assetServerUrl + "/asset_down";
+                case ServerEndpoints.AssetDownPart:
+                    return assetServerUrl + "/asset_down_half";
                 case ServerEndpoints.MapUpload:
                 case ServerEndpoints.MapDownload:
                     return mapServerUrl + "/map_data";
@@ -156,7 +159,7 @@ namespace NextReality.Networking.Request
         public IEnumerator RequestGet(string url, Action<string> callback)
         {
             UnityWebRequest request = UnityWebRequest.Get(url);
-            // response°¡ ¿Ã ¶§±îÁö ÅÏ ³Ñ±è
+            // responseï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ñ±ï¿½
             string result;
 
             yield return request.SendWebRequest();
