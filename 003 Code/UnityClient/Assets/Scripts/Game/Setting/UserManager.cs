@@ -84,7 +84,7 @@ namespace NextReality.Game
             }
         }
 
-        public bool IsLocalUserId(string userId)
+		public bool IsLocalUserId(string userId)
         {
             return userId == this.userId;
         }

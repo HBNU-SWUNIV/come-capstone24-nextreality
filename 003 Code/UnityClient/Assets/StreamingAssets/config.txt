@@ -1,4 +1,4 @@
-serverIP	192.168.50.244
+serverIP	192.168.50.63
 assetServerPort	8080
 loginServerPort	8000
 mapServerPort	8070

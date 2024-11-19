@@ -7,6 +7,8 @@ using static UnityEngine.Rendering.DebugUI.Table;
 using System;
 using NextReality.Data.Schema;
 using NextReality.Data;
+using NextReality.Asset.Routine;
+using Assets.Scripts.Networking.P2P;
 
 namespace NextReality.Asset
 {
@@ -19,6 +21,7 @@ namespace NextReality.Asset
         public MapData mapInfo = new MapData();
         public int map_id;
         public bool isLoadStart = false;
+        public bool isMapReady = false;
         // public string map_name = "";
 
 
@@ -70,7 +73,7 @@ namespace NextReality.Asset
         //{
         //    if (Input.GetKeyDown(KeyCode.N))
         //    {
-        //        StartCoroutine(MapSave()); // 맵 저장
+        //        StartCoroutine(MapCreate()); // 맵 저장
         //    }
         //    else if (Input.GetKeyDown(KeyCode.M))
         //    {
@@ -78,6 +81,26 @@ namespace NextReality.Asset
         //        StartCoroutine(MapLoad(mapInfo.map_id)); // 맵 불러오기
         //    }
         //}
+
+        public IEnumerator MapCreate()
+        {
+            MapData mapData = new MapData();
+            List<MapObjectData> mapObjDatas = new List<MapObjectData>();
+
+            mapData.map_id = new System.Random().Next(0, 100000);
+            mapData.user_id = Managers.User.Id;
+            mapData.mapName = mapData.map_id.ToString();
+
+            mapData.mapCTime = DateTime.UtcNow.ToString("O");
+            mapData.version = 0;
+            mapData.chunkSize = chunkSize;
+            mapData.chunkNum = 0;
+            mapData.objCount = 0;
+
+            Debug.Log("Map Create Start:  " + mapData.map_id);
+            // 맵 데이터 저장
+            yield return mapToJson.SaveMapData((mapData, mapObjDatas));
+        }
 
         // 맵을 저장하는 메서드
         public IEnumerator MapSave()
@@ -235,6 +258,9 @@ namespace NextReality.Asset
                 DestroyAllGameObjects(); // 모든 게임 오브젝트를 파괴
 
                 ConvertLoadStart();
+
+                //DifTimer.Instance.SetStartTime(); // 캐싱 test 시작
+
                 StartCoroutine(ObjectLoad(mapDataTuple.Item2)); // 오브젝트 로드
 
                 //main.transform.position = Vector3.zero; // 메인 오브젝트 위치를 초기화
@@ -279,7 +305,9 @@ namespace NextReality.Asset
 
         public void SendMapReady()
         {
+            isMapReady = true;
             Managers.Network.SendMessage(mapReadyMessage);
+            FileServer.Instance.StartP2P();
         }
 
         public string mapReadyMessage
