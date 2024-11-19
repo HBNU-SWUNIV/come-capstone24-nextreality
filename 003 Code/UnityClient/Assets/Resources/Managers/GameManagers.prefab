@@ -53,6 +53,66 @@ MonoBehaviour:
   maxSendWaitTickSeconds: 10
   sendMoveDelta: 0.1
   sendIdleDelta: 5
+--- !u!1 &1988525163642017105
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5162804614734027466}
+  - component: {fileID: 6878891696942324079}
+  - component: {fileID: 312989135050146303}
+  m_Layer: 0
+  m_Name: P2P
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5162804614734027466
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988525163642017105}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5455669728647615498}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6878891696942324079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988525163642017105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05d80316ccc17f945a6d69138b1b0eea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverIP: 
+  port: 0
+--- !u!114 &312989135050146303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988525163642017105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d28647ce49ffe9e46bd517f16cf6f253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  port: 0
 --- !u!1 &2013955985982657730
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,6 +298,7 @@ Transform:
   - {fileID: 8723041065091406036}
   - {fileID: 2588478769502211711}
   - {fileID: 6522039904354630048}
+  - {fileID: 5162804614734027466}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5157953378502964558
@@ -286,6 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverIP: 172.25.17.17
   serverPort: 8080
+  random_P2P_Port: 0
 --- !u!1 &5315155293718114527
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,6 +581,7 @@ MonoBehaviour:
     objCount: 0
   map_id: 0
   isLoadStart: 0
+  isMapReady: 0
   main: {fileID: 0}
 --- !u!1001 &440537089392345336
 PrefabInstance:
