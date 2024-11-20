@@ -54,6 +54,8 @@ func MessageParser(msg string) (ReceiveMessage, bool) {
 
 	if len(parsingMessage) > 2 {
 		_otherMessage = parsingMessage[2:]
+		// fmt.Printf("Other Message : %s\n", _otherMessage)
+		// fmt.Printf("Other Message Length : %d\n", len(_otherMessage))
 	}
 
 	recvMsg := ReceiveMessage{
@@ -64,4 +66,18 @@ func MessageParser(msg string) (ReceiveMessage, bool) {
 	}
 
 	return recvMsg, true
+}
+
+func reverseParser(msg ReceiveMessage, othersLength int) (string, bool) {
+	if len(msg.OtherMessage) < othersLength {
+		return "", false
+	}
+
+	result := msg.CommandName + "$" + msg.SendUserId + ";" + msg.SendTime
+
+	for i := 0; i < othersLength; i++ {
+		result = result + ";" + msg.OtherMessage[i]
+	}
+
+	return result, true
 }
