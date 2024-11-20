@@ -51,6 +51,9 @@ namespace NextReality.Game.UI
 
         public TMP_Text pageNumTxt;
 
+        [SerializeField] private MapCreatorPopup mapCreatorPopup;
+        [SerializeField] private Button createPopupButton;
+
         // 추후에 currentPage * 10 = startOffset 하고 거기서부터 10개 받아오면 됨
 
 
@@ -62,6 +65,12 @@ namespace NextReality.Game.UI
 			{
 				Destroy(child.gameObject);
 			}
+            mapCreatorPopup.SetMapPopup(this);
+
+            createPopupButton.onClick.AddListener(() =>
+            {
+                mapCreatorPopup?.Open();
+            });
 		}
 
         public void Open()

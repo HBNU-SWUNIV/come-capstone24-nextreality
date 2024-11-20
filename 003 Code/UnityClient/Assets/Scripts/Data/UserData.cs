@@ -33,6 +33,23 @@ namespace NextReality.Data
         public string nickname;
         public string email;
     }
+
+    public enum RoomAuthority
+    {
+        Error = -2,
+        None = -1,
+        Normal = 0,
+        Manager = 1,
+        Master = 2,
+    }
+
+	[System.Serializable]
+	public class UserRoomAuthority
+	{
+        public UserData user;
+        public RoomAuthority room_authority = RoomAuthority.Normal;
+        public int map_id;
+    }
     
 }
 

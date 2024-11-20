@@ -22,16 +22,22 @@ namespace NextReality.Networking.Request
             AssetSearch = 22,
             AssetInfo = 23,
             AssetDownload = 24,
+            AssetDownPart = 25,
             MapUpload = 31,
             MapList = 32,
-            MapDownload = 34
+            MapCreate = 33,
+            MapDownload = 34,
+            CreatorList = 35
         }
 
         private static HttpRequests instance = null;
 
-        public string assetServerUrl;// = "http://172.25.17.134:8080";
+        public string serverUrl;// = "http://172.25.17.134";
+        public string assetServerUrl;// = "http://172.25.17.134:8080"
         public string loginServerUrl;// = "http://172.25.17.134:8000";
         public string mapServerUrl;// = "http://172.25.17.134:8070";
+        public string gameServerUrl;// = "http://172.25.16.44:8060";
+
 
         public static HttpRequests Instance
         {
@@ -58,9 +64,15 @@ namespace NextReality.Networking.Request
 
         private void Start()
         {
-            assetServerUrl = Managers.Conf.GetConfigData("assetServerUrl");
-            loginServerUrl = Managers.Conf.GetConfigData("loginServerUrl");
-            mapServerUrl = Managers.Conf.GetConfigData("mapServerUrl");
+            serverUrl = "http://" + Managers.Conf.GetConfigData("serverIP");
+            assetServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("assetServerPort");
+            loginServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("loginServerPort");
+            mapServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("mapServerPort");
+			gameServerUrl = serverUrl + ":" + Managers.Conf.GetConfigData("gameServerPort");
+            Debug.Log("server URL : " + serverUrl);
+            Debug.Log("assetServer URL : " + assetServerUrl);
+            Debug.Log("loginServer URL : " +  loginServerUrl);
+            Debug.Log("mapServer URL : " + mapServerUrl);
         }
 
         public string GetServerUrl(ServerEndpoints endpointCode)
@@ -77,13 +89,18 @@ namespace NextReality.Networking.Request
                     return assetServerUrl + "/asset_info";
                 case ServerEndpoints.AssetDownload:
                     return assetServerUrl + "/asset_down";
+                case ServerEndpoints.AssetDownPart:
+                    return assetServerUrl + "/asset_down_half";
                 case ServerEndpoints.MapUpload:
                 case ServerEndpoints.MapDownload:
                     return mapServerUrl + "/map_data";
                 case ServerEndpoints.MapList:
-                    return mapServerUrl + "/maplist";
+                    return mapServerUrl + "/map_list";
+                case ServerEndpoints.CreatorList:
+                    return gameServerUrl + "/creator_list";
+                case ServerEndpoints.MapCreate:
+                    return mapServerUrl + "/create_map";
             }
-
             return null;
         }
 
@@ -142,7 +159,7 @@ namespace NextReality.Networking.Request
         public IEnumerator RequestGet(string url, Action<string> callback)
         {
             UnityWebRequest request = UnityWebRequest.Get(url);
-            // response°¡ ¿Ã ¶§±îÁö ÅÏ ³Ñ±è
+            // responseï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ñ±ï¿½
             string result;
 
             yield return request.SendWebRequest();

@@ -26,7 +26,7 @@ namespace NextReality.Game.UI
             myIndex = index;
             mapListData = data;
             mapName.text = mapListData.mapName;
-            mapMaker.text = "admin";
+            mapMaker.text = mapListData.user_id?? "admin";
 			canvasGroup.alpha = 1;
 
 			Debug.Log("mapInfos[" + myIndex + "] :  name - " + mapListData.mapName + "   id - " + mapListData.map_id);

@@ -1,4 +1,5 @@
-﻿using NextReality.Asset;
+﻿using Assets.Scripts.Networking.P2P;
+using NextReality.Asset;
 using NextReality.Data.Schema;
 using NextReality.Game;
 using System;
@@ -93,7 +94,7 @@ namespace NextReality.Data
 		// 이벤트를 실행하는 메서드
 		public void InvokeEvent(string wholeMessage)
 		{
-
+			//Debug.Log("Print Whole " + wholeMessage);
 			string[] log = wholeMessage.Split(ProtocolConverter.commandSeparator);
 			if (log.Length >= 2)
 			{
@@ -106,6 +107,8 @@ namespace NextReality.Data
 		{
 			if (OnBroadcastSchemaMap.ContainsKey(command))
 			{
+				Debug.Log("Schema: " + command + "&" + message);
+
 				var schema = SchemaTypeMap[command](message);
 				OnBroadcastSchemaMap[command]?.Invoke(schema);
 			}
@@ -221,6 +224,22 @@ namespace NextReality.Data
 			{
 				if (schema.isSuccess == "s")
 				{
+					if (schema.userId == schema.joinPlayerId)
+					{
+						if (schema.targetIP_Port != "")
+						{
+							try
+							{
+								string[] IP_Port = schema.targetIP_Port.Split(':');
+								FileClient.Instance.serverIP = IP_Port[0];
+								FileClient.Instance.port = int.Parse(IP_Port[1]);
+							}
+							catch (Exception ex)
+							{
+								Debug.LogError(ex.Message);
+							}
+						}
+					}
 					if (!Managers.Client.GetContainPlayer(schema.joinPlayerId))
 						Managers.Client.JoinPlayer(schema.joinPlayerId, schema.joinPlayerNickname, schema.messageTime);
 				}
@@ -251,6 +270,8 @@ namespace NextReality.Data
 			{
 				if (schema.isSuccess == "s")
 				{
+					if (!Managers.Client.GetContainPlayer(schema.movePlayerId))
+						Managers.Client.JoinPlayer(schema.movePlayerId, schema.movePlayerId, schema.messageTime);
 					Managers.Client.MovePlayer(schema.movePlayerId, schema.movePosition, schema.moveRotation, schema.messageTime);
 				}
 				else
@@ -275,6 +296,17 @@ namespace NextReality.Data
 				else
 				{
 					Debug.Log("Leave Fail");
+				}
+			});
+			AddListener<ManagerEditSchema>((schema) =>
+			{
+				if (schema.isSuccess == "s")
+				{
+					Managers.UserRoomAuthority.SetUserRoomAuthority(schema.editorUserId, schema.authority);
+				}
+				else
+				{
+					Debug.Log("ManagerEdit Fail");
 				}
 			});
 		}

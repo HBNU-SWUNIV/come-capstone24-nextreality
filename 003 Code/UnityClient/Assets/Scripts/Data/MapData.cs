@@ -23,6 +23,7 @@ namespace NextReality.Data
 	{
         public string mapName;
         public int map_id;
+		public string user_id;
     }
 
 	[System.Serializable]
@@ -96,5 +97,13 @@ namespace NextReality.Data
 		float ProtoVector.x { get => x; set { x = value; } }
 		float ProtoVector.y { get => y; set { y = value; } }
 		float ProtoVector.z { get => z; set { z = value; } }
+	}
+
+	[System.Serializable]
+	public class MapCreatorInfo
+	{
+		public int map_id;
+		public string admin_id;
+		public List<string> creator_list = new List<string>();
 	}
 }

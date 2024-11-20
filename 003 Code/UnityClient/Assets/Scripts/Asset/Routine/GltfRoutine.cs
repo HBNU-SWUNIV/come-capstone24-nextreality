@@ -17,6 +17,7 @@ namespace NextReality.Asset.Routine
 			httpRequests = Utilities.HttpUtil;
 			glb_data = new Dictionary<string, byte[]>();
 			gltfServer = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.AssetDownload);
+			gltfPart = httpRequests.GetServerUrl(HttpRequests.ServerEndpoints.AssetDownPart);
 
 			objectDir = Path.Combine(Application.persistentDataPath, localDirectory);
 			if (!Directory.Exists(objectDir)) // 디렉토리가 존재 여부 확인

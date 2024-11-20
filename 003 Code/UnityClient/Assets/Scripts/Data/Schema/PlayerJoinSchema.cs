@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using JetBrains.Annotations;
 
 namespace NextReality.Data.Schema
 {
@@ -15,9 +16,9 @@ namespace NextReality.Data.Schema
             }
         }
         public string joinPlayerNickname;
-		public int mapId; 
-		
+		public int mapId;
 
+		public string targetIP_Port = "";
 		public override string SchemaType
 		{
 			get
@@ -38,12 +39,13 @@ namespace NextReality.Data.Schema
 		{
 			this.joinPlayerNickname = joinPlayerNickname;
 			this.mapId = mapId;
+			this.targetIP_Port = Managers.Network.SetP2PServer();
 		}
 
 		protected override ProtocolConverter GetProtocolStreamByIndividual(ProtocolConverter prev)
 		{
 			//Debug.Log("PlayerJoinSchema : " + message);
-			return prev.Cast(ref joinPlayerNickname).Cast(ref mapId);
+			return prev.Cast(ref joinPlayerNickname).Cast(ref mapId).Cast(ref targetIP_Port);
 		}
     }
 }
