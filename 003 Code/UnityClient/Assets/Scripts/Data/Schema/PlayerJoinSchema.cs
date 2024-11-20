@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using JetBrains.Annotations;
 
 namespace NextReality.Data.Schema
 {
@@ -38,6 +39,7 @@ namespace NextReality.Data.Schema
 		{
 			this.joinPlayerNickname = joinPlayerNickname;
 			this.mapId = mapId;
+			this.targetIP_Port = Managers.Network.SetP2PServer();
 		}
 
 		protected override ProtocolConverter GetProtocolStreamByIndividual(ProtocolConverter prev)
