@@ -134,7 +134,7 @@ namespace NextReality.Game
 			}
 		}
 
-		void CursorOnOff(bool _cursorLock)
+		void CursorOnOff(bool _cursorLock, bool listenerOn = true)
 		{
 			// cursor on -> off
 			if (_cursorLock)
@@ -150,12 +150,17 @@ namespace NextReality.Game
 			}
 			cursorLock = _cursorLock;
 
-			cursorEvent.Invoke(cursorLock);
+			if(listenerOn) cursorEvent.Invoke(cursorLock);
 		}
 
 		private void OnDestroy()
 		{
-			CursorOnOff(false);
+			CursorOnOff(false, false);
+			if (instance == this)
+			{
+				instance = null;
+				Destroy(gameObject);
+			}
 		}
 
 		public void AddCursorEventListener(UnityAction<bool> action)
