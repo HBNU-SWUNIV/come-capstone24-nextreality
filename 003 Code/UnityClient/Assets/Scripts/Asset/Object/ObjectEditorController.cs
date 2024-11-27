@@ -54,6 +54,15 @@ namespace NextReality.Asset
 		{
 			get { return instance; }
 		}
+
+		private void OnDestroy()
+		{
+			if(instance == this)
+			{
+				instance = null;
+				Destroy(gameObject);
+			}
+		}
 		// Start is called before the first frame update
 		void Start()
 		{
