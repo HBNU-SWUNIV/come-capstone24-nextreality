@@ -43,6 +43,7 @@ var ListenerMap = map[string]listeners{
 	"MapReady":      MapReady,
 	"PlayerJump":    PlayerJump,
 	"ManagerEdit":   ManagerEdit,
+	"MapInit":       MapInit,
 }
 
 var GameDB *mongo.Database
@@ -160,7 +161,7 @@ func HandleRequest(conn *net.UDPConn, addr *net.UDPAddr, msg string) {
 
 func includeSendUserCheck(commandName string) bool {
 	switch commandName {
-	case "PlayerLeave", "AssetCreate", "AssetDelete":
+	case "PlayerLeave", "AssetCreate", "AssetDelete", "MapInit":
 		return true
 
 	case "PlayerMove", "AssetMove", "MapReady", "PlayerJump", "PlayerJoin":
