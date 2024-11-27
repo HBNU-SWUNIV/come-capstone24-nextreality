@@ -92,6 +92,7 @@ namespace NextReality.Game
 			
 			bool isGenerated = await gltfImport.InstantiateMainSceneAsync(previewContainer); // 에셋 적용
 			if (!isGenerated || curHash != tempHash) return;
+			previewContainer.GetChild(0).position = Vector3.zero;
             foreach (var item in previewContainer.GetComponentsInChildren<Transform>())
             {
 				item.gameObject.layer = 7;
