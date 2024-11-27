@@ -94,11 +94,24 @@ namespace NextReality.Asset
 						downFailCount = 0;
 						if (response.data.Count != 0 && response.data[0].id.Equals(downTask.astId))
 						{
-							byte[] astData = Convert.FromBase64String(response.data[0].file);
+							string data = response.data[0].file;
+							int len_data = data.Length;
+							int padding = len_data % 4;
+							Debug.Log("padding" +  padding);
+							if (padding > 0)
+							{
+								data = data[..(len_data-2)];
+							}
+							byte[] astData = Convert.FromBase64String(data);
 							if (!File.Exists(fullFilePath))
 							{
+								int ast_offset = astData.Length / 2;
+								while (ast_offset % 3 != 0)
+								{
+									ast_offset -= 1;
+								}
 								SaveGltf(downTask.astId, astData);
-								SaveGltfLocal(downTask.astId, astData[(astData.Length / 2)..]);
+								SaveGltfLocal(downTask.astId, astData[ast_offset..]);
 							}
 							else
 							{
@@ -155,9 +168,14 @@ namespace NextReality.Asset
 			}
 			else if (mode == 1)
 			{
-				SaveGltf(downTask.astId, astData);
-				SaveGltfLocal(downTask.astId, astData[(astData.Length / 2)..]);
-			}
+                int ast_offset = astData.Length / 2;
+                while (ast_offset % 3 != 0)
+                {
+                    ast_offset -= 1;
+                }
+                SaveGltf(downTask.astId, astData);
+                SaveGltfLocal(downTask.astId, astData[ast_offset..]);
+            }
 
 			onComplete?.Invoke(true);
 		}

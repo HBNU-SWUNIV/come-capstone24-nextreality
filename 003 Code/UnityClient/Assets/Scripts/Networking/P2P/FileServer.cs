@@ -83,7 +83,12 @@ namespace Assets.Scripts.Networking.P2P
 				byte[] fileData = GltfManager.GetGlbData()[filename];
 				if (mode == 0)
 				{
-					fileData = fileData[..(fileData.Length / 2)];
+                    int ast_offset = fileData.Length / 2;
+                    while (ast_offset % 3 != 0)
+                    {
+                        ast_offset -= 1;
+                    }
+                    fileData = fileData[..ast_offset];
 				}
 				byte[] fileSizePrefix = BitConverter.GetBytes(fileData.Length);
 
