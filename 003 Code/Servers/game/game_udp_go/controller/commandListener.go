@@ -111,7 +111,7 @@ func otherMessageLengthCheck(commandName string, messageLength int) bool {
 		return messageLength == 2
 	case "AssetDelete", "AssetSelect", "AssetDeselect":
 		return messageLength == 1
-	case "PlayerLeave", "MapReady", "PlayerJump":
+	case "PlayerLeave", "MapReady", "PlayerJump", "MapInit":
 		return messageLength == 0
 	}
 	return false
@@ -258,7 +258,7 @@ func PlayerJoin(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 			}
 
 			fmt.Printf("Return Message : %s\n", returnMessage)
-			go conn.WriteToUDP(returnMessage, udpAddr)
+			conn.WriteToUDP(returnMessage, udpAddr)
 			/*
 				intvalue, udpError := conn.WriteToUDP(returnMessage, udpAddr)
 				fmt.Printf("UDP Result : %d\n", intvalue)
@@ -838,5 +838,20 @@ func ManagerEdit(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
 		}
 	} else {
 		return false, aurora.Sprintf(aurora.Yellow("Error : NewMapCreate Message Length Error : need 1, received %d"), len(m.OtherMessage))
+	}
+}
+
+func MapInit(conn *net.UDPConn, m ReceiveMessage) (bool, string) {
+	// MapInit 형태 :
+	// MapInit$SendUserId;SendTime
+	// otherMessage length : 0
+	if otherMessageLengthCheck(m.CommandName, len(m.OtherMessage)) {
+		if isUserExists(m.SendUserId) && isCreator(m.SendUserId) {
+			return true, aurora.Sprintf(aurora.Green("Success : Map [%s] is Initialized\n"), UserMapid[m.SendUserId])
+		} else {
+			return false, aurora.Sprintf(aurora.Yellow("Error : MapInit User Error. %s is not creator or not in game"), m.SendUserId)
+		}
+	} else {
+		return false, aurora.Sprintf(aurora.Yellow("Error : MapInit Message Length Error : need 0, received %d"), len(m.OtherMessage))
 	}
 }
