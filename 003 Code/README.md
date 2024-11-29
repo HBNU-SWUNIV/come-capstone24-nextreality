@@ -1,8 +1,8 @@
 # Source Code
 
+- Build Files : 클라이언트 빌드 파일
+- Servers : Golang 기반 서버 (에셋, 게임, 로그인, 맵)
 - UnityClient : 유니티 기반의 3D 메타버스 클라이언트
-- Asset echo server : 에셋 업로드/다운로드 확인용 데모 서버
-- Map echo server : 맵 업로드/다운로드 확인용 데모 서버
 
 # Open Source License
 
